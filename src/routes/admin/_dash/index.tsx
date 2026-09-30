@@ -107,7 +107,7 @@ function Overview() {
       <AdminPageHeader title="Overview" description="How Sussflow is doing today." />
       <ErrorNote error={orders.error} />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 [&>*]:min-w-0">
         <Stat
           icon={<Wallet className="size-5" />}
           label="Revenue (all time)"
@@ -137,7 +137,7 @@ function Overview() {
         />
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[1.6fr_1fr]">
+      <div className="mt-5 grid gap-5 xl:grid-cols-[1.6fr_1fr] [&>*]:min-w-0">
         <section className={adminCard}>
           <h2 className="font-display text-lg font-semibold">Revenue · last 30 days</h2>
           {orders.isLoading ? (
@@ -196,7 +196,7 @@ function Overview() {
         </section>
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[1.6fr_1fr]">
+      <div className="mt-5 grid gap-5 xl:grid-cols-[1.6fr_1fr] [&>*]:min-w-0">
         <section className={adminCard}>
           <div className="flex items-center justify-between">
             <h2 className="font-display text-lg font-semibold">Recent orders</h2>

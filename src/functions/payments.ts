@@ -159,7 +159,13 @@ export const initCheckout = createServerFn({ method: "POST" })
 export const verifyPayment = createServerFn({ method: "POST" })
   .validator((input: unknown) =>
     z
-      .object({ reference: z.string().trim().max(60).regex(/^SF-[A-Z0-9]+-[A-Z0-9]+$/i) })
+      .object({
+        reference: z
+          .string()
+          .trim()
+          .max(60)
+          .regex(/^SF-[A-Z0-9]+-[A-Z0-9]+$/i),
+      })
       .parse(input),
   )
   .handler(async ({ data }) => {

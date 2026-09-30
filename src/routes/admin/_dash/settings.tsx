@@ -53,7 +53,7 @@ function SettingsPage() {
         title="Settings"
         description="Delivery fees, pickup details, contact links and admin access."
       />
-      <div className="grid gap-5 xl:grid-cols-2">
+      <div className="grid gap-5 xl:grid-cols-2 [&>*]:min-w-0">
         <StoreSettings />
         <AdminUsers />
       </div>

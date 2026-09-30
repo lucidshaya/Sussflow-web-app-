@@ -194,7 +194,7 @@ function OrderDetail() {
         }
       />
 
-      <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr] [&>*]:min-w-0">
         <div className="space-y-5">
           <section className={adminCard}>
             <h2 className="font-display text-lg font-semibold">Items</h2>

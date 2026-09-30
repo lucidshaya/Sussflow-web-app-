@@ -96,7 +96,7 @@ export function ProductForm({
   };
 
   return (
-    <form onSubmit={submit} className="grid gap-5 xl:grid-cols-[1fr_320px]">
+    <form onSubmit={submit} className="grid gap-5 xl:grid-cols-[1fr_320px] [&>*]:min-w-0">
       <div className={`${adminCard} space-y-4`}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Name *">

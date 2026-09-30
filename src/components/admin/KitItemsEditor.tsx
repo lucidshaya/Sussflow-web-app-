@@ -62,8 +62,10 @@ export function KitItemsEditor({ bundleId }: { bundleId: string }) {
     return (
       <p className="rounded-2xl border border-glass-border bg-glass-soft p-4 text-sm text-foreground/70">
         Run{" "}
-        <code className="font-semibold">supabase/migrations/0005_kits_socials_security.sql</code> in
-        the Supabase SQL editor to enable kit contents.
+        <code className="break-all font-semibold">
+          supabase/migrations/0005_kits_socials_security.sql
+        </code>{" "}
+        in the Supabase SQL editor to enable kit contents.
       </p>
     );
 
@@ -146,7 +148,7 @@ function ItemRow({
   const choices = (products.data ?? []).filter((p) => p.id !== bundleId);
 
   return (
-    <div className="grid gap-2 rounded-2xl border border-glass-border bg-glass-soft p-3 sm:grid-cols-[9rem_1fr_1fr_4.5rem_auto] sm:items-start">
+    <div className="grid gap-2 rounded-2xl border border-glass-border bg-glass-soft p-3 sm:grid-cols-[9rem_1fr_1fr_4.5rem_auto] sm:items-start [&>*]:min-w-0">
       <label className="block text-xs font-semibold text-foreground/55">
         <span className="sm:sr-only">Type</span>
         <select

@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
-import { formatNaira, variantLabel } from "@/lib/format";
+import { formatNaira, soldInPairs, variantLabel } from "@/lib/format";
 import { productsQuery } from "@/lib/queries";
 import type { ProductWithVariants, Variant } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -152,7 +152,9 @@ function PairCard({
               >
                 {variants.map((v) => (
                   <option key={v.id} value={v.id} disabled={v.stock <= 0}>
-                    {variantLabel(v, product.slug) || "Standard"} · {formatNaira(v.price)}
+                    {variantLabel(v, product.slug) ||
+                      (soldInPairs(product.slug) ? "1 pair" : "Single")}{" "}
+                    · {formatNaira(v.price)}
                     {v.stock <= 0 ? " (sold out)" : ""}
                   </option>
                 ))}
