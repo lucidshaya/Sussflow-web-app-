@@ -30,9 +30,10 @@ import {
   type FieldErrors,
 } from "@/lib/validation";
 import { initCheckout } from "@/functions/payments";
+import { privatePage } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/checkout/")({
-  head: () => ({ meta: [{ title: "Checkout | Sussflow" }] }),
+  head: () => privatePage("Checkout | Sussflow"),
   component: CheckoutPage,
 });
 

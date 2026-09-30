@@ -7,18 +7,16 @@ import { glassCard, PageHero, SectionHeading } from "@/components/site/primitive
 import { Button } from "@/components/ui/button";
 import { whatsappHref } from "@/lib/whatsapp";
 import { settingsQuery } from "@/lib/queries";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/store-location")({
-  head: () => ({
-    meta: [
-      { title: "Buy Menstrual Products in Lagos & Across Nigeria | Sussflow" },
-      {
-        name: "description",
-        content:
-          "Pick up reusable pads and menstrual cups from our Iju-axis Lagos store, or order online for nationwide courier and waybill delivery.",
-      },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Buy Menstrual Products in Lagos & Across Nigeria | Sussflow",
+      description:
+        "Pick up reusable pads and menstrual cups from our Iju-axis Lagos store, or order online for nationwide courier and waybill delivery.",
+      path: "/store-location",
+    }),
   component: StoreLocationPage,
 });
 

@@ -13,9 +13,10 @@ import { formatDate, formatNaira } from "@/lib/format";
 import { supabase, unwrap } from "@/lib/supabase";
 import type { Order, Profile } from "@/lib/types";
 import { profileSchema, toFieldErrors, type FieldErrors } from "@/lib/validation";
+import { privatePage } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/account/")({
-  head: () => ({ meta: [{ title: "My account | Sussflow" }] }),
+  head: () => privatePage("My account | Sussflow"),
   component: AccountPage,
 });
 

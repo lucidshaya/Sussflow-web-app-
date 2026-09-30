@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Check, ChevronLeft, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -24,18 +24,34 @@ import { FAQ_GROUPS, PRODUCT_FAQ_GROUP } from "@/content/site";
 import { useCart } from "@/lib/cart";
 import { dealPercent, formatNaira, packLabel, soldInPairs } from "@/lib/format";
 import { bundleItemsQuery, itemsOf, productBySlugQuery } from "@/lib/queries";
+import { productDescription, productJsonLd, seo } from "@/lib/seo";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import type { Variant } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_site/products/$slug")({
-  head: ({ params }) => ({
-    meta: [
-      {
-        title: `${params.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} | Sussflow Nigeria`,
-      },
-    ],
-  }),
+  // Fetch on the server so the HTML carries the product (search engines, link previews).
+  loader: async ({ context: { queryClient }, params }) => {
+    if (!isSupabaseConfigured) return { product: null };
+    const product = await queryClient
+      .ensureQueryData(productBySlugQuery(params.slug))
+      .catch(() => undefined); // network trouble: let the page fetch it in the browser
+    if (product === null) throw notFound();
+    if (product) await queryClient.prefetchQuery(bundleItemsQuery([product.id]));
+    return { product: product ?? null };
+  },
+  head: ({ loaderData }) => {
+    const p = loaderData?.product;
+    if (!p) return { meta: [{ title: "Product | Sussflow Nigeria" }] };
+    return seo({
+      title: `${p.name} | Sussflow Nigeria`,
+      description: productDescription(p),
+      path: `/products/${p.slug}`,
+      image: p.image_url,
+      type: "product",
+      jsonLd: [productJsonLd(p)],
+    });
+  },
   component: ProductPage,
 });
 

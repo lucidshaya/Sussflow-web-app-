@@ -6,20 +6,24 @@ import { KitContents, KitRelated } from "@/components/site/Kit";
 import { EmptyState, glassCard, PageHero, SetupNotice } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
 import { dealPercent, formatNaira, lowestPrice } from "@/lib/format";
-import { bundleItemsQuery, itemsOf, productsQuery } from "@/lib/queries";
+import { bundleItemsQuery, itemsOf, prefetch, productsQuery } from "@/lib/queries";
 import { isSupabaseConfigured } from "@/lib/supabase";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/bundles")({
-  head: () => ({
-    meta: [
-      { title: "Period Care Kits & Bundles | Sussflow Nigeria" },
-      {
-        name: "description",
-        content:
-          "Sussflow kits and bundles designed around different period-care journeys, from first periods to switching to reusable pads and cups.",
-      },
-    ],
-  }),
+  loader: async ({ context: { queryClient } }) => {
+    const bundles = productsQuery({ categorySlug: "bundles" });
+    await prefetch(queryClient, bundles);
+    const ids = queryClient.getQueryData(bundles.queryKey)?.map((b) => b.id) ?? [];
+    if (ids.length) await prefetch(queryClient, bundleItemsQuery(ids));
+  },
+  head: () =>
+    seo({
+      title: "Period Care Kits & Bundles | Sussflow Nigeria",
+      description:
+        "Sussflow kits and bundles designed around different period-care journeys, from first periods to switching to reusable pads and cups.",
+      path: "/bundles",
+    }),
   component: BundlesPage,
 });
 

@@ -1,17 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { ContactLine, LegalPage } from "@/components/site/LegalPage";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy policy | Sussflow" },
-      {
-        name: "description",
-        content: "How Sussflow collects, uses and protects your personal data.",
-      },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Privacy policy | Sussflow",
+      description: "How Sussflow collects, uses and protects your personal data.",
+      path: "/privacy",
+    }),
   component: PrivacyPage,
 });
 

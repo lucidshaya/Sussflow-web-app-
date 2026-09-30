@@ -54,6 +54,22 @@ select id, 'admin' from auth.users where email = 'you@example.com';
    - in Supabase → Authentication → URL configuration, set the Site URL to the live URL;
    - in Paystack, set the webhook to `https://<live-url>/api/paystack/webhook`.
 
+### 6. Custom domain
+
+1. Vercel → Project → Settings → Domains: add the domain and create the DNS records Vercel lists at your registrar. Set it as the primary domain and redirect `sussflow.vercel.app` to it.
+2. Change `SITE_URL` (Production) to `https://<your-domain>` and redeploy. Canonical links, share cards, `robots.txt` and `sitemap.xml` all use it.
+3. Supabase → Authentication → URL configuration: Site URL `https://<your-domain>`, and add `https://<your-domain>/**` to Redirect URLs.
+4. Paystack (Live) → Webhook URL: `https://<your-domain>/api/paystack/webhook`.
+5. Google Search Console: add the domain and submit `https://<your-domain>/sitemap.xml`.
+
+## SEO
+
+- Every public page sets its title, description, canonical URL and share-card tags with `seo()` in `src/lib/seo.ts`; bag, checkout and account pages use `privatePage()` (noindex).
+- Route loaders prefetch Supabase data on the server (`prefetch()` in `src/lib/queries.ts`, hydrated by `src/router.tsx`), so product names, prices and descriptions are in the HTML.
+- Structured data: Organization + WebSite (home), Product with price and stock (product pages), FAQPage (`/faq`).
+- `/sitemap.xml` lists the public pages, categories and every active product; `/robots.txt` points to it.
+- The default share image is `public/og-image.jpg` (1200×630). Product pages use the product photo.
+
 ## Order flow
 
 `pending → paid → processing → shipped → delivered`. Cancelled and failed end the flow.

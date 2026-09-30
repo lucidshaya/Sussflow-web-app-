@@ -12,13 +12,8 @@ import type { ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
 import { CartProvider } from "@/lib/cart";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_TITLE, absoluteUrl } from "@/lib/seo";
 import appCss from "../styles.css?url";
-
-const SITE_TITLE = "Sussflow | Reusable Menstrual Products & Period Care in Nigeria";
-const SITE_DESCRIPTION =
-  "Shop reusable menstrual pads, menstrual cups, period underwear and sustainable menstrual products in Nigeria. Based in Lagos with nationwide delivery. Menstrual health education for schools, NGOs & organisations.";
-const SITE_KEYWORDS =
-  "reusable menstrual products Nigeria, reusable sanitary pads Nigeria, reusable menstrual pads Nigeria, menstrual cup Nigeria, period underwear Nigeria, menstrual products Nigeria, menstrual care products Nigeria, menstrual health Nigeria, sustainable menstrual products Nigeria, reusable pads Lagos, reusable sanitary pads Lagos, menstrual cup Lagos, period underwear Lagos, menstrual products Lagos, buy reusable pads Lagos, buy menstrual cup Lagos, menstrual health education Nigeria, menstrual hygiene education Nigeria, menstrual health education for schools, menstrual health NGO Nigeria, menstrual health CSR Nigeria, reusable sanitary pads for schools";
 
 function NotFoundComponent() {
   return (
@@ -87,11 +82,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "keywords", content: SITE_KEYWORDS },
       { name: "author", content: "Sussflow Reusable Nigeria Limited" },
       { name: "theme-color", content: "#dea8dd" },
+      // Defaults for share cards; pages override these through `seo()` in their head.
       { property: "og:title", content: SITE_TITLE },
       { property: "og:description", content: SITE_DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "en_NG" },
+      { property: "og:site_name", content: "Sussflow" },
+      { property: "og:image", content: absoluteUrl("/og-image.jpg") },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: absoluteUrl("/og-image.jpg") },
     ],
     links: [
       {
@@ -105,6 +106,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,600..900,0..100&family=Poppins:wght@400;500;600;700&display=swap",
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
   }),
   shellComponent: RootShell,

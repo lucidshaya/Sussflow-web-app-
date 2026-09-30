@@ -11,9 +11,10 @@ import { settingsQuery } from "@/lib/queries";
 import { supabase, unwrap } from "@/lib/supabase";
 import type { OrderWithItems } from "@/lib/types";
 import { whatsappHref } from "@/lib/whatsapp";
+import { privatePage } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/account/orders/$id")({
-  head: () => ({ meta: [{ title: "Order details | Sussflow" }] }),
+  head: () => privatePage("Order details | Sussflow"),
   component: OrderDetailPage,
 });
 

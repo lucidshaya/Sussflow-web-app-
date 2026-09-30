@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { ContactLine, LegalPage } from "@/components/site/LegalPage";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms & conditions | Sussflow" },
-      { name: "description", content: "The terms that apply when you shop with Sussflow." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Terms & conditions | Sussflow",
+      description: "The terms that apply when you shop with Sussflow.",
+      path: "/terms",
+    }),
   component: TermsPage,
 });
 

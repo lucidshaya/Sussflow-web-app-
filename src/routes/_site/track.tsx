@@ -14,15 +14,16 @@ import { formatDate, formatNaira } from "@/lib/format";
 import { settingsQuery } from "@/lib/queries";
 import { readableError, toFieldErrors, trackOrderSchema, type FieldErrors } from "@/lib/validation";
 import { whatsappHref } from "@/lib/whatsapp";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/track")({
   validateSearch: z.object({ ref: z.string().optional(), email: z.string().optional() }),
-  head: () => ({
-    meta: [
-      { title: "Track your order | Sussflow" },
-      { name: "description", content: "Follow your Sussflow order from payment to delivery." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Track your order | Sussflow",
+      description: "Follow your Sussflow order from payment to delivery.",
+      path: "/track",
+    }),
   component: TrackPage,
 });
 

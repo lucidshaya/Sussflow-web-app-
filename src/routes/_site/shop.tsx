@@ -4,22 +4,36 @@ import { z } from "zod";
 
 import { EmptyState, PageHero, SetupNotice } from "@/components/site/primitives";
 import { ProductCard, ProductGridSkeleton } from "@/components/site/ProductCard";
-import { categoriesQuery, productsQuery } from "@/lib/queries";
+import { categoriesQuery, prefetch, productsQuery } from "@/lib/queries";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/shop")({
   validateSearch: z.object({ category: z.string().optional() }),
-  head: () => ({
-    meta: [
-      { title: "Shop Reusable Menstrual Products in Nigeria | Sussflow" },
-      {
-        name: "description",
-        content:
-          "Shop reusable menstrual pads, pantyliners, interlabial pads, period underwear, menstrual cups and cup care. Lagos pickup and nationwide delivery.",
-      },
-    ],
-  }),
+  loaderDeps: ({ search }) => ({ category: search.category }),
+  loader: async ({ context: { queryClient }, deps: { category } }) => {
+    await prefetch(queryClient, categoriesQuery, productsQuery({ categorySlug: category }));
+    const current = queryClient
+      .getQueryData(categoriesQuery.queryKey)
+      ?.find((c) => c.slug === category);
+    return { category: current ? { slug: current.slug, name: current.name } : null };
+  },
+  head: ({ loaderData }) => {
+    const category = loaderData?.category;
+    return category
+      ? seo({
+          title: `${category.name} in Nigeria | Shop Sussflow`,
+          description: `Shop Sussflow ${category.name.toLowerCase()} online. Reusable, washable period care with Lagos pickup and nationwide delivery across Nigeria.`,
+          path: `/shop?category=${encodeURIComponent(category.slug)}`,
+        })
+      : seo({
+          title: "Shop Reusable Menstrual Products in Nigeria | Sussflow",
+          description:
+            "Shop reusable menstrual pads, pantyliners, interlabial pads, period underwear, menstrual cups and cup care. Lagos pickup and nationwide delivery.",
+          path: "/shop",
+        });
+  },
   component: ShopPage,
 });
 

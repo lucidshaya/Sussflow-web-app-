@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, type QueryClient } from "@tanstack/react-query";
 
 import { isSupabaseConfigured, supabase, unwrap } from "./supabase";
 import type {
@@ -119,3 +119,19 @@ export const bundleItemsQuery = (bundleIds: string[]) =>
 /** Kit lines of one kind: "included", "addon" or "related". */
 export const itemsOf = (items: BundleItemWithProduct[] | undefined, kind: BundleItemKind) =>
   (items ?? []).filter((item) => item.kind === kind);
+
+/**
+ * For route loaders: fetch on the server so the page's HTML includes the data (search engines,
+ * link previews). Failures are swallowed; the page then fetches in the browser as usual.
+ */
+export async function prefetch(
+  queryClient: QueryClient,
+  ...queries: { queryKey: readonly unknown[] }[]
+) {
+  if (!isSupabaseConfigured) return;
+  await Promise.all(
+    queries.map((query) =>
+      queryClient.prefetchQuery(query as Parameters<QueryClient["prefetchQuery"]>[0]),
+    ),
+  );
+}

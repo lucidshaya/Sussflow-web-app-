@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SiteRouteImport } from './routes/_site'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SiteAboutRouteImport } from './routes/_site/about'
 import { Route as SiteAuthRouteImport } from './routes/_site/auth'
@@ -50,6 +52,16 @@ import { Route as AdminDashProductsNewRouteImport } from './routes/admin/_dash/p
 
 const SiteRoute = SiteRouteImport.update({
   id: '/_site',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SiteIndexRoute = SiteIndexRouteImport.update({
@@ -240,6 +252,8 @@ const AdminDashProductsNewRoute = AdminDashProductsNewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
   '/auth': typeof SiteAuthRoute
   '/become-a-distributor': typeof SiteBecomeADistributorRoute
@@ -278,6 +292,8 @@ export interface FileRoutesByFullPath {
   '/admin/products/': typeof AdminDashProductsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
   '/auth': typeof SiteAuthRoute
   '/become-a-distributor': typeof SiteBecomeADistributorRoute
@@ -318,6 +334,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteWithChildren
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_site/about': typeof SiteAboutRoute
   '/_site/auth': typeof SiteAuthRoute
   '/_site/become-a-distributor': typeof SiteBecomeADistributorRoute
@@ -360,6 +378,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/about'
     | '/auth'
     | '/become-a-distributor'
@@ -398,6 +418,8 @@ export interface FileRouteTypes {
     | '/admin/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/about'
     | '/auth'
     | '/become-a-distributor'
@@ -437,6 +459,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_site'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/_site/about'
     | '/_site/auth'
     | '/_site/become-a-distributor'
@@ -478,6 +502,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminDashRoute: typeof AdminDashRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   ApiPaystackWebhookRoute: typeof ApiPaystackWebhookRoute
@@ -490,6 +516,20 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof SiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_site/': {
@@ -842,6 +882,8 @@ const AdminDashRouteWithChildren = AdminDashRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminDashRoute: AdminDashRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   ApiPaystackWebhookRoute: ApiPaystackWebhookRoute,

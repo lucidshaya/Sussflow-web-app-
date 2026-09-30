@@ -3,19 +3,19 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { DealBanners, TrustBadges } from "@/components/site/Deals";
 import { glassCard, PageHero, SetupNotice } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
+import { prefetch, productsQuery } from "@/lib/queries";
 import { isSupabaseConfigured } from "@/lib/supabase";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/deals")({
-  head: () => ({
-    meta: [
-      { title: "Website-only deals | Sussflow" },
-      {
-        name: "description",
-        content:
-          "Website-only Sussflow deals on period pants, reusable pad 10-packs, menstrual cup bundles and the Back-to-School Kit.",
-      },
-    ],
-  }),
+  loader: ({ context: { queryClient } }) => prefetch(queryClient, productsQuery()),
+  head: () =>
+    seo({
+      title: "Website-only deals | Sussflow",
+      description:
+        "Website-only Sussflow deals on period pants, reusable pad 10-packs, menstrual cup bundles and the Back-to-School Kit.",
+      path: "/deals",
+    }),
   component: DealsPage,
 });
 

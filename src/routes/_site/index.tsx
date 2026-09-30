@@ -11,10 +11,28 @@ import { SwipeRow } from "@/components/site/SwipeRow";
 import { Button } from "@/components/ui/button";
 import { EDUCATION_TOPICS, PERSONAS, STATS } from "@/content/site";
 import { formatNaira, lowestPrice } from "@/lib/format";
-import { productsQuery } from "@/lib/queries";
+import { prefetch, productsQuery, settingsQuery } from "@/lib/queries";
+import { organizationJsonLd, seo, SITE_TITLE } from "@/lib/seo";
 import { isSupabaseConfigured } from "@/lib/supabase";
 
 export const Route = createFileRoute("/_site/")({
+  loader: async ({ context: { queryClient } }) => {
+    await prefetch(
+      queryClient,
+      productsQuery({ featured: true }),
+      productsQuery(), // deals and pairs
+      settingsQuery,
+    );
+    return { settings: queryClient.getQueryData(settingsQuery.queryKey) ?? null };
+  },
+  head: ({ loaderData }) =>
+    seo({
+      title: SITE_TITLE,
+      description:
+        "Shop reusable menstrual pads, menstrual cups & period underwear in Nigeria. Lagos pickup, nationwide delivery and menstrual health education.",
+      path: "/",
+      jsonLd: [organizationJsonLd(loaderData?.settings)],
+    }),
   component: HomePage,
 });
 

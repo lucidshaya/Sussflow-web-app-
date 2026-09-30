@@ -9,11 +9,10 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { newPasswordSchema, toFieldErrors, type FieldErrors } from "@/lib/validation";
+import { privatePage } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/reset-password")({
-  head: () => ({
-    meta: [{ title: "Choose a new password | Sussflow" }, { name: "robots", content: "noindex" }],
-  }),
+  head: () => privatePage("Choose a new password | Sussflow"),
   component: ResetPasswordPage,
 });
 

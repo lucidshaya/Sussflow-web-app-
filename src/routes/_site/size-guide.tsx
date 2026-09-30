@@ -6,18 +6,16 @@ import { glassCard, PageHero, SectionHeading } from "@/components/site/primitive
 import { Button } from "@/components/ui/button";
 import { settingsQuery } from "@/lib/queries";
 import { whatsappHref } from "@/lib/whatsapp";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/size-guide")({
-  head: () => ({
-    meta: [
-      { title: "Size guide | Sussflow reusable pads, pants & cups" },
-      {
-        name: "description",
-        content:
-          'Choose the right Sussflow reusable pad length (6" to 16"), period underwear size and menstrual cup for your flow.',
-      },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Size guide | Sussflow reusable pads, pants & cups",
+      description:
+        'Choose the right Sussflow reusable pad length (6" to 16"), period underwear size and menstrual cup for your flow.',
+      path: "/size-guide",
+    }),
   component: SizeGuidePage,
 });
 

@@ -6,9 +6,12 @@ import { AnnouncementBar } from "@/components/site/HomeHero";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
+import { prefetch, settingsQuery } from "@/lib/queries";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/_site")({
+  // Footer and WhatsApp links render in the server HTML too.
+  loader: ({ context: { queryClient } }) => prefetch(queryClient, settingsQuery),
   component: SiteLayout,
 });
 

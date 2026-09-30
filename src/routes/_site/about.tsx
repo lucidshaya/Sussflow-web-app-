@@ -6,18 +6,16 @@ import { TrustBadges } from "@/components/site/Deals";
 import { glassCard, glassPanel, PageHero } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
 import { STATS } from "@/content/site";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/about")({
-  head: () => ({
-    meta: [
-      { title: "About Sussflow | Nigerian Menstrual Health Company" },
-      {
-        name: "description",
-        content:
-          "Sussflow Reusable Nigeria Limited is a Lagos-based menstrual health company providing reusable menstrual products and menstrual health education.",
-      },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "About Sussflow | Nigerian Menstrual Health Company",
+      description:
+        "Sussflow Reusable Nigeria Limited is a Lagos-based menstrual health company providing reusable menstrual products and menstrual health education.",
+      path: "/about",
+    }),
   component: AboutPage,
 });
 

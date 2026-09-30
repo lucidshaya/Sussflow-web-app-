@@ -47,8 +47,15 @@ const ROUTE_RULES = {
   "/api/**": { headers: { ...SECURITY_HEADERS, "cache-control": "no-store" } },
 };
 
+// Public site address for canonical links, share cards and the sitemap (not a secret).
+const SITE_URL = (process.env["VITE_SITE_URL"] || process.env["SITE_URL"] || "").replace(
+  /\/+$/,
+  "",
+);
+
 export default defineConfig(({ command }) => ({
   server: { port: 8080 },
+  define: { "import.meta.env.VITE_SITE_URL": JSON.stringify(SITE_URL) },
   resolve: {
     alias: { "@": `${process.cwd()}/src` },
     dedupe: ["react", "react-dom", "@tanstack/react-query", "@tanstack/query-core"],

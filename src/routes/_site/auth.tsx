@@ -9,13 +9,14 @@ import { useAuth } from "@/lib/auth";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { emailSchema, nameSchema } from "@/lib/validation";
+import { privatePage } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/auth")({
   validateSearch: z.object({
     redirect: z.string().optional(),
     mode: z.enum(["signin", "signup", "reset"]).optional(),
   }),
-  head: () => ({ meta: [{ title: "Sign in | Sussflow" }] }),
+  head: () => privatePage("Sign in | Sussflow"),
   component: AuthPage,
 });
 

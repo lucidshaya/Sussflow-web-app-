@@ -9,18 +9,17 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { FAQ_GROUPS } from "@/content/site";
+import { faqJsonLd, seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/faq")({
-  head: () => ({
-    meta: [
-      { title: "FAQs — Reusable Pads, Menstrual Cups & Period Underwear | Sussflow" },
-      {
-        name: "description",
-        content:
-          "Answers about reusable menstrual pads, period underwear, menstrual cups, first-period products, delivery across Nigeria and Lagos pickup.",
-      },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "FAQs — Reusable Pads, Menstrual Cups & Period Underwear | Sussflow",
+      description:
+        "Answers about reusable menstrual pads, period underwear, menstrual cups, first-period products, delivery across Nigeria and Lagos pickup.",
+      path: "/faq",
+      jsonLd: [faqJsonLd(FAQ_GROUPS.flatMap((group) => group.items))],
+    }),
   component: FaqPage,
 });
 

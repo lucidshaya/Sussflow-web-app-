@@ -8,18 +8,16 @@ import { SwipeRow } from "@/components/site/SwipeRow";
 import { Button } from "@/components/ui/button";
 import { PERSONAS, type Persona } from "@/content/site";
 import { cn } from "@/lib/utils";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/find-your-fit")({
-  head: () => ({
-    meta: [
-      { title: "Find Your Period Care | Sussflow" },
-      {
-        name: "description",
-        content:
-          "Answer a few questions and find the reusable menstrual care that fits your body, lifestyle and cycle.",
-      },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Find Your Period Care | Sussflow",
+      description:
+        "Answer a few questions and find the reusable menstrual care that fits your body, lifestyle and cycle.",
+      path: "/find-your-fit",
+    }),
   component: FindYourFitPage,
 });
 

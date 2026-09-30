@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import { formatNaira } from "@/lib/format";
 import { verifyPayment } from "@/functions/payments";
+import { privatePage } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/checkout/callback")({
   validateSearch: z.object({ reference: z.string().optional(), trxref: z.string().optional() }),
-  head: () => ({ meta: [{ title: "Payment status | Sussflow" }] }),
+  head: () => privatePage("Payment status | Sussflow"),
   component: CallbackPage,
 });
 

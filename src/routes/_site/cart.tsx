@@ -5,9 +5,10 @@ import { EmptyState, glassCard, PageHero } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
 import { useCart, useCartDetails } from "@/lib/cart";
 import { formatNaira } from "@/lib/format";
+import { privatePage } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/cart")({
-  head: () => ({ meta: [{ title: "Your bag | Sussflow" }] }),
+  head: () => privatePage("Your bag | Sussflow"),
   component: CartPage,
 });
 

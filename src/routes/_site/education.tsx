@@ -4,18 +4,16 @@ import { GraduationCap, HandHeart, Package, Truck } from "lucide-react";
 import { EnquiryForm } from "@/components/site/EnquiryForm";
 import { glassCard, glassPanel, PageHero, SectionHeading } from "@/components/site/primitives";
 import { EDUCATION_TOPICS, STATS } from "@/content/site";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/education")({
-  head: () => ({
-    meta: [
-      { title: "Menstrual Health Education & Partnerships in Nigeria | Sussflow" },
-      {
-        name: "description",
-        content:
-          "Menstrual health education and menstrual hygiene sessions for schools, NGOs, communities and organisations in Nigeria. Partner with Sussflow on sustainable menstrual health interventions.",
-      },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Menstrual Health Education & Partnerships in Nigeria | Sussflow",
+      description:
+        "Menstrual health education and menstrual hygiene sessions for schools, NGOs, communities and organisations in Nigeria. Partner with Sussflow on sustainable menstrual health interventions.",
+      path: "/education",
+    }),
   component: EducationPage,
 });
 
