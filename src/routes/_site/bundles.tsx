@@ -6,6 +6,7 @@ import { glassCard, PageHero } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
 import { formatNaira, lowestPrice } from "@/lib/format";
 import { productsQuery } from "@/lib/queries";
+import type { ProductWithVariants } from "@/lib/types";
 
 export const Route = createFileRoute("/_site/bundles")({
   head: () => ({
@@ -21,7 +22,19 @@ export const Route = createFileRoute("/_site/bundles")({
   component: BundlesPage,
 });
 
-const BUNDLES = [
+interface Bundle {
+  slug: string;
+  name: string;
+  quote: string;
+  body: string[];
+  perfectFor: string;
+  cta: string;
+  image: string;
+  /** A related product shown as a second button, e.g. the Back-to-School Kit. */
+  alsoSee?: { slug: string; label: string };
+}
+
+const BUNDLES: Bundle[] = [
   {
     slug: "the-curious-switcher",
     name: "The Curious Switcher",
@@ -37,7 +50,7 @@ const BUNDLES = [
   {
     slug: "the-pad-girl",
     name: "The Pad Girl",
-    quote: "Give me a pad. Just make it reusable.",
+    quote: "Give me a pad. Just make it safer.",
     body: [
       "You know what you like. You're comfortable with pads, you don't want to insert anything, and you're ready for a long-term alternative to disposable sanitary pads.",
       "A practical reusable pad setup designed to support different days of your cycle.",
@@ -81,13 +94,14 @@ const BUNDLES = [
       "The First Period Box combines practical menstrual care, education and useful tools to help her understand menstruation and navigate her first periods with confidence.",
     ],
     perfectFor: "Daughters, nieces, sisters, students and girls preparing for their first period.",
-    cta: "Prepare her with confidence",
+    cta: "Shop the First Period Box",
     image: "/images/kit.jpg",
+    alsoSee: { slug: "back-to-school-kit", label: "Back-to-School Kit" },
   },
 ];
 
 function BundlesPage() {
-  const live = useQuery(productsQuery({ categorySlug: "bundles" }));
+  const live = useQuery(productsQuery());
 
   return (
     <>
@@ -145,13 +159,16 @@ function BundlesPage() {
                   ) : (
                     <>
                       <Button asChild variant="glass">
-                        <Link to="/store-location">Chat with us to order</Link>
+                        <Link to="/store-location" hash="contact">
+                          Chat with us to order
+                        </Link>
                       </Button>
                       <span className="text-sm font-medium text-foreground/60">
                         Online ordering coming soon
                       </span>
                     </>
                   )}
+                  {bundle.alsoSee && <AlsoSee {...bundle.alsoSee} products={live.data} />}
                 </div>
               </div>
             </article>
@@ -159,5 +176,28 @@ function BundlesPage() {
         })}
       </section>
     </>
+  );
+}
+
+function AlsoSee({
+  slug,
+  label,
+  products,
+}: {
+  slug: string;
+  label: string;
+  products: ProductWithVariants[] | undefined;
+}) {
+  const product = products?.find((p) => p.slug === slug);
+  if (!product) return null;
+  const price = lowestPrice(product.product_variants);
+  return (
+    <Button asChild variant="glass">
+      <Link to="/products/$slug" params={{ slug }}>
+        {label}
+        {price != null && <span className="text-foreground/60">· {formatNaira(price)}</span>}
+        <ArrowRight className="size-4" />
+      </Link>
+    </Button>
   );
 }
