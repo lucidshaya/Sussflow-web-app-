@@ -1,7 +1,13 @@
 export type OrderStatus =
   "pending" | "paid" | "processing" | "shipped" | "delivered" | "cancelled" | "failed";
 export type Fulfilment = "delivery" | "pickup";
-export type EnquiryType = "session" | "partnership" | "waitlist" | "contact";
+export type EnquiryType =
+  | "session"
+  | "partnership"
+  | "stockist"
+  | "distributor"
+  | "waitlist"
+  | "contact";
 export type EnquiryStatus = "new" | "in_progress" | "closed";
 
 export const ORDER_STATUSES: OrderStatus[] = [
@@ -13,7 +19,14 @@ export const ORDER_STATUSES: OrderStatus[] = [
   "cancelled",
   "failed",
 ];
-export const ENQUIRY_TYPES: EnquiryType[] = ["session", "partnership", "waitlist", "contact"];
+export const ENQUIRY_TYPES: EnquiryType[] = [
+  "session",
+  "partnership",
+  "stockist",
+  "distributor",
+  "waitlist",
+  "contact",
+];
 export const ENQUIRY_STATUSES: EnquiryStatus[] = ["new", "in_progress", "closed"];
 
 export interface Category {
@@ -141,4 +154,21 @@ export interface Settings {
   // Added by 0004_deals_socials; absent until that migration runs.
   tiktok_url?: string | null;
   facebook_url?: string | null;
+  // Added by 0005_kits_socials_security.
+  linkedin_url?: string | null;
+  x_url?: string | null;
+  google_business_url?: string | null;
+}
+
+export type BundleItemKind = "included" | "addon" | "related";
+
+/** A line in a kit: a catalogue product or free text ("Carry-on pouch"). */
+export interface BundleItem {
+  id: string;
+  bundle_id: string;
+  product_id: string | null;
+  label: string | null;
+  kind: BundleItemKind;
+  quantity: number;
+  sort: number;
 }

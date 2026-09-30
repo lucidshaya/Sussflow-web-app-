@@ -13,14 +13,20 @@ import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SiteAboutRouteImport } from './routes/_site/about'
 import { Route as SiteAuthRouteImport } from './routes/_site/auth'
+import { Route as SiteBecomeADistributorRouteImport } from './routes/_site/become-a-distributor'
+import { Route as SiteBecomeAStockistRouteImport } from './routes/_site/become-a-stockist'
 import { Route as SiteBundlesRouteImport } from './routes/_site/bundles'
 import { Route as SiteCartRouteImport } from './routes/_site/cart'
 import { Route as SiteDealsRouteImport } from './routes/_site/deals'
 import { Route as SiteEducationRouteImport } from './routes/_site/education'
 import { Route as SiteFaqRouteImport } from './routes/_site/faq'
 import { Route as SiteFindYourFitRouteImport } from './routes/_site/find-your-fit'
+import { Route as SitePrivacyRouteImport } from './routes/_site/privacy'
+import { Route as SiteResetPasswordRouteImport } from './routes/_site/reset-password'
 import { Route as SiteShopRouteImport } from './routes/_site/shop'
+import { Route as SiteSizeGuideRouteImport } from './routes/_site/size-guide'
 import { Route as SiteStoreLocationRouteImport } from './routes/_site/store-location'
+import { Route as SiteTermsRouteImport } from './routes/_site/terms'
 import { Route as SiteTrackRouteImport } from './routes/_site/track'
 import { Route as AdminDashRouteImport } from './routes/admin/_dash'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
@@ -61,6 +67,16 @@ const SiteAuthRoute = SiteAuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteBecomeADistributorRoute = SiteBecomeADistributorRouteImport.update({
+  id: '/become-a-distributor',
+  path: '/become-a-distributor',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteBecomeAStockistRoute = SiteBecomeAStockistRouteImport.update({
+  id: '/become-a-stockist',
+  path: '/become-a-stockist',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteBundlesRoute = SiteBundlesRouteImport.update({
   id: '/bundles',
   path: '/bundles',
@@ -91,14 +107,34 @@ const SiteFindYourFitRoute = SiteFindYourFitRouteImport.update({
   path: '/find-your-fit',
   getParentRoute: () => SiteRoute,
 } as any)
+const SitePrivacyRoute = SitePrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteResetPasswordRoute = SiteResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteShopRoute = SiteShopRouteImport.update({
   id: '/shop',
   path: '/shop',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteSizeGuideRoute = SiteSizeGuideRouteImport.update({
+  id: '/size-guide',
+  path: '/size-guide',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteStoreLocationRoute = SiteStoreLocationRouteImport.update({
   id: '/store-location',
   path: '/store-location',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteTermsRoute = SiteTermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteTrackRoute = SiteTrackRouteImport.update({
@@ -206,14 +242,20 @@ export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/about': typeof SiteAboutRoute
   '/auth': typeof SiteAuthRoute
+  '/become-a-distributor': typeof SiteBecomeADistributorRoute
+  '/become-a-stockist': typeof SiteBecomeAStockistRoute
   '/bundles': typeof SiteBundlesRoute
   '/cart': typeof SiteCartRoute
   '/deals': typeof SiteDealsRoute
   '/education': typeof SiteEducationRoute
   '/faq': typeof SiteFaqRoute
   '/find-your-fit': typeof SiteFindYourFitRoute
+  '/privacy': typeof SitePrivacyRoute
+  '/reset-password': typeof SiteResetPasswordRoute
   '/shop': typeof SiteShopRoute
+  '/size-guide': typeof SiteSizeGuideRoute
   '/store-location': typeof SiteStoreLocationRoute
+  '/terms': typeof SiteTermsRoute
   '/track': typeof SiteTrackRoute
   '/admin': typeof AdminDashRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
@@ -238,14 +280,20 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/about': typeof SiteAboutRoute
   '/auth': typeof SiteAuthRoute
+  '/become-a-distributor': typeof SiteBecomeADistributorRoute
+  '/become-a-stockist': typeof SiteBecomeAStockistRoute
   '/bundles': typeof SiteBundlesRoute
   '/cart': typeof SiteCartRoute
   '/deals': typeof SiteDealsRoute
   '/education': typeof SiteEducationRoute
   '/faq': typeof SiteFaqRoute
   '/find-your-fit': typeof SiteFindYourFitRoute
+  '/privacy': typeof SitePrivacyRoute
+  '/reset-password': typeof SiteResetPasswordRoute
   '/shop': typeof SiteShopRoute
+  '/size-guide': typeof SiteSizeGuideRoute
   '/store-location': typeof SiteStoreLocationRoute
+  '/terms': typeof SiteTermsRoute
   '/track': typeof SiteTrackRoute
   '/admin/login': typeof AdminLoginRoute
   '/': typeof SiteIndexRoute
@@ -272,14 +320,20 @@ export interface FileRoutesById {
   '/_site': typeof SiteRouteWithChildren
   '/_site/about': typeof SiteAboutRoute
   '/_site/auth': typeof SiteAuthRoute
+  '/_site/become-a-distributor': typeof SiteBecomeADistributorRoute
+  '/_site/become-a-stockist': typeof SiteBecomeAStockistRoute
   '/_site/bundles': typeof SiteBundlesRoute
   '/_site/cart': typeof SiteCartRoute
   '/_site/deals': typeof SiteDealsRoute
   '/_site/education': typeof SiteEducationRoute
   '/_site/faq': typeof SiteFaqRoute
   '/_site/find-your-fit': typeof SiteFindYourFitRoute
+  '/_site/privacy': typeof SitePrivacyRoute
+  '/_site/reset-password': typeof SiteResetPasswordRoute
   '/_site/shop': typeof SiteShopRoute
+  '/_site/size-guide': typeof SiteSizeGuideRoute
   '/_site/store-location': typeof SiteStoreLocationRoute
+  '/_site/terms': typeof SiteTermsRoute
   '/_site/track': typeof SiteTrackRoute
   '/admin/_dash': typeof AdminDashRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
@@ -308,14 +362,20 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/auth'
+    | '/become-a-distributor'
+    | '/become-a-stockist'
     | '/bundles'
     | '/cart'
     | '/deals'
     | '/education'
     | '/faq'
     | '/find-your-fit'
+    | '/privacy'
+    | '/reset-password'
     | '/shop'
+    | '/size-guide'
     | '/store-location'
+    | '/terms'
     | '/track'
     | '/admin'
     | '/admin/login'
@@ -340,14 +400,20 @@ export interface FileRouteTypes {
   to:
     | '/about'
     | '/auth'
+    | '/become-a-distributor'
+    | '/become-a-stockist'
     | '/bundles'
     | '/cart'
     | '/deals'
     | '/education'
     | '/faq'
     | '/find-your-fit'
+    | '/privacy'
+    | '/reset-password'
     | '/shop'
+    | '/size-guide'
     | '/store-location'
+    | '/terms'
     | '/track'
     | '/admin/login'
     | '/'
@@ -373,14 +439,20 @@ export interface FileRouteTypes {
     | '/_site'
     | '/_site/about'
     | '/_site/auth'
+    | '/_site/become-a-distributor'
+    | '/_site/become-a-stockist'
     | '/_site/bundles'
     | '/_site/cart'
     | '/_site/deals'
     | '/_site/education'
     | '/_site/faq'
     | '/_site/find-your-fit'
+    | '/_site/privacy'
+    | '/_site/reset-password'
     | '/_site/shop'
+    | '/_site/size-guide'
     | '/_site/store-location'
+    | '/_site/terms'
     | '/_site/track'
     | '/admin/_dash'
     | '/admin/login'
@@ -441,6 +513,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteAuthRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/become-a-distributor': {
+      id: '/_site/become-a-distributor'
+      path: '/become-a-distributor'
+      fullPath: '/become-a-distributor'
+      preLoaderRoute: typeof SiteBecomeADistributorRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/become-a-stockist': {
+      id: '/_site/become-a-stockist'
+      path: '/become-a-stockist'
+      fullPath: '/become-a-stockist'
+      preLoaderRoute: typeof SiteBecomeAStockistRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/bundles': {
       id: '/_site/bundles'
       path: '/bundles'
@@ -483,6 +569,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteFindYourFitRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/privacy': {
+      id: '/_site/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof SitePrivacyRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/reset-password': {
+      id: '/_site/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof SiteResetPasswordRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/shop': {
       id: '/_site/shop'
       path: '/shop'
@@ -490,11 +590,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteShopRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/size-guide': {
+      id: '/_site/size-guide'
+      path: '/size-guide'
+      fullPath: '/size-guide'
+      preLoaderRoute: typeof SiteSizeGuideRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/store-location': {
       id: '/_site/store-location'
       path: '/store-location'
       fullPath: '/store-location'
       preLoaderRoute: typeof SiteStoreLocationRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/terms': {
+      id: '/_site/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof SiteTermsRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/track': {
@@ -643,14 +757,20 @@ declare module '@tanstack/react-router' {
 interface SiteRouteChildren {
   SiteAboutRoute: typeof SiteAboutRoute
   SiteAuthRoute: typeof SiteAuthRoute
+  SiteBecomeADistributorRoute: typeof SiteBecomeADistributorRoute
+  SiteBecomeAStockistRoute: typeof SiteBecomeAStockistRoute
   SiteBundlesRoute: typeof SiteBundlesRoute
   SiteCartRoute: typeof SiteCartRoute
   SiteDealsRoute: typeof SiteDealsRoute
   SiteEducationRoute: typeof SiteEducationRoute
   SiteFaqRoute: typeof SiteFaqRoute
   SiteFindYourFitRoute: typeof SiteFindYourFitRoute
+  SitePrivacyRoute: typeof SitePrivacyRoute
+  SiteResetPasswordRoute: typeof SiteResetPasswordRoute
   SiteShopRoute: typeof SiteShopRoute
+  SiteSizeGuideRoute: typeof SiteSizeGuideRoute
   SiteStoreLocationRoute: typeof SiteStoreLocationRoute
+  SiteTermsRoute: typeof SiteTermsRoute
   SiteTrackRoute: typeof SiteTrackRoute
   SiteIndexRoute: typeof SiteIndexRoute
   SiteCheckoutCallbackRoute: typeof SiteCheckoutCallbackRoute
@@ -663,14 +783,20 @@ interface SiteRouteChildren {
 const SiteRouteChildren: SiteRouteChildren = {
   SiteAboutRoute: SiteAboutRoute,
   SiteAuthRoute: SiteAuthRoute,
+  SiteBecomeADistributorRoute: SiteBecomeADistributorRoute,
+  SiteBecomeAStockistRoute: SiteBecomeAStockistRoute,
   SiteBundlesRoute: SiteBundlesRoute,
   SiteCartRoute: SiteCartRoute,
   SiteDealsRoute: SiteDealsRoute,
   SiteEducationRoute: SiteEducationRoute,
   SiteFaqRoute: SiteFaqRoute,
   SiteFindYourFitRoute: SiteFindYourFitRoute,
+  SitePrivacyRoute: SitePrivacyRoute,
+  SiteResetPasswordRoute: SiteResetPasswordRoute,
   SiteShopRoute: SiteShopRoute,
+  SiteSizeGuideRoute: SiteSizeGuideRoute,
   SiteStoreLocationRoute: SiteStoreLocationRoute,
+  SiteTermsRoute: SiteTermsRoute,
   SiteTrackRoute: SiteTrackRoute,
   SiteIndexRoute: SiteIndexRoute,
   SiteCheckoutCallbackRoute: SiteCheckoutCallbackRoute,

@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { submitEnquiry } from "@/functions/enquiries";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import type { EnquiryType } from "@/lib/types";
-import { enquirySchema, readableError, toFieldErrors, type FieldErrors } from "@/lib/validation";
+import {
+  enquirySchema,
+  isOrgEnquiry,
+  readableError,
+  toFieldErrors,
+  type FieldErrors,
+} from "@/lib/validation";
 
 import { focusFirstError, FormField } from "./FormField";
 import { fieldClass } from "./primitives";
@@ -15,6 +21,8 @@ import { fieldClass } from "./primitives";
 const TYPE_LABELS: Record<EnquiryType, string> = {
   session: "Book a menstrual health session",
   partnership: "Partnership / CSR programme",
+  stockist: "Become a stockist",
+  distributor: "Become a distributor",
   waitlist: "Join the store waitlist",
   contact: "General question",
 };
@@ -27,6 +35,7 @@ const EMPTY = {
   location: "",
   beneficiaries: "",
   message: "",
+  website: "", // honeypot, hidden from people
 };
 type Values = typeof EMPTY;
 
@@ -46,7 +55,7 @@ export function EnquiryForm({
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const isOrg = type === "session" || type === "partnership";
+  const isOrg = isOrgEnquiry(type);
   const validate = () => enquirySchema.safeParse({ type, ...values });
 
   const field = (key: keyof Values) => ({
@@ -102,7 +111,7 @@ export function EnquiryForm({
   }
 
   return (
-    <form onSubmit={submit} noValidate className="grid gap-3 sm:grid-cols-2">
+    <form onSubmit={submit} noValidate className="relative grid gap-3 sm:grid-cols-2">
       {types.length > 1 && (
         <label className="sm:col-span-2" htmlFor="enquiry-type">
           <span className="mb-1 block text-xs font-semibold uppercase text-foreground/60">
@@ -153,10 +162,18 @@ export function EnquiryForm({
         hint="At least 9 digits"
       />
       {showOrganisation && isOrg && (
-        <FormField {...field("organisation")} label="School / organisation" maxLength={160} />
+        <FormField
+          {...field("organisation")}
+          label={
+            type === "stockist" || type === "distributor"
+              ? "Business name"
+              : "School / organisation"
+          }
+          maxLength={160}
+        />
       )}
       <FormField {...field("location")} label="Location (city, state)" maxLength={160} />
-      {isOrg && (
+      {(type === "session" || type === "partnership") && (
         <FormField
           {...field("beneficiaries")}
           label="Number of girls / beneficiaries"
@@ -173,6 +190,16 @@ export function EnquiryForm({
         placeholder="Tell us a little about what you need"
         className="sm:col-span-2"
       />
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label htmlFor="enquiry-website">Leave this empty</label>
+        <input
+          id="enquiry-website"
+          tabIndex={-1}
+          autoComplete="off"
+          value={values.website}
+          onChange={(e) => setValues((v) => ({ ...v, website: e.target.value }))}
+        />
+      </div>
       <div className="sm:col-span-2">
         <Button type="submit" disabled={busy}>
           {busy ? "Sending…" : "Send"}

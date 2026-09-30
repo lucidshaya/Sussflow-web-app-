@@ -30,6 +30,8 @@ export const Route = createFileRoute("/admin/_dash/enquiries")({
 const TYPE_LABEL: Record<EnquiryType, string> = {
   session: "Session booking",
   partnership: "Partnership",
+  stockist: "Stockist",
+  distributor: "Distributor",
   waitlist: "Email list",
   contact: "Contact",
 };
@@ -73,7 +75,7 @@ function Enquiries() {
     <>
       <AdminPageHeader
         title="Enquiries"
-        description="Menstrual health session bookings, partnership requests, email-list sign-ups and contact messages."
+        description="Menstrual health session bookings, partnership requests, stockist & distributor applications, email-list sign-ups and contact messages."
       />
       <div className="mb-4 flex flex-wrap gap-1.5">
         {(["", ...ENQUIRY_TYPES] as const).map((t) => (

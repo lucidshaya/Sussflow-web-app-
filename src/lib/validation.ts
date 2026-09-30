@@ -88,7 +88,21 @@ export const checkoutCustomerSchema = z
     }
   });
 
-export const ENQUIRY_TYPE_VALUES = ["session", "partnership", "waitlist", "contact"] as const;
+export const ENQUIRY_TYPE_VALUES = [
+  "session",
+  "partnership",
+  "stockist",
+  "distributor",
+  "waitlist",
+  "contact",
+] as const;
+
+/** Enquiries from organisations: phone required, organisation shown. */
+export const ORG_ENQUIRY_TYPES = ["session", "partnership", "stockist", "distributor"] as const;
+export const isOrgEnquiry = (type: string) => (ORG_ENQUIRY_TYPES as readonly string[]).includes(type);
+
+/** Hidden form field that people never fill in; bots usually do. */
+export const honeypotSchema = z.string().max(200).optional();
 
 export const enquirySchema = z
   .object({
@@ -110,10 +124,11 @@ export const enquirySchema = z
       .optional()
       .transform((v) => (v === "" || v === undefined ? undefined : v)),
     message: optionalText(2000),
+    website: honeypotSchema,
   })
   .superRefine((value, ctx) => {
-    // Schools/NGOs need a way to be called back.
-    if ((value.type === "session" || value.type === "partnership") && !value.phone) {
+    // Schools, NGOs, stockists and distributors need a way to be called back.
+    if (isOrgEnquiry(value.type) && !value.phone) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["phone"],
@@ -133,7 +148,20 @@ export const trackOrderSchema = z.object({
   email: emailSchema,
 });
 
-export const waitlistSchema = z.object({ email: emailSchema });
+export const newPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Use at least 8 characters")
+      .max(72, "Use 72 characters or fewer"),
+    confirm: z.string(),
+  })
+  .refine((v) => v.password === v.confirm, {
+    path: ["confirm"],
+    message: "Passwords don't match",
+  });
+
+export const waitlistSchema = z.object({ email: emailSchema, website: honeypotSchema });
 
 export const profileSchema = z.object({
   full_name: nameSchema,
@@ -257,6 +285,9 @@ export const settingsSchema = z.object({
   instagram_url: optionalUrl("Instagram link"),
   tiktok_url: optionalUrl("TikTok link").optional(),
   facebook_url: optionalUrl("Facebook link").optional(),
+  linkedin_url: optionalUrl("LinkedIn link").optional(),
+  x_url: optionalUrl("X (Twitter) link").optional(),
+  google_business_url: optionalUrl("Google Business link").optional(),
 });
 
 export const productBasicsSchema = z.object({

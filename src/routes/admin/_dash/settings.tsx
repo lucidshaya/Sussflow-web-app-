@@ -25,6 +25,19 @@ import { cn } from "@/lib/utils";
 import { emailSchema, settingsSchema, toFieldErrors, type FieldErrors } from "@/lib/validation";
 import { grantAdmin, listAdmins, revokeAdmin } from "@/functions/admin";
 
+const SOCIAL_FIELDS = [
+  { key: "tiktok_url", label: "TikTok link", placeholder: "https://www.tiktok.com/@…" },
+  { key: "facebook_url", label: "Facebook link", placeholder: "https://facebook.com/…" },
+  { key: "linkedin_url", label: "LinkedIn link", placeholder: "https://www.linkedin.com/company/…" },
+  { key: "x_url", label: "X (Twitter) link", placeholder: "https://x.com/…" },
+  {
+    key: "google_business_url",
+    label: "Google Business link",
+    placeholder: "https://g.page/… or a Google Maps link",
+  },
+] as const;
+type SocialKey = (typeof SOCIAL_FIELDS)[number]["key"];
+
 export const Route = createFileRoute("/admin/_dash/settings")({
   component: SettingsPage,
 });
@@ -81,8 +94,8 @@ function StoreSettings() {
       />
     );
 
-  // TikTok/Facebook columns arrive with the 0004 migration.
-  const hasSocials = "tiktok_url" in draft;
+  // Social columns arrive with migrations 0004/0005; show only the ones that exist.
+  const socials = SOCIAL_FIELDS.filter(({ key }) => key in draft);
   const cls = (key: string) => cn(adminInput, errors[key] && adminInvalid);
   const clear = (key: string) => {
     if (errors[key]) setErrors((e) => ({ ...e, [key]: undefined }));
@@ -103,8 +116,7 @@ function StoreSettings() {
       | "contact_phone"
       | "whatsapp_url"
       | "instagram_url"
-      | "tiktok_url"
-      | "facebook_url",
+      | SocialKey,
   ) => ({
     value: draft[key] ?? "",
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -129,10 +141,7 @@ function StoreSettings() {
           contact_phone: draft.contact_phone ?? "",
           whatsapp_url: draft.whatsapp_url ?? "",
           instagram_url: draft.instagram_url ?? "",
-          ...(hasSocials && {
-            tiktok_url: draft.tiktok_url ?? "",
-            facebook_url: draft.facebook_url ?? "",
-          }),
+          ...Object.fromEntries(socials.map(({ key }) => [key, draft[key] ?? ""])),
         });
         if (!result.success) {
           setErrors(toFieldErrors(result.error));
@@ -140,7 +149,18 @@ function StoreSettings() {
           return;
         }
         setErrors({});
-        const { tiktok_url, facebook_url, ...v } = result.data;
+        const {
+          tiktok_url: _tiktok,
+          facebook_url: _facebook,
+          linkedin_url: _linkedin,
+          x_url: _x,
+          google_business_url: _google,
+          ...v
+        } = result.data;
+        // Only send social columns that exist in the database (see migrations 0004/0005).
+        const socialValues = Object.fromEntries(
+          socials.map(({ key }) => [key, result.data[key] ?? null]),
+        ) as Partial<Record<SocialKey, string | null>>;
         save.mutate({
           ...draft,
           ...v,
@@ -149,10 +169,7 @@ function StoreSettings() {
           contact_phone: v.contact_phone ?? null,
           whatsapp_url: v.whatsapp_url ?? null,
           instagram_url: v.instagram_url ?? null,
-          ...(hasSocials && {
-            tiktok_url: tiktok_url ?? null,
-            facebook_url: facebook_url ?? null,
-          }),
+          ...socialValues,
         });
       }}
     >
@@ -229,26 +246,11 @@ function StoreSettings() {
             {...text("instagram_url")}
           />
         </AdminField>
-        {hasSocials && (
-          <>
-            <AdminField error={errors["tiktok_url"]} label="TikTok link">
-              <input
-                type="url"
-                placeholder="https://tiktok.com/@…"
-                className={cls("tiktok_url")}
-                {...text("tiktok_url")}
-              />
-            </AdminField>
-            <AdminField error={errors["facebook_url"]} label="Facebook link">
-              <input
-                type="url"
-                placeholder="https://facebook.com/…"
-                className={cls("facebook_url")}
-                {...text("facebook_url")}
-              />
-            </AdminField>
-          </>
-        )}
+        {socials.map(({ key, label, placeholder }) => (
+          <AdminField key={key} error={errors[key]} label={label}>
+            <input type="url" placeholder={placeholder} className={cls(key)} {...text(key)} />
+          </AdminField>
+        ))}
       </div>
       <AdminField error={errors["pickup_address"]} label="Pickup address">
         <input required className={cls("pickup_address")} {...text("pickup_address")} />

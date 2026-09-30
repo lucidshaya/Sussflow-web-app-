@@ -72,7 +72,7 @@ function AuthPage() {
         else toast.success("Account created!");
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/account?reset=1`,
+          redirectTo: `${window.location.origin}/reset-password`,
         });
         if (error) throw error;
         toast.success("Password reset link sent — check your email.");
