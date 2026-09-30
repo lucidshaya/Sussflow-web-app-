@@ -16,6 +16,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { ProductGallery } from "@/components/site/ProductGallery";
 import { Button } from "@/components/ui/button";
 import { FAQ_GROUPS, PRODUCT_FAQ_GROUP } from "@/content/site";
 import { useCart } from "@/lib/cart";
@@ -53,14 +54,12 @@ function ProductPage() {
   const [length, setLength] = useState<string | null>(null);
   const [packSize, setPackSize] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [image, setImage] = useState<string | null>(null);
 
   useEffect(() => {
     const first = variants[0];
     setLength(first?.length_label ?? null);
     setPackSize(first?.pack_size ?? null);
     setQuantity(1);
-    setImage(null);
   }, [variants]);
 
   const packsForLength = variants.filter((v) =>
@@ -109,35 +108,8 @@ function ProductPage() {
       >
         <ChevronLeft className="size-4" /> Back to shop
       </Link>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div>
-          <div className="overflow-hidden rounded-[28px] border border-glass-border bg-glass-soft shadow-glass">
-            <img
-              src={image ?? images[0]}
-              alt={p.name}
-              width={816}
-              height={816}
-              className="aspect-square w-full object-cover"
-            />
-          </div>
-          {images.length > 1 && (
-            <div className="mt-3 flex gap-3">
-              {images.map((src) => (
-                <button
-                  key={src}
-                  type="button"
-                  onClick={() => setImage(src)}
-                  className={cn(
-                    "size-20 overflow-hidden rounded-2xl border-2",
-                    (image ?? images[0]) === src ? "border-brand" : "border-glass-border",
-                  )}
-                >
-                  <img src={src} alt="" className="size-full object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+      <div className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
+        <ProductGallery key={p.id} images={images} alt={p.name} />
 
         <div className={`${glassCard} p-7 md:p-9`}>
           {p.categories && <Eyebrow>{p.categories.name}</Eyebrow>}
@@ -215,9 +187,17 @@ function ProductPage() {
                   onClick={() => selected && add(selected.id, quantity)}
                 >
                   <ShoppingBag className="size-4" />{" "}
-                  {outOfStock
-                    ? "Sold out"
-                    : `Add to bag · ${formatNaira((selected?.price ?? 0) * quantity)}`}
+                  {outOfStock ? (
+                    "Sold out"
+                  ) : (
+                    <span className="whitespace-nowrap">
+                      Add to bag
+                      <span className="hidden sm:inline">
+                        {" "}
+                        · {formatNaira((selected?.price ?? 0) * quantity)}
+                      </span>
+                    </span>
+                  )}
                 </Button>
               </div>
               {selected && selected.stock > 0 && selected.stock <= 5 && (

@@ -63,7 +63,7 @@ export function PageHero({
 }) {
   return (
     <section className="mx-auto max-w-7xl px-5 pt-8">
-      <div className={cn(glassCard, "relative overflow-hidden p-8 md:p-12")}>
+      <div className={cn(glassCard, "relative overflow-hidden p-6 sm:p-8 md:p-12")}>
         <div
           className="absolute -right-16 -top-20 size-72 rounded-full bg-lilac/50 blur-3xl"
           aria-hidden="true"
@@ -76,11 +76,11 @@ export function PageHero({
           <span className="inline-flex rounded-full border border-glass-border bg-glass px-3 py-1 text-xs font-semibold text-brand">
             {eyebrow}
           </span>
-          <h1 className="font-statement mt-4 text-5xl leading-[0.95] sm:text-6xl lg:text-7xl">
+          <h1 className="font-statement mt-4 text-[2.5rem] leading-[0.95] sm:text-6xl lg:text-7xl">
             {title}
           </h1>
           {children && (
-            <div className="mt-4 text-base leading-relaxed text-foreground/70 md:text-lg">
+            <div className="mt-4 text-[15px] leading-relaxed text-foreground/70 sm:text-base md:text-lg">
               {children}
             </div>
           )}

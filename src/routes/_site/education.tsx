@@ -55,11 +55,13 @@ function EducationPage() {
       </PageHero>
 
       <section className="mx-auto max-w-7xl px-5 py-8">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {STATS.map((stat) => (
-            <div key={stat.label} className={`${glassPanel} p-6`}>
-              <p className="font-display text-4xl font-semibold text-brand">{stat.value}</p>
-              <p className="mt-1 text-sm font-semibold uppercase">{stat.label}</p>
+            <div key={stat.label} className={`${glassPanel} p-4 sm:p-6`}>
+              <p className="font-display text-3xl font-semibold text-brand sm:text-4xl">
+                {stat.value}
+              </p>
+              <p className="mt-1 text-xs font-semibold uppercase sm:text-sm">{stat.label}</p>
             </div>
           ))}
         </div>

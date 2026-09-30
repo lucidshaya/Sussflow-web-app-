@@ -45,7 +45,7 @@ function ShopPage() {
         ) : (
           <>
             <div
-              className="mb-6 flex flex-wrap gap-2"
+              className="scrollbar-none -mx-5 mb-6 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&>*]:shrink-0"
               role="tablist"
               aria-label="Filter by category"
             >
@@ -59,7 +59,7 @@ function ShopPage() {
             ) : products.error ? (
               <p className="text-sm text-alert">Couldn't load products: {products.error.message}</p>
             ) : products.data?.length ? (
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
                 {products.data.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

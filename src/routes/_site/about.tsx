@@ -71,12 +71,14 @@ function AboutPage() {
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-5 py-8">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {STATS.map((stat) => (
-            <article key={stat.label} className={`${glassPanel} p-6`}>
-              <p className="font-display text-4xl font-semibold text-brand">{stat.value}</p>
-              <p className="mt-1 text-sm font-semibold uppercase">{stat.label}</p>
-              <p className="mt-2 text-sm text-foreground/65">{stat.body}</p>
+            <article key={stat.label} className={`${glassPanel} p-4 sm:p-6`}>
+              <p className="font-display text-3xl font-semibold text-brand sm:text-4xl">
+                {stat.value}
+              </p>
+              <p className="mt-1 text-xs font-semibold uppercase sm:text-sm">{stat.label}</p>
+              <p className="mt-2 text-xs text-foreground/65 sm:text-sm">{stat.body}</p>
             </article>
           ))}
         </div>

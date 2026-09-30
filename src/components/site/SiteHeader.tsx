@@ -100,8 +100,11 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "ove
             size="small"
             onClick={() => setOpen(true)}
             aria-label={`Open bag with ${count} items`}
+            className="whitespace-nowrap px-3 sm:px-4"
           >
-            <ShoppingBag className="size-4" /> Bag ({count})
+            <ShoppingBag className="size-4" />
+            <span className="sm:hidden">{count}</span>
+            <span className="hidden sm:inline">Bag ({count})</span>
           </Button>
         )}
         <Button

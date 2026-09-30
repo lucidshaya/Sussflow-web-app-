@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { PersonaCard, PersonaLink } from "@/components/site/PersonaCard";
 import { glassCard, PageHero, SectionHeading } from "@/components/site/primitives";
+import { SwipeRow } from "@/components/site/SwipeRow";
 import { Button } from "@/components/ui/button";
 import { PERSONAS, type Persona } from "@/content/site";
 import { cn } from "@/lib/utils";
@@ -157,10 +158,12 @@ function FindYourFitPage() {
 
       <section className="mx-auto max-w-7xl px-5 py-8">
         <SectionHeading eyebrow="Or pick yourself" title="Which one sounds like you?" />
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {PERSONAS.map((persona) => (
-            <PersonaCard key={persona.id} persona={persona} />
-          ))}
+        <div className="mt-6">
+          <SwipeRow label="Period care personas">
+            {PERSONAS.map((persona) => (
+              <PersonaCard key={persona.id} persona={persona} />
+            ))}
+          </SwipeRow>
         </div>
       </section>
     </>

@@ -173,7 +173,7 @@ export function SiteFooter() {
           >
             sussflow<span className="text-leaf">.</span>
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-primary-foreground/25 py-5 text-xs text-primary-foreground/75">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-primary-foreground/25 pb-24 pt-5 text-xs sm:pb-5 text-primary-foreground/75">
             <span>
               © {new Date().getFullYear()} Sussflow Reusable Nigeria Limited · Lagos, Nigeria
             </span>

@@ -211,6 +211,15 @@
   word-spacing: 0.12em;
 }
 
+/* Horizontal swipe rows: native momentum scrolling without a visible scrollbar. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility marquee-track {
   animation: marquee 26s linear infinite;
 }

@@ -6,6 +6,7 @@ import { HomeHero, TrustStrip } from "@/components/site/HomeHero";
 import { PersonaCard } from "@/components/site/PersonaCard";
 import { glassCard, glassPanel, SectionHeading, SetupNotice } from "@/components/site/primitives";
 import { ProductCard, ProductGridSkeleton } from "@/components/site/ProductCard";
+import { SwipeRow } from "@/components/site/SwipeRow";
 import { Button } from "@/components/ui/button";
 import { EDUCATION_TOPICS, PERSONAS, STATS } from "@/content/site";
 import { formatNaira, lowestPrice } from "@/lib/format";
@@ -84,11 +85,11 @@ function HomePage() {
           ) : featured.error ? (
             <p className="text-sm text-alert">Couldn't load products: {featured.error.message}</p>
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <SwipeRow label="Featured products" itemClass="w-[72%]">
               {featured.data?.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
-            </div>
+            </SwipeRow>
           )}
         </div>
       </section>
@@ -102,10 +103,12 @@ function HomePage() {
           You don't need to know the name of the product.{" "}
           <strong className="text-foreground">Start with yourself.</strong>
         </SectionHeading>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {PERSONAS.map((persona) => (
-            <PersonaCard key={persona.id} persona={persona} />
-          ))}
+        <div className="mt-6">
+          <SwipeRow label="Find your fit">
+            {PERSONAS.map((persona) => (
+              <PersonaCard key={persona.id} persona={persona} />
+            ))}
+          </SwipeRow>
         </div>
       </section>
 
@@ -291,12 +294,16 @@ function HomePage() {
           eyebrow="Why Sussflow?"
           title="Trusted menstrual care for women & girls in Nigeria"
         />
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {STATS.map((stat) => (
-            <article key={stat.label} className={`${glassPanel} p-6`}>
-              <p className="font-display text-4xl font-semibold text-brand">{stat.value}</p>
-              <p className="mt-1 text-sm font-semibold uppercase">{stat.label}</p>
-              <p className="mt-2 text-sm leading-relaxed text-foreground/65">{stat.body}</p>
+            <article key={stat.label} className={`${glassPanel} p-4 sm:p-6`}>
+              <p className="font-display text-3xl font-semibold text-brand sm:text-4xl">
+                {stat.value}
+              </p>
+              <p className="mt-1 text-xs font-semibold uppercase sm:text-sm">{stat.label}</p>
+              <p className="mt-2 text-xs leading-relaxed text-foreground/65 sm:text-sm">
+                {stat.body}
+              </p>
             </article>
           ))}
         </div>
