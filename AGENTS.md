@@ -1,0 +1,2 @@
+- Sussflow is a full-stack store: Supabase (schema in `supabase/migrations`, RLS enforced) + Paystack via TanStack Start server functions in `src/functions`. Never trust client prices; never import `*.server.ts` or the service-role client into client code. Prices are stored in kobo.
+- Deployed on Vercel: `vite build` uses nitro's `vercel` preset (see `vite.config.ts`). Server secrets live in Vercel env vars, never in `VITE_*` vars.
