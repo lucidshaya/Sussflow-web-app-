@@ -13,6 +13,7 @@ import { Logo } from "./primitives";
 
 const NAV = [
   { to: "/shop", label: "Shop" },
+  { to: "/deals", label: "Deals" },
   { to: "/bundles", label: "Bundles" },
   { to: "/find-your-fit", label: "Find your fit" },
   { to: "/education", label: "Education" },
@@ -20,7 +21,7 @@ const NAV = [
 ] as const;
 
 const MARQUEE =
-  "Lagos pickup (Iju axis) · Nationwide courier & waybill delivery · SON-certified reusable pads · Up to 100 washes per pad · Menstrual health education for schools & NGOs · 700+ customers served ·";
+  "Website-only deals on period pants, pad 10-packs & cup bundles · Lagos pickup (Iju axis) · Nationwide courier & waybill delivery · SON-certified reusable pads · Up to 100 washes per pad · Menstrual health education for schools & NGOs · 700+ customers served ·";
 
 export function SiteHeader({ variant = "default" }: { variant?: "default" | "overlay" }) {
   const [menuOpen, setMenuOpen] = useState(false);

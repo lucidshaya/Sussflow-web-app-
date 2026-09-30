@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BadgeCheck, Leaf, Sparkles } from "lucide-react";
 
 import logo from "@/assets/sussflow-logo.png";
+import { TrustBadges } from "@/components/site/Deals";
 import { glassCard, glassPanel, PageHero } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
 import { STATS } from "@/content/site";
@@ -48,6 +49,11 @@ function AboutPage() {
         Sussflow Reusable Nigeria Limited provides reusable menstrual products, menstrual health
         education and sustainable period-care solutions for women and girls.
       </PageHero>
+      <section className="mx-auto max-w-7xl px-5 pt-8">
+        <div className={`${glassCard} px-5 py-9 md:px-10`}>
+          <TrustBadges />
+        </div>
+      </section>
       <section className="mx-auto grid max-w-7xl gap-6 px-5 py-8 md:grid-cols-[1fr_1.2fr]">
         <div className={`${glassCard} grid place-items-center p-10`}>
           <img

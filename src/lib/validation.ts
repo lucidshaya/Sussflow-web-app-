@@ -244,6 +244,8 @@ export const settingsSchema = z.object({
   contact_phone: optionalPhoneSchema,
   whatsapp_url: whatsappSchema,
   instagram_url: optionalUrl("Instagram link"),
+  tiktok_url: optionalUrl("TikTok link").optional(),
+  facebook_url: optionalUrl("Facebook link").optional(),
 });
 
 export const productBasicsSchema = z.object({

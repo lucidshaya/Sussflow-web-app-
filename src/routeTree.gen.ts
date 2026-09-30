@@ -15,6 +15,7 @@ import { Route as SiteAboutRouteImport } from './routes/_site/about'
 import { Route as SiteAuthRouteImport } from './routes/_site/auth'
 import { Route as SiteBundlesRouteImport } from './routes/_site/bundles'
 import { Route as SiteCartRouteImport } from './routes/_site/cart'
+import { Route as SiteDealsRouteImport } from './routes/_site/deals'
 import { Route as SiteEducationRouteImport } from './routes/_site/education'
 import { Route as SiteFaqRouteImport } from './routes/_site/faq'
 import { Route as SiteFindYourFitRouteImport } from './routes/_site/find-your-fit'
@@ -67,6 +68,11 @@ const SiteBundlesRoute = SiteBundlesRouteImport.update({
 const SiteCartRoute = SiteCartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteDealsRoute = SiteDealsRouteImport.update({
+  id: '/deals',
+  path: '/deals',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteEducationRoute = SiteEducationRouteImport.update({
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof SiteAuthRoute
   '/bundles': typeof SiteBundlesRoute
   '/cart': typeof SiteCartRoute
+  '/deals': typeof SiteDealsRoute
   '/education': typeof SiteEducationRoute
   '/faq': typeof SiteFaqRoute
   '/find-your-fit': typeof SiteFindYourFitRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByTo {
   '/auth': typeof SiteAuthRoute
   '/bundles': typeof SiteBundlesRoute
   '/cart': typeof SiteCartRoute
+  '/deals': typeof SiteDealsRoute
   '/education': typeof SiteEducationRoute
   '/faq': typeof SiteFaqRoute
   '/find-your-fit': typeof SiteFindYourFitRoute
@@ -258,6 +266,7 @@ export interface FileRoutesById {
   '/_site/auth': typeof SiteAuthRoute
   '/_site/bundles': typeof SiteBundlesRoute
   '/_site/cart': typeof SiteCartRoute
+  '/_site/deals': typeof SiteDealsRoute
   '/_site/education': typeof SiteEducationRoute
   '/_site/faq': typeof SiteFaqRoute
   '/_site/find-your-fit': typeof SiteFindYourFitRoute
@@ -292,6 +301,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bundles'
     | '/cart'
+    | '/deals'
     | '/education'
     | '/faq'
     | '/find-your-fit'
@@ -322,6 +332,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bundles'
     | '/cart'
+    | '/deals'
     | '/education'
     | '/faq'
     | '/find-your-fit'
@@ -353,6 +364,7 @@ export interface FileRouteTypes {
     | '/_site/auth'
     | '/_site/bundles'
     | '/_site/cart'
+    | '/_site/deals'
     | '/_site/education'
     | '/_site/faq'
     | '/_site/find-your-fit'
@@ -429,6 +441,13 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof SiteCartRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/deals': {
+      id: '/_site/deals'
+      path: '/deals'
+      fullPath: '/deals'
+      preLoaderRoute: typeof SiteDealsRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/education': {
@@ -607,6 +626,7 @@ interface SiteRouteChildren {
   SiteAuthRoute: typeof SiteAuthRoute
   SiteBundlesRoute: typeof SiteBundlesRoute
   SiteCartRoute: typeof SiteCartRoute
+  SiteDealsRoute: typeof SiteDealsRoute
   SiteEducationRoute: typeof SiteEducationRoute
   SiteFaqRoute: typeof SiteFaqRoute
   SiteFindYourFitRoute: typeof SiteFindYourFitRoute
@@ -625,6 +645,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteAuthRoute: SiteAuthRoute,
   SiteBundlesRoute: SiteBundlesRoute,
   SiteCartRoute: SiteCartRoute,
+  SiteDealsRoute: SiteDealsRoute,
   SiteEducationRoute: SiteEducationRoute,
   SiteFaqRoute: SiteFaqRoute,
   SiteFindYourFitRoute: SiteFindYourFitRoute,

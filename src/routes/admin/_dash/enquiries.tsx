@@ -30,7 +30,7 @@ export const Route = createFileRoute("/admin/_dash/enquiries")({
 const TYPE_LABEL: Record<EnquiryType, string> = {
   session: "Session booking",
   partnership: "Partnership",
-  waitlist: "Waitlist",
+  waitlist: "Email list",
   contact: "Contact",
 };
 const STATUS_TONE: Record<EnquiryStatus, "brand" | "neutral" | "leaf"> = {
@@ -73,7 +73,7 @@ function Enquiries() {
     <>
       <AdminPageHeader
         title="Enquiries"
-        description="Menstrual health session bookings, partnership requests, store waitlist and contact messages."
+        description="Menstrual health session bookings, partnership requests, email-list sign-ups and contact messages."
       />
       <div className="mb-4 flex flex-wrap gap-1.5">
         {(["", ...ENQUIRY_TYPES] as const).map((t) => (

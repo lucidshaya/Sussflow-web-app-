@@ -39,7 +39,7 @@ export const joinWaitlist = createServerFn({ method: "POST" })
       type: "waitlist",
       name: email.split("@")[0] ?? "Waitlist",
       email,
-      message: "Footer waitlist sign-up",
+      message: "Email list sign-up (deals, tips & new stores)",
     });
     if (error) throw new Error("We couldn't add you right now. Please try again.");
     return { ok: true, alreadyJoined: false };

@@ -20,7 +20,7 @@ import { ProductGallery } from "@/components/site/ProductGallery";
 import { Button } from "@/components/ui/button";
 import { FAQ_GROUPS, PRODUCT_FAQ_GROUP } from "@/content/site";
 import { useCart } from "@/lib/cart";
-import { formatNaira } from "@/lib/format";
+import { dealPercent, formatNaira } from "@/lib/format";
 import { productBySlugQuery } from "@/lib/queries";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import type { Variant } from "@/lib/types";
@@ -67,6 +67,7 @@ function ProductPage() {
   );
   const selected: Variant | undefined =
     packsForLength.find((v) => v.pack_size === packSize) ?? packsForLength[0];
+  const selectedDeal = selected ? dealPercent(selected) : null;
 
   if (!isSupabaseConfigured) {
     return (
@@ -96,6 +97,8 @@ function ProductPage() {
   }
 
   const p = product.data;
+  // Period pants are sold in pairs; everything else uses the price list's "N-in-1" wording.
+  const unit = p.categories?.slug === "period-underwear" ? "pair" : null;
   const images = [p.image_url ?? "/images/pads.jpg", ...p.gallery.filter(Boolean)];
   const faqGroup = FAQ_GROUPS.find((group) => group.id === PRODUCT_FAQ_GROUP[p.slug]);
   const outOfStock = !selected || selected.stock <= 0;
@@ -118,9 +121,21 @@ function ProductPage() {
           </h1>
           {p.tagline && <p className="mt-2 text-lg text-foreground/70">{p.tagline}</p>}
           {selected && (
-            <p className="mt-5 font-display text-3xl font-semibold text-brand">
-              {formatNaira(selected.price)}
-            </p>
+            <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <p className="font-display text-3xl font-semibold text-brand">
+                {formatNaira(selected.price)}
+              </p>
+              {selectedDeal != null && selected.compare_at_price && (
+                <>
+                  <s className="text-lg text-foreground/45">
+                    {formatNaira(selected.compare_at_price)}
+                  </s>
+                  <span className="rounded-full bg-leaf px-2.5 py-0.5 text-xs font-semibold text-white">
+                    Website deal · save {selectedDeal}%
+                  </span>
+                </>
+              )}
+            </div>
           )}
 
           {variants.length === 0 ? (
@@ -155,7 +170,17 @@ function ProductPage() {
                       active={v.id === selected?.id}
                       onClick={() => setPackSize(v.pack_size)}
                     >
-                      {v.pack_size}-in-1 · {formatNaira(v.price)}
+                      {packLabel(v.pack_size, unit)} · {formatNaira(v.price)}
+                      {dealPercent(v) != null && (
+                        <span
+                          className={cn(
+                            "ml-1.5 rounded-full px-1.5 text-[11px]",
+                            v.id === selected?.id ? "bg-white/25" : "bg-leaf/15 text-leaf",
+                          )}
+                        >
+                          −{dealPercent(v)}%
+                        </span>
+                      )}
                     </OptionButton>
                   ))}
                 </OptionGroup>
@@ -283,4 +308,9 @@ function OptionButton({
       {children}
     </button>
   );
+}
+
+function packLabel(size: number, unit: string | null) {
+  if (unit) return `${size} ${size > 1 ? `${unit}s` : unit}`;
+  return size > 1 ? `${size}-in-1` : "Single";
 }

@@ -15,6 +15,7 @@ interface Draft {
   length_label: string;
   pack_size: string;
   price: string; // naira
+  compare: string; // naira, "was" price for deals; "" = no deal
   stock: string;
   sku: string;
   is_active: boolean;
@@ -25,14 +26,18 @@ function toDraft(variant: Variant): Draft {
     length_label: variant.length_label ?? "",
     pack_size: String(variant.pack_size),
     price: String(variant.price / 100),
+    compare: variant.compare_at_price ? String(variant.compare_at_price / 100) : "",
     stock: String(variant.stock),
     sku: variant.sku ?? "",
     is_active: variant.is_active,
   };
 }
 
-function fromDraft(draft: Draft) {
+function fromDraft(draft: Draft, withCompare: boolean) {
   const price = Math.round(Number(draft.price) * 100);
+  const compare = draft.compare.trim() ? Math.round(Number(draft.compare) * 100) : null;
+  if (compare != null && (!Number.isFinite(compare) || compare <= price))
+    throw new Error('The "was" price must be higher than the price (or leave it empty)');
   const pack = Number.parseInt(draft.pack_size, 10);
   const stock = Number.parseInt(draft.stock, 10);
   if (!Number.isFinite(price) || price < 0) throw new Error("Enter a valid price");
@@ -45,6 +50,7 @@ function fromDraft(draft: Draft) {
     stock,
     sku: draft.sku.trim() || null,
     is_active: draft.is_active,
+    ...(withCompare && { compare_at_price: compare }),
   };
 }
 
@@ -52,6 +58,7 @@ const EMPTY_DRAFT: Draft = {
   length_label: "",
   pack_size: "1",
   price: "",
+  compare: "",
   stock: "0",
   sku: "",
   is_active: true,
@@ -69,6 +76,8 @@ export function VariantRows({
 }) {
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
+  // The "was" price column exists once the 0004 migration has run.
+  const withCompare = variants.some((v) => "compare_at_price" in v);
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["admin"] });
     void queryClient.invalidateQueries({ queryKey: ["products"] });
@@ -84,6 +93,7 @@ export function VariantRows({
               <th className={th}>Length</th>
               <th className={th}>Pack (in 1)</th>
               <th className={th}>Price (₦)</th>
+              {withCompare && <th className={th}>Was (₦)</th>}
               <th className={th}>Stock</th>
               <th className={th}>SKU</th>
               <th className={th}>Active</th>
@@ -93,12 +103,18 @@ export function VariantRows({
         )}
         <tbody className="divide-y divide-foreground/5">
           {variants.map((variant) => (
-            <VariantRow key={variant.id} variant={variant} onChanged={invalidate} />
+            <VariantRow
+              key={variant.id}
+              variant={variant}
+              withCompare={withCompare}
+              onChanged={invalidate}
+            />
           ))}
           {adding && (
             <NewVariantRow
               productId={productId}
               sort={variants.length + 1}
+              withCompare={withCompare}
               onDone={() => setAdding(false)}
               onChanged={invalidate}
             />
@@ -114,7 +130,15 @@ export function VariantRows({
   );
 }
 
-function VariantRow({ variant, onChanged }: { variant: Variant; onChanged: () => void }) {
+function VariantRow({
+  variant,
+  withCompare,
+  onChanged,
+}: {
+  variant: Variant;
+  withCompare: boolean;
+  onChanged: () => void;
+}) {
   const [draft, setDraft] = useState<Draft>(() => toDraft(variant));
   useEffect(() => setDraft(toDraft(variant)), [variant]);
   const original = toDraft(variant);
@@ -125,7 +149,7 @@ function VariantRow({ variant, onChanged }: { variant: Variant; onChanged: () =>
       unwrap(
         await supabase
           .from("product_variants")
-          .update(fromDraft(next))
+          .update(fromDraft(next, withCompare))
           .eq("id", variant.id)
           .select(),
       ),
@@ -150,6 +174,7 @@ function VariantRow({ variant, onChanged }: { variant: Variant; onChanged: () =>
     <DraftCells
       draft={draft}
       setDraft={setDraft}
+      withCompare={withCompare}
       hint={formatNaira(variant.price)}
       actions={
         <>
@@ -185,11 +210,13 @@ function VariantRow({ variant, onChanged }: { variant: Variant; onChanged: () =>
 function NewVariantRow({
   productId,
   sort,
+  withCompare,
   onDone,
   onChanged,
 }: {
   productId: string;
   sort: number;
+  withCompare: boolean;
   onDone: () => void;
   onChanged: () => void;
 }) {
@@ -199,7 +226,7 @@ function NewVariantRow({
       unwrap(
         await supabase
           .from("product_variants")
-          .insert({ ...fromDraft(draft), product_id: productId, sort })
+          .insert({ ...fromDraft(draft, withCompare), product_id: productId, sort })
           .select(),
       ),
     onSuccess: () => {
@@ -213,6 +240,7 @@ function NewVariantRow({
     <DraftCells
       draft={draft}
       setDraft={setDraft}
+      withCompare={withCompare}
       onToggleActive={(checked) => setDraft((d) => ({ ...d, is_active: checked }))}
       actions={
         <>
@@ -242,9 +270,11 @@ function DraftCells({
   setDraft,
   actions,
   hint,
+  withCompare,
   onToggleActive,
 }: {
   draft: Draft;
+  withCompare: boolean;
   setDraft: React.Dispatch<React.SetStateAction<Draft>>;
   actions: React.ReactNode;
   hint?: string;
@@ -284,6 +314,20 @@ function DraftCells({
           title={hint}
         />
       </td>
+      {withCompare && (
+        <td className={td}>
+          <input
+            value={draft.compare}
+            onChange={set("compare")}
+            type="number"
+            min={0}
+            step="50"
+            placeholder="No deal"
+            title='Optional. Shown crossed out as the "was" price on the shop.'
+            className={cn(adminInput, "w-28 text-foreground/70")}
+          />
+        </td>
+      )}
       <td className={td}>
         <input
           value={draft.stock}

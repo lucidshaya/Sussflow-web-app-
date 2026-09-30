@@ -27,6 +27,13 @@ export function lowestPrice(variants: Pick<Variant, "price" | "is_active">[]) {
   return prices.length ? Math.min(...prices) : null;
 }
 
+/** Whole-number % saved when a variant has a higher "was" price, else null. */
+export function dealPercent(variant: Pick<Variant, "price" | "compare_at_price">) {
+  const was = variant.compare_at_price;
+  if (!was || was <= variant.price) return null;
+  return Math.round((1 - variant.price / was) * 100);
+}
+
 export function slugify(value: string) {
   return value
     .toLowerCase()

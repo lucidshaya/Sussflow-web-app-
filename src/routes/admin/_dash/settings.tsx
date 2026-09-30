@@ -81,6 +81,8 @@ function StoreSettings() {
       />
     );
 
+  // TikTok/Facebook columns arrive with the 0004 migration.
+  const hasSocials = "tiktok_url" in draft;
   const cls = (key: string) => cn(adminInput, errors[key] && adminInvalid);
   const clear = (key: string) => {
     if (errors[key]) setErrors((e) => ({ ...e, [key]: undefined }));
@@ -100,7 +102,9 @@ function StoreSettings() {
       | "contact_email"
       | "contact_phone"
       | "whatsapp_url"
-      | "instagram_url",
+      | "instagram_url"
+      | "tiktok_url"
+      | "facebook_url",
   ) => ({
     value: draft[key] ?? "",
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -125,6 +129,10 @@ function StoreSettings() {
           contact_phone: draft.contact_phone ?? "",
           whatsapp_url: draft.whatsapp_url ?? "",
           instagram_url: draft.instagram_url ?? "",
+          ...(hasSocials && {
+            tiktok_url: draft.tiktok_url ?? "",
+            facebook_url: draft.facebook_url ?? "",
+          }),
         });
         if (!result.success) {
           setErrors(toFieldErrors(result.error));
@@ -132,7 +140,7 @@ function StoreSettings() {
           return;
         }
         setErrors({});
-        const v = result.data;
+        const { tiktok_url, facebook_url, ...v } = result.data;
         save.mutate({
           ...draft,
           ...v,
@@ -141,6 +149,10 @@ function StoreSettings() {
           contact_phone: v.contact_phone ?? null,
           whatsapp_url: v.whatsapp_url ?? null,
           instagram_url: v.instagram_url ?? null,
+          ...(hasSocials && {
+            tiktok_url: tiktok_url ?? null,
+            facebook_url: facebook_url ?? null,
+          }),
         });
       }}
     >
@@ -217,6 +229,26 @@ function StoreSettings() {
             {...text("instagram_url")}
           />
         </AdminField>
+        {hasSocials && (
+          <>
+            <AdminField error={errors["tiktok_url"]} label="TikTok link">
+              <input
+                type="url"
+                placeholder="https://tiktok.com/@…"
+                className={cls("tiktok_url")}
+                {...text("tiktok_url")}
+              />
+            </AdminField>
+            <AdminField error={errors["facebook_url"]} label="Facebook link">
+              <input
+                type="url"
+                placeholder="https://facebook.com/…"
+                className={cls("facebook_url")}
+                {...text("facebook_url")}
+              />
+            </AdminField>
+          </>
+        )}
       </div>
       <AdminField error={errors["pickup_address"]} label="Pickup address">
         <input required className={cls("pickup_address")} {...text("pickup_address")} />

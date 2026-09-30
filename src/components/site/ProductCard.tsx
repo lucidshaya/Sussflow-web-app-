@@ -3,7 +3,7 @@ import { ArrowRight, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
-import { formatNaira, lowestPrice } from "@/lib/format";
+import { dealPercent, formatNaira, lowestPrice } from "@/lib/format";
 import type { ProductWithVariants } from "@/lib/types";
 
 import { glassPanel } from "./primitives";
@@ -16,6 +16,7 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
   const active = product.product_variants.filter((variant) => variant.is_active);
   const from = lowestPrice(active);
   const single = active.length === 1 ? active[0] : undefined;
+  const deal = Math.max(0, ...active.map((variant) => dealPercent(variant) ?? 0));
   const soldOut = active.length > 0 && active.every((variant) => variant.stock <= 0);
 
   return (
@@ -33,6 +34,11 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
           alt={product.name}
           className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
         />
+        {deal > 0 && (
+          <span className="absolute right-2 top-2 rounded-full bg-leaf px-2 py-0.5 text-[11px] font-semibold text-white shadow sm:right-3 sm:top-3 sm:px-2.5 sm:text-xs">
+            −{deal}%
+          </span>
+        )}
         {product.categories && (
           <span className="absolute left-3 top-3 hidden rounded-full sm:inline-block border border-glass-border bg-glass px-3 py-1 text-[11px] font-semibold text-foreground/80 backdrop-blur-xl">
             {product.categories.name}

@@ -30,6 +30,8 @@ export interface Variant {
   length_label: string | null;
   pack_size: number;
   price: number; // kobo
+  /** Display-only "was" price for deals (0004 migration); checkout always charges `price`. */
+  compare_at_price?: number | null;
   stock: number;
   sku: string | null;
   is_active: boolean;
@@ -136,4 +138,7 @@ export interface Settings {
   contact_phone: string | null;
   whatsapp_url: string | null;
   instagram_url: string | null;
+  // Added by 0004_deals_socials; absent until that migration runs.
+  tiktok_url?: string | null;
+  facebook_url?: string | null;
 }

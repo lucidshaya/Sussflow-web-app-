@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BadgeCheck, GraduationCap, MapPin, Truck } from "lucide-react";
 
+import { DealBanners, TrustBadges } from "@/components/site/Deals";
 import { HomeHero, TrustStrip } from "@/components/site/HomeHero";
 import { PersonaCard } from "@/components/site/PersonaCard";
 import { glassCard, glassPanel, SectionHeading, SetupNotice } from "@/components/site/primitives";
@@ -91,6 +92,27 @@ function HomePage() {
               ))}
             </SwipeRow>
           )}
+        </div>
+      </section>
+
+      {/* Website-only deals */}
+      <section id="deals" className="mx-auto max-w-7xl scroll-mt-10 px-5 py-10">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <SectionHeading eyebrow="Only on our website" title="Website-only deals" />
+          <Link
+            to="/deals"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline"
+          >
+            See all deals <ArrowRight className="size-4" />
+          </Link>
+        </div>
+        {isSupabaseConfigured && <DealBanners />}
+      </section>
+
+      {/* Trust badges */}
+      <section className="mx-auto max-w-7xl px-5 py-10">
+        <div className={`${glassCard} px-5 py-9 md:px-10`}>
+          <TrustBadges />
         </div>
       </section>
 

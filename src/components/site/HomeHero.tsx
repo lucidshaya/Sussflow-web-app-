@@ -217,8 +217,11 @@ export function TrustStrip() {
 
 export function AnnouncementBar() {
   return (
-    <div className="flex items-center justify-center bg-primary-foreground px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-brand sm:text-sm">
-      Reusable period care for Nigeria · Lagos pickup &amp; nationwide delivery
-    </div>
+    <Link
+      to="/deals"
+      className="flex items-center justify-center bg-primary-foreground px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-brand hover:underline sm:text-sm"
+    >
+      Website-only deals are live · Shop deals →
+    </Link>
   );
 }

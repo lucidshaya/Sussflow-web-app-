@@ -132,7 +132,7 @@ function Overview() {
           icon={<Inbox className="size-5" />}
           label="New enquiries"
           value={String(counts.data?.newEnquiries ?? "–")}
-          sub="Sessions, partners & waitlist"
+          sub="Sessions, partners & email list"
           link="/admin/enquiries"
         />
       </div>
