@@ -1,15 +1,20 @@
 import { Check, CircleSlash } from "lucide-react";
 
 import { formatDate } from "@/lib/format";
-import { orderTimeline, statusLabel } from "@/lib/order-flow";
-import type { Order } from "@/lib/types";
+import { orderTimeline, statusLabel, type TimelineOrder } from "@/lib/order-flow";
 import { cn } from "@/lib/utils";
 
 /**
  * Vertical progress tracker for an order. Customers see what happens next;
  * admins (`forAdmin`) also see what they need to do to reach each step.
  */
-export function OrderTimeline({ order, forAdmin = false }: { order: Order; forAdmin?: boolean }) {
+export function OrderTimeline({
+  order,
+  forAdmin = false,
+}: {
+  order: TimelineOrder;
+  forAdmin?: boolean;
+}) {
   const steps = orderTimeline(order);
   const stopped = order.status === "cancelled" || order.status === "failed";
 

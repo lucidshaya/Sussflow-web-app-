@@ -122,6 +122,17 @@ export const enquirySchema = z
     }
   });
 
+/** Guest order lookup: the order number from the receipt plus the email used at checkout. */
+export const trackOrderSchema = z.object({
+  reference: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .min(1, "Enter your order number")
+    .regex(/^SF-[A-Z0-9]+-[A-Z0-9]+$/, "Order numbers look like SF-MUNPVKUX-42ED75"),
+  email: emailSchema,
+});
+
 export const waitlistSchema = z.object({ email: emailSchema });
 
 export const profileSchema = z.object({

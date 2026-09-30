@@ -21,6 +21,7 @@ import { Route as SiteFaqRouteImport } from './routes/_site/faq'
 import { Route as SiteFindYourFitRouteImport } from './routes/_site/find-your-fit'
 import { Route as SiteShopRouteImport } from './routes/_site/shop'
 import { Route as SiteStoreLocationRouteImport } from './routes/_site/store-location'
+import { Route as SiteTrackRouteImport } from './routes/_site/track'
 import { Route as AdminDashRouteImport } from './routes/admin/_dash'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as SiteAccountIndexRouteImport } from './routes/_site/account.index'
@@ -98,6 +99,11 @@ const SiteShopRoute = SiteShopRouteImport.update({
 const SiteStoreLocationRoute = SiteStoreLocationRouteImport.update({
   id: '/store-location',
   path: '/store-location',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteTrackRoute = SiteTrackRouteImport.update({
+  id: '/track',
+  path: '/track',
   getParentRoute: () => SiteRoute,
 } as any)
 const AdminDashRoute = AdminDashRouteImport.update({
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/find-your-fit': typeof SiteFindYourFitRoute
   '/shop': typeof SiteShopRoute
   '/store-location': typeof SiteStoreLocationRoute
+  '/track': typeof SiteTrackRoute
   '/admin': typeof AdminDashRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/checkout/callback': typeof SiteCheckoutCallbackRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByTo {
   '/find-your-fit': typeof SiteFindYourFitRoute
   '/shop': typeof SiteShopRoute
   '/store-location': typeof SiteStoreLocationRoute
+  '/track': typeof SiteTrackRoute
   '/admin/login': typeof AdminLoginRoute
   '/': typeof SiteIndexRoute
   '/checkout/callback': typeof SiteCheckoutCallbackRoute
@@ -272,6 +280,7 @@ export interface FileRoutesById {
   '/_site/find-your-fit': typeof SiteFindYourFitRoute
   '/_site/shop': typeof SiteShopRoute
   '/_site/store-location': typeof SiteStoreLocationRoute
+  '/_site/track': typeof SiteTrackRoute
   '/admin/_dash': typeof AdminDashRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/_site/': typeof SiteIndexRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/find-your-fit'
     | '/shop'
     | '/store-location'
+    | '/track'
     | '/admin'
     | '/admin/login'
     | '/checkout/callback'
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/find-your-fit'
     | '/shop'
     | '/store-location'
+    | '/track'
     | '/admin/login'
     | '/'
     | '/checkout/callback'
@@ -370,6 +381,7 @@ export interface FileRouteTypes {
     | '/_site/find-your-fit'
     | '/_site/shop'
     | '/_site/store-location'
+    | '/_site/track'
     | '/admin/_dash'
     | '/admin/login'
     | '/_site/'
@@ -483,6 +495,13 @@ declare module '@tanstack/react-router' {
       path: '/store-location'
       fullPath: '/store-location'
       preLoaderRoute: typeof SiteStoreLocationRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/track': {
+      id: '/_site/track'
+      path: '/track'
+      fullPath: '/track'
+      preLoaderRoute: typeof SiteTrackRouteImport
       parentRoute: typeof SiteRoute
     }
     '/admin/_dash': {
@@ -632,6 +651,7 @@ interface SiteRouteChildren {
   SiteFindYourFitRoute: typeof SiteFindYourFitRoute
   SiteShopRoute: typeof SiteShopRoute
   SiteStoreLocationRoute: typeof SiteStoreLocationRoute
+  SiteTrackRoute: typeof SiteTrackRoute
   SiteIndexRoute: typeof SiteIndexRoute
   SiteCheckoutCallbackRoute: typeof SiteCheckoutCallbackRoute
   SiteProductsSlugRoute: typeof SiteProductsSlugRoute
@@ -651,6 +671,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteFindYourFitRoute: SiteFindYourFitRoute,
   SiteShopRoute: SiteShopRoute,
   SiteStoreLocationRoute: SiteStoreLocationRoute,
+  SiteTrackRoute: SiteTrackRoute,
   SiteIndexRoute: SiteIndexRoute,
   SiteCheckoutCallbackRoute: SiteCheckoutCallbackRoute,
   SiteProductsSlugRoute: SiteProductsSlugRoute,

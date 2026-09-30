@@ -167,7 +167,7 @@ export function useCartDetails() {
       productName: row.products.name,
       productSlug: row.products.slug,
       imageUrl: row.products.image_url,
-      label: variantLabel(row),
+      label: variantLabel(row, row.products.slug),
     });
   }
   const unavailable = query.isSuccess

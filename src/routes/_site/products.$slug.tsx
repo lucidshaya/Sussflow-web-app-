@@ -20,7 +20,7 @@ import { ProductGallery } from "@/components/site/ProductGallery";
 import { Button } from "@/components/ui/button";
 import { FAQ_GROUPS, PRODUCT_FAQ_GROUP } from "@/content/site";
 import { useCart } from "@/lib/cart";
-import { dealPercent, formatNaira } from "@/lib/format";
+import { dealPercent, formatNaira, packLabel, soldInPairs } from "@/lib/format";
 import { productBySlugQuery } from "@/lib/queries";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import type { Variant } from "@/lib/types";
@@ -97,8 +97,6 @@ function ProductPage() {
   }
 
   const p = product.data;
-  // Period pants are sold in pairs; everything else uses the price list's "N-in-1" wording.
-  const unit = p.categories?.slug === "period-underwear" ? "pair" : null;
   const images = [p.image_url ?? "/images/pads.jpg", ...p.gallery.filter(Boolean)];
   const faqGroup = FAQ_GROUPS.find((group) => group.id === PRODUCT_FAQ_GROUP[p.slug]);
   const outOfStock = !selected || selected.stock <= 0;
@@ -170,7 +168,7 @@ function ProductPage() {
                       active={v.id === selected?.id}
                       onClick={() => setPackSize(v.pack_size)}
                     >
-                      {packLabel(v.pack_size, unit)} · {formatNaira(v.price)}
+                      {optionLabel(v.pack_size, p.slug)} · {formatNaira(v.price)}
                       {dealPercent(v) != null && (
                         <span
                           className={cn(
@@ -310,7 +308,7 @@ function OptionButton({
   );
 }
 
-function packLabel(size: number, unit: string | null) {
-  if (unit) return `${size} ${size > 1 ? `${unit}s` : unit}`;
-  return size > 1 ? `${size}-in-1` : "Single";
+function optionLabel(size: number, productSlug: string) {
+  if (size > 1) return packLabel(size, productSlug)?.replace(/ pack$/, "");
+  return soldInPairs(productSlug) ? "1 pair" : "Single";
 }

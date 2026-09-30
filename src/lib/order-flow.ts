@@ -106,7 +106,20 @@ export interface TimelineStep extends StepCopy {
   at: string | null | undefined;
 }
 
-const STAMP: Record<FlowStatus, keyof Order> = {
+/** The order fields the timeline needs (all a guest tracking lookup returns). */
+export type TimelineOrder = Pick<
+  Order,
+  | "status"
+  | "fulfilment"
+  | "created_at"
+  | "paid_at"
+  | "processing_at"
+  | "shipped_at"
+  | "delivered_at"
+  | "cancelled_at"
+>;
+
+const STAMP: Record<FlowStatus, keyof TimelineOrder> = {
   pending: "created_at",
   paid: "paid_at",
   processing: "processing_at",
@@ -115,7 +128,7 @@ const STAMP: Record<FlowStatus, keyof Order> = {
 };
 
 /** The five fulfilment steps: reached steps are done, the next one is current. */
-export function orderTimeline(order: Order): TimelineStep[] {
+export function orderTimeline(order: TimelineOrder): TimelineStep[] {
   const reached = inFlow(order.status) ? FLOW.indexOf(order.status) : -1;
   const ended = reached < 0;
   // A cancelled/failed order keeps the steps it had reached before it stopped.

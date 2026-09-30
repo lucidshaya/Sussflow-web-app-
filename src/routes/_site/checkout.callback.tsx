@@ -107,9 +107,23 @@ function CallbackPage() {
           <Button asChild>
             <Link to="/shop">Continue shopping</Link>
           </Button>
-          <Button asChild variant="glass">
-            <Link to="/account">My orders</Link>
-          </Button>
+          {result.data?.order ? (
+            <Button asChild variant="glass">
+              <Link
+                to="/track"
+                search={{
+                  ref: result.data.order.reference as string,
+                  email: result.data.order.email as string,
+                }}
+              >
+                Track your order
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild variant="glass">
+              <Link to="/account">My orders</Link>
+            </Button>
+          )}
         </div>
       </div>
     </section>

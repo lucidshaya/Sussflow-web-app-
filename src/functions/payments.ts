@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { variantLabel } from "@/lib/format";
 import { checkoutCustomerSchema } from "@/lib/validation";
 import { getSupabaseAdmin, getUserFromToken, serverEnv } from "@/lib/supabase.server";
 import { fetchPaystackTransaction, markOrderPaid, PAYSTACK_API } from "./paystack.server";
@@ -23,15 +24,11 @@ interface VariantRow {
   length_label: string | null;
   pack_size: number;
   product_id: string;
-  products: { name: string; is_active: boolean } | null;
+  products: { name: string; slug: string; is_active: boolean } | null;
 }
 
-function variantText(v: { length_label: string | null; pack_size: number }) {
-  return (
-    [v.length_label, v.pack_size > 1 ? `${v.pack_size}-in-1 pack` : null]
-      .filter(Boolean)
-      .join(" · ") || null
-  );
+function variantText(v: VariantRow) {
+  return variantLabel(v, v.products?.slug) || null;
 }
 
 function siteUrl() {
@@ -52,7 +49,7 @@ export const initCheckout = createServerFn({ method: "POST" })
     const { data: variants, error } = await db
       .from("product_variants")
       .select(
-        "id, price, stock, is_active, length_label, pack_size, product_id, products(name, is_active)",
+        "id, price, stock, is_active, length_label, pack_size, product_id, products(name, slug, is_active)",
       )
       .in("id", ids)
       .returns<VariantRow[]>();
@@ -89,7 +86,7 @@ export const initCheckout = createServerFn({ method: "POST" })
       .insert({
         reference,
         user_id: user?.id ?? null,
-        email: data.email,
+        email: data.email.toLowerCase(),
         full_name: data.fullName,
         phone: data.phone,
         fulfilment: data.fulfilment,

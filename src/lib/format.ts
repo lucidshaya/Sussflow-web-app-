@@ -15,10 +15,27 @@ export function toKobo(naira: number) {
   return Math.round(naira * 100);
 }
 
-export function variantLabel(variant: Pick<Variant, "length_label" | "pack_size">) {
+/** Products sold by the pair (period pants) rather than in "N-in-1" packs. */
+const SOLD_IN_PAIRS = new Set(["period-underwear"]);
+
+export function soldInPairs(productSlug: string | null | undefined) {
+  return Boolean(productSlug && SOLD_IN_PAIRS.has(productSlug));
+}
+
+/** "3-in-1 pack", or "3 pairs" for period pants; null for a single item. */
+export function packLabel(size: number, productSlug?: string | null) {
+  if (size <= 1) return null;
+  return soldInPairs(productSlug) ? `${size} pairs` : `${size}-in-1 pack`;
+}
+
+export function variantLabel(
+  variant: Pick<Variant, "length_label" | "pack_size">,
+  productSlug?: string | null,
+) {
   const parts: string[] = [];
   if (variant.length_label) parts.push(variant.length_label);
-  if (variant.pack_size > 1) parts.push(`${variant.pack_size}-in-1 pack`);
+  const pack = packLabel(variant.pack_size, productSlug);
+  if (pack) parts.push(pack);
   return parts.join(" · ");
 }
 

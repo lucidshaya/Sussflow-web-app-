@@ -43,6 +43,7 @@ const COLUMNS = [
   {
     title: "Help",
     links: [
+      { to: "/track", label: "Track your order" },
       { to: "/store-location", label: "Lagos pickup & delivery" },
       { to: "/education", label: "Partner with us" },
       { to: "/account", label: "My account" },
