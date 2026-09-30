@@ -50,8 +50,20 @@ function ResetPasswordPage() {
       if (session && (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN")) ready();
     });
     const code = query.get("code");
+    const tokenHash = query.get("token_hash");
     void (async () => {
-      if (code) {
+      // Email template style link: /reset-password?token_hash=…&type=recovery (works on any device).
+      if (tokenHash) {
+        const { error: otpError } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: "recovery",
+        });
+        if (otpError) {
+          setLinkError(otpError.message);
+          setStage("invalid");
+          return;
+        }
+      } else if (code) {
         const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
         if (exchangeError) {
           setLinkError(exchangeError.message);
