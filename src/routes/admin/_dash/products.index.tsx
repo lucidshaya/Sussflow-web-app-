@@ -66,11 +66,18 @@ function ProductsList() {
         title="Products"
         description={`${products.data?.length ?? 0} products in the catalogue`}
         actions={
-          <Button asChild>
-            <Link to="/admin/products/new">
-              <Plus className="size-4" /> New product
-            </Link>
-          </Button>
+          <>
+            <Button variant="glass" asChild>
+              <Link to="/admin/products/new" search={{ kit: true }}>
+                <Plus className="size-4" /> New kit
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link to="/admin/products/new">
+                <Plus className="size-4" /> New product
+              </Link>
+            </Button>
+          </>
         }
       />
       <div className={adminCard}>

@@ -16,12 +16,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { KitAddons, KitContents, KitRelated } from "@/components/site/Kit";
+import { PAIR_PRODUCT_SLUGS, PairUp } from "@/components/site/PairUp";
 import { ProductGallery } from "@/components/site/ProductGallery";
 import { Button } from "@/components/ui/button";
 import { FAQ_GROUPS, PRODUCT_FAQ_GROUP } from "@/content/site";
 import { useCart } from "@/lib/cart";
 import { dealPercent, formatNaira, packLabel, soldInPairs } from "@/lib/format";
-import { productBySlugQuery } from "@/lib/queries";
+import { bundleItemsQuery, itemsOf, productBySlugQuery } from "@/lib/queries";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import type { Variant } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -40,6 +42,12 @@ export const Route = createFileRoute("/_site/products/$slug")({
 function ProductPage() {
   const { slug } = Route.useParams();
   const product = useQuery(productBySlugQuery(slug));
+  const kitItems = useQuery(bundleItemsQuery(product.data ? [product.data.id] : []));
+  const kit = {
+    included: itemsOf(kitItems.data, "included"),
+    addons: itemsOf(kitItems.data, "addon"),
+    related: itemsOf(kitItems.data, "related"),
+  };
   const { add } = useCart();
 
   const variants = useMemo(
@@ -138,7 +146,7 @@ function ProductPage() {
 
           {variants.length === 0 ? (
             <p className="mt-6 rounded-2xl border border-glass-border bg-glass-soft p-4 text-sm">
-              This product is coming soon. Chat with us to pre-order.
+              This product is coming soon. Check back shortly.
             </p>
           ) : (
             <div className="mt-6 space-y-5">
@@ -229,13 +237,39 @@ function ProductPage() {
             </div>
           )}
 
-          {p.description && (
-            <p className="mt-7 leading-relaxed text-foreground/75">{p.description}</p>
+          {p.description
+            ?.split(/\n\s*\n/)
+            .filter(Boolean)
+            .map((para, i) => (
+              <p
+                key={para}
+                className={`${i === 0 ? "mt-7" : "mt-3"} leading-relaxed text-foreground/75`}
+              >
+                {para}
+              </p>
+            ))}
+          {kit.included.length > 0 && (
+            <div className="mt-6 rounded-2xl border border-glass-border bg-glass-soft p-4">
+              <KitContents items={kit.included} />
+            </div>
           )}
           {p.perfect_for && (
             <p className="mt-4 rounded-2xl border border-glass-border bg-glass-soft p-4 text-sm">
               <strong>Perfect for:</strong> {p.perfect_for}
             </p>
+          )}
+          {kit.addons.length > 0 && (
+            <div className="mt-6">
+              <KitAddons items={kit.addons} />
+            </div>
+          )}
+          {kit.related.length > 0 && (
+            <div className="mt-6">
+              <p className="mb-2 text-xs font-semibold uppercase text-brand">Also see</p>
+              <div className="flex flex-wrap gap-2">
+                <KitRelated items={kit.related} />
+              </div>
+            </div>
           )}
           <ul className="mt-5 space-y-2 text-sm text-foreground/70">
             <li className="flex items-center gap-2">
@@ -248,6 +282,12 @@ function ProductPage() {
           </ul>
         </div>
       </div>
+
+      {PAIR_PRODUCT_SLUGS.has(p.slug) && (
+        <div className="-mx-5">
+          <PairUp highlight={p.slug} />
+        </div>
+      )}
 
       {faqGroup && (
         <section className={`${glassCard} mt-8 p-7 md:p-9`}>

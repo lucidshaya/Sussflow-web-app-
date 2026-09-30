@@ -11,6 +11,7 @@ import {
   ErrorNote,
   Loading,
 } from "@/components/admin/ui";
+import { KitItemsEditor } from "@/components/admin/KitItemsEditor";
 import { VariantRows } from "@/components/admin/VariantRows";
 import { Button } from "@/components/ui/button";
 import { supabase, unwrap } from "@/lib/supabase";
@@ -102,6 +103,15 @@ function EditProduct() {
           Each option is a length + pack size combination with its own price and stock.
         </p>
         <VariantRows productId={p.id} variants={p.product_variants} />
+      </section>
+
+      <section className={`${adminCard} mb-5`}>
+        <h2 className="font-display text-lg font-semibold">Kit contents</h2>
+        <p className="mb-3 text-sm text-foreground/60">
+          For kits and bundles: list what's inside, add-ons customers can pick to customise it, and
+          related products to link to. Kits in the “Bundles” category appear on the Bundles page.
+        </p>
+        <KitItemsEditor bundleId={p.id} />
       </section>
 
       <ProductForm

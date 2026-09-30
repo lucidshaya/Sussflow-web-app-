@@ -2,111 +2,40 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 
-import { glassCard, PageHero } from "@/components/site/primitives";
+import { KitContents, KitRelated } from "@/components/site/Kit";
+import { EmptyState, glassCard, PageHero, SetupNotice } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
-import { formatNaira, lowestPrice } from "@/lib/format";
-import { productsQuery } from "@/lib/queries";
-import type { ProductWithVariants } from "@/lib/types";
+import { dealPercent, formatNaira, lowestPrice } from "@/lib/format";
+import { bundleItemsQuery, itemsOf, productsQuery } from "@/lib/queries";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 export const Route = createFileRoute("/_site/bundles")({
   head: () => ({
     meta: [
-      { title: "Period Care Bundles | Sussflow Nigeria" },
+      { title: "Period Care Kits & Bundles | Sussflow Nigeria" },
       {
         name: "description",
         content:
-          "Sussflow bundles designed around different period-care journeys: Curious Switcher, Pad Girl, Cup Convert, Period Peace Kit and First Period Box.",
+          "Sussflow kits and bundles designed around different period-care journeys, from first periods to switching to reusable pads and cups.",
       },
     ],
   }),
   component: BundlesPage,
 });
 
-interface Bundle {
-  slug: string;
-  name: string;
-  quote: string;
-  body: string[];
-  perfectFor: string;
-  cta: string;
-  image: string;
-  /** A related product shown as a second button, e.g. the Back-to-School Kit. */
-  alsoSee?: { slug: string; label: string };
-}
+/** Show a stored quote with consistent curly quotes, whether or not it was saved with them. */
+const asQuote = (text: string) => `“${text.trim().replace(/^[“"]+|[”"]+$/g, "")}”`;
 
-const BUNDLES: Bundle[] = [
-  {
-    slug: "the-curious-switcher",
-    name: "The Curious Switcher",
-    quote: "I know I want to switch. I just don't know what suits me yet.",
-    body: [
-      "You've been thinking about moving away from disposable sanitary pads, but you don't want to make a big leap without understanding your options.",
-      "Start here. A carefully selected introduction to reusable menstrual care designed to help you discover what works for you.",
-    ],
-    perfectFor: "First-time switchers, beginners and anyone exploring reusable menstrual products.",
-    cta: "Start my switch",
-    image: "/images/kit.jpg",
-  },
-  {
-    slug: "the-pad-girl",
-    name: "The Pad Girl",
-    quote: "Give me a pad. Just make it safer.",
-    body: [
-      "You know what you like. You're comfortable with pads, you don't want to insert anything, and you're ready for a long-term alternative to disposable sanitary pads.",
-      "A practical reusable pad setup designed to support different days of your cycle.",
-    ],
-    perfectFor:
-      "Pad lovers, comfort-first customers and women making the switch from disposable pads.",
-    cta: "I'm a Pad Girl",
-    image: "/images/pads.jpg",
-  },
-  {
-    slug: "the-cup-convert",
-    name: "The Cup Convert",
-    quote: "I'm ready for freedom.",
-    body: [
-      "You've done the research. You're ready to try a menstrual cup—or you already know cups are your thing.",
-      "This bundle brings together your menstrual cup and essential cup-care products.",
-    ],
-    perfectFor: "First-time cup users and women looking for long-term reusable period care.",
-    cta: "Become a Cup Girl",
-    image: "/images/cup.jpg",
-  },
-  {
-    slug: "the-period-peace-kit",
-    name: "The Period Peace Kit",
-    quote: "I don't want to think about my period every month.",
-    body: [
-      "You want your period care sorted. Different flow days. Different situations. One thoughtful setup.",
-      "This is your “I've got this” period-care kit.",
-    ],
-    perfectFor:
-      "Busy women, students, working professionals, travellers and anyone building a dependable period-care routine.",
-    cta: "Get my period sorted",
-    image: "/images/underwear.jpg",
-  },
-  {
-    slug: "the-first-period-box",
-    name: "The First Period Box",
-    quote: "I want her first period to feel normal—not scary.",
-    body: [
-      "For parents, guardians and loved ones preparing a young girl for menstruation.",
-      "The First Period Box combines practical menstrual care, education and useful tools to help her understand menstruation and navigate her first periods with confidence.",
-    ],
-    perfectFor: "Daughters, nieces, sisters, students and girls preparing for their first period.",
-    cta: "Shop the First Period Box",
-    image: "/images/kit.jpg",
-    alsoSee: { slug: "back-to-school-kit", label: "Back-to-School Kit" },
-  },
-];
-
+// Every active product in the "Bundles" category, managed in Admin → Products.
 function BundlesPage() {
-  const live = useQuery(productsQuery());
+  const bundles = useQuery(productsQuery({ categorySlug: "bundles" }));
+  const ids = bundles.data?.map((b) => b.id) ?? [];
+  const items = useQuery(bundleItemsQuery(ids));
 
   return (
     <>
       <PageHero
-        eyebrow="Find your Sussflow bundle"
+        eyebrow="Find your Sussflow kit"
         title="Not sure which menstrual products to choose?"
       >
         We've made choosing easier. These aren't just product bundles.{" "}
@@ -115,89 +44,84 @@ function BundlesPage() {
         </strong>
       </PageHero>
       <section className="mx-auto max-w-7xl space-y-6 px-5 py-8">
-        {BUNDLES.map((bundle, index) => {
-          const product = live.data?.find((p) => p.slug === bundle.slug);
-          const price = product ? lowestPrice(product.product_variants) : null;
-          return (
-            <article
-              key={bundle.slug}
-              className={`${glassCard} grid items-center gap-8 p-7 md:grid-cols-2 md:p-10`}
-            >
-              <img
-                src={product?.image_url ?? bundle.image}
-                alt={bundle.name}
-                loading="lazy"
-                className={`aspect-[4/3] w-full rounded-2xl object-cover ${index % 2 ? "md:order-2" : ""}`}
-              />
-              <div>
-                <p className="text-xs font-semibold uppercase text-brand">{bundle.name}</p>
-                <h2 className="mt-2 font-display text-3xl font-semibold leading-tight">
-                  “{bundle.quote}”
-                </h2>
-                {bundle.body.map((para) => (
-                  <p key={para} className="mt-3 leading-relaxed text-foreground/70">
-                    {para}
-                  </p>
-                ))}
-                <p className="mt-4 rounded-2xl border border-glass-border bg-glass-soft p-4 text-sm">
-                  <strong>Perfect for:</strong> {bundle.perfectFor}
-                </p>
-                <div className="mt-6 flex flex-wrap items-center gap-4">
-                  {product ? (
-                    <>
-                      <Button asChild>
-                        <Link to="/products/$slug" params={{ slug: product.slug }}>
-                          {bundle.cta} <ArrowRight className="size-4" />
-                        </Link>
-                      </Button>
-                      {price != null && (
-                        <span className="font-display text-xl font-semibold">
-                          {formatNaira(price)}
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <Button asChild variant="glass">
-                        <Link to="/store-location" hash="contact">
-                          Chat with us to order
-                        </Link>
-                      </Button>
-                      <span className="text-sm font-medium text-foreground/60">
-                        Online ordering coming soon
-                      </span>
-                    </>
+        {!isSupabaseConfigured ? (
+          <SetupNotice what="the kits" />
+        ) : bundles.isLoading ? (
+          <div className={`${glassCard} h-80 animate-pulse`} />
+        ) : !bundles.data?.length ? (
+          <EmptyState title="New kits are on the way" />
+        ) : (
+          bundles.data.map((bundle, index) => {
+            const variants = bundle.product_variants.filter((v) => v.is_active);
+            const price = lowestPrice(variants);
+            const deal = Math.max(0, ...variants.map((v) => dealPercent(v) ?? 0));
+            const own = items.data?.filter((item) => item.bundle_id === bundle.id);
+            const paragraphs = (bundle.description ?? "").split(/\n\s*\n/).filter(Boolean);
+            return (
+              <article
+                key={bundle.id}
+                className={`${glassCard} grid items-center gap-6 p-5 sm:p-7 md:grid-cols-2 md:gap-8 md:p-10 [&>*]:min-w-0`}
+              >
+                <Link
+                  to="/products/$slug"
+                  params={{ slug: bundle.slug }}
+                  className={`relative block overflow-hidden rounded-2xl ${index % 2 ? "md:order-2" : ""}`}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                >
+                  <img
+                    src={bundle.image_url ?? "/images/kit.jpg"}
+                    alt=""
+                    loading="lazy"
+                    className="aspect-[4/3] w-full object-cover"
+                  />
+                  {deal > 0 && (
+                    <span className="absolute right-3 top-3 rounded-full bg-leaf px-2.5 py-0.5 text-xs font-semibold text-white">
+                      −{deal}%
+                    </span>
                   )}
-                  {bundle.alsoSee && <AlsoSee {...bundle.alsoSee} products={live.data} />}
+                </Link>
+                <div>
+                  <p className="text-xs font-semibold uppercase text-brand">{bundle.name}</p>
+                  <h2 className="mt-2 font-display text-2xl font-semibold leading-tight sm:text-3xl">
+                    {bundle.tagline ? asQuote(bundle.tagline) : bundle.name}
+                  </h2>
+                  {paragraphs.map((para) => (
+                    <p key={para} className="mt-3 leading-relaxed text-foreground/70">
+                      {para}
+                    </p>
+                  ))}
+                  <div className="mt-4">
+                    <KitContents items={itemsOf(own, "included")} compact />
+                  </div>
+                  {bundle.perfect_for && (
+                    <p className="mt-4 rounded-2xl border border-glass-border bg-glass-soft p-4 text-sm">
+                      <strong>Perfect for:</strong> {bundle.perfect_for}
+                    </p>
+                  )}
+                  <div className="mt-6 flex flex-wrap items-center gap-3">
+                    <Button asChild>
+                      <Link to="/products/$slug" params={{ slug: bundle.slug }}>
+                        Shop {bundle.name.replace(/^The /, "the ")}{" "}
+                        <ArrowRight className="size-4" />
+                      </Link>
+                    </Button>
+                    {price != null && (
+                      <span className="font-display text-xl font-semibold">
+                        {variants.length > 1 && (
+                          <span className="mr-1 text-sm font-medium text-foreground/50">from</span>
+                        )}
+                        {formatNaira(price)}
+                      </span>
+                    )}
+                    <KitRelated items={itemsOf(own, "related")} />
+                  </div>
                 </div>
-              </div>
-            </article>
-          );
-        })}
+              </article>
+            );
+          })
+        )}
       </section>
     </>
-  );
-}
-
-function AlsoSee({
-  slug,
-  label,
-  products,
-}: {
-  slug: string;
-  label: string;
-  products: ProductWithVariants[] | undefined;
-}) {
-  const product = products?.find((p) => p.slug === slug);
-  if (!product) return null;
-  const price = lowestPrice(product.product_variants);
-  return (
-    <Button asChild variant="glass">
-      <Link to="/products/$slug" params={{ slug }}>
-        {label}
-        {price != null && <span className="text-foreground/60">· {formatNaira(price)}</span>}
-        <ArrowRight className="size-4" />
-      </Link>
-    </Button>
   );
 }

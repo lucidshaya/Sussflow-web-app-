@@ -28,7 +28,11 @@ import { grantAdmin, listAdmins, revokeAdmin } from "@/functions/admin";
 const SOCIAL_FIELDS = [
   { key: "tiktok_url", label: "TikTok link", placeholder: "https://www.tiktok.com/@…" },
   { key: "facebook_url", label: "Facebook link", placeholder: "https://facebook.com/…" },
-  { key: "linkedin_url", label: "LinkedIn link", placeholder: "https://www.linkedin.com/company/…" },
+  {
+    key: "linkedin_url",
+    label: "LinkedIn link",
+    placeholder: "https://www.linkedin.com/company/…",
+  },
   { key: "x_url", label: "X (Twitter) link", placeholder: "https://x.com/…" },
   {
     key: "google_business_url",

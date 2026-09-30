@@ -2,12 +2,7 @@ export type OrderStatus =
   "pending" | "paid" | "processing" | "shipped" | "delivered" | "cancelled" | "failed";
 export type Fulfilment = "delivery" | "pickup";
 export type EnquiryType =
-  | "session"
-  | "partnership"
-  | "stockist"
-  | "distributor"
-  | "waitlist"
-  | "contact";
+  "session" | "partnership" | "stockist" | "distributor" | "waitlist" | "contact";
 export type EnquiryStatus = "new" | "in_progress" | "closed";
 
 export const ORDER_STATUSES: OrderStatus[] = [

@@ -45,7 +45,12 @@ export const initCheckout = createServerFn({ method: "POST" })
     const db = getSupabaseAdmin();
     const user = await getUserFromToken(data.accessToken);
 
-    const ids = data.items.map((item) => item.variantId);
+    // Merge repeated lines so stock is checked against the real total per option.
+    const merged = new Map<string, number>();
+    for (const item of data.items)
+      merged.set(item.variantId, (merged.get(item.variantId) ?? 0) + item.quantity);
+    const items = [...merged].map(([variantId, quantity]) => ({ variantId, quantity }));
+    const ids = items.map((item) => item.variantId);
     const { data: variants, error } = await db
       .from("product_variants")
       .select(
@@ -55,7 +60,7 @@ export const initCheckout = createServerFn({ method: "POST" })
       .returns<VariantRow[]>();
     if (error) throw new Error(error.message);
 
-    const lines = data.items.map((item) => {
+    const lines = items.map((item) => {
       const variant = variants?.find((v) => v.id === item.variantId);
       if (!variant || !variant.is_active || !variant.products?.is_active) {
         throw new Error("An item in your bag is no longer available. Please review your bag.");
@@ -79,7 +84,7 @@ export const initCheckout = createServerFn({ method: "POST" })
         deliveryFee = 0;
     }
     const total = subtotal + deliveryFee;
-    const reference = `SF-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+    const reference = `SF-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
 
     const { data: order, error: orderError } = await db
       .from("orders")
@@ -152,14 +157,18 @@ export const initCheckout = createServerFn({ method: "POST" })
   });
 
 export const verifyPayment = createServerFn({ method: "POST" })
-  .validator((input: unknown) => z.object({ reference: z.string().min(3).max(100) }).parse(input))
+  .validator((input: unknown) =>
+    z
+      .object({ reference: z.string().trim().max(60).regex(/^SF-[A-Z0-9]+-[A-Z0-9]+$/i) })
+      .parse(input),
+  )
   .handler(async ({ data }) => {
     const tx = await fetchPaystackTransaction(data.reference);
     const result = await markOrderPaid(data.reference, tx);
     const { data: order } = await getSupabaseAdmin()
       .from("orders")
       .select(
-        "reference, full_name, email, total, status, fulfilment, order_items(product_name, variant_label, quantity, unit_price)",
+        "reference, email, total, status, fulfilment, order_items(product_name, variant_label, quantity, unit_price)",
       )
       .eq("reference", data.reference)
       .maybeSingle();

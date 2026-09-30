@@ -1,4 +1,11 @@
-import { BadgeCheck, GraduationCap, Handshake, Package, Truck, type LucideIcon } from "lucide-react";
+import {
+  BadgeCheck,
+  GraduationCap,
+  Handshake,
+  Package,
+  Truck,
+  type LucideIcon,
+} from "lucide-react";
 
 import { EnquiryForm } from "./EnquiryForm";
 import { glassCard, glassPanel, PageHero, SectionHeading } from "./primitives";
@@ -27,14 +34,22 @@ const COPY = {
     intro:
       "Help us reach more women and girls across Nigeria. We're partnering with distributors who can supply retailers, schools and organisations in their state or region.",
     perks: [
-      { icon: Handshake, title: "Regional partnership", body: "Grow reusable period care where you are." },
+      {
+        icon: Handshake,
+        title: "Regional partnership",
+        body: "Grow reusable period care where you are.",
+      },
       { icon: Package, title: "Volume pricing", body: "Distributor rates on bulk orders." },
       {
         icon: GraduationCap,
         title: "Marketing & education support",
         body: "Materials and menstrual health know-how.",
       },
-      { icon: BadgeCheck, title: "Quality products", body: "Medical-grade, sustainable materials." },
+      {
+        icon: BadgeCheck,
+        title: "Quality products",
+        body: "Medical-grade, sustainable materials.",
+      },
     ],
     formTitle: "Apply to become a distributor",
   },

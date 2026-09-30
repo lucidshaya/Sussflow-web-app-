@@ -78,6 +78,13 @@ function AdminLogin() {
             <Button type="submit" className="w-full" disabled={busy || loading}>
               {busy ? "Signing in…" : "Sign in"}
             </Button>
+            <Link
+              to="/auth"
+              search={{ mode: "reset" }}
+              className="block text-center text-sm font-semibold text-foreground/60 hover:text-brand"
+            >
+              Forgot your password?
+            </Link>
           </form>
         )}
         <Link

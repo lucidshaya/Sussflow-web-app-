@@ -53,9 +53,13 @@ function PrivacyPage() {
           title: "How we use it",
           body: (
             <ul>
-              <li>To process, deliver and support your orders (performing our contract with you).</li>
+              <li>
+                To process, deliver and support your orders (performing our contract with you).
+              </li>
               <li>To reply to your messages and applications.</li>
-              <li>To send deals and news if you've signed up (your consent; you can opt out any time).</li>
+              <li>
+                To send deals and news if you've signed up (your consent; you can opt out any time).
+              </li>
               <li>To keep the website secure and prevent fraud (our legitimate interests).</li>
               <li>To meet our legal and tax obligations.</li>
             </ul>

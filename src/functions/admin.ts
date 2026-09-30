@@ -34,7 +34,8 @@ async function findUserByEmail(email: string) {
   const { data: profile } = await db
     .from("profiles")
     .select("id")
-    .ilike("email", target)
+    // Exact, case-insensitive match (escape LIKE wildcards such as "_").
+    .ilike("email", target.replace(/[\\%_]/g, "\\$&"))
     .maybeSingle();
   if (profile) return profile.id as string;
   // Fallback: scan auth users (small shops only have a few pages).

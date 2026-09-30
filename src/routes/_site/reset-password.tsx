@@ -11,7 +11,9 @@ import { supabase } from "@/lib/supabase";
 import { newPasswordSchema, toFieldErrors, type FieldErrors } from "@/lib/validation";
 
 export const Route = createFileRoute("/_site/reset-password")({
-  head: () => ({ meta: [{ title: "Choose a new password | Sussflow" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Choose a new password | Sussflow" }, { name: "robots", content: "noindex" }],
+  }),
   component: ResetPasswordPage,
 });
 
@@ -154,7 +156,9 @@ function ResetPasswordPage() {
         {stage === "done" && (
           <div className="mt-8 text-center">
             <h1 className="font-display text-2xl font-semibold">Password updated</h1>
-            <p className="mt-2 text-sm text-foreground/65">You're signed in with your new password.</p>
+            <p className="mt-2 text-sm text-foreground/65">
+              You're signed in with your new password.
+            </p>
             <Button
               className="mt-6"
               onClick={() => void navigate({ to: isAdmin ? "/admin" : "/account" })}

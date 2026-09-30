@@ -71,7 +71,10 @@ export function ContactLine() {
       {settings?.contact_email && (
         <>
           email{" "}
-          <a className="font-semibold text-brand underline" href={`mailto:${settings.contact_email}`}>
+          <a
+            className="font-semibold text-brand underline"
+            href={`mailto:${settings.contact_email}`}
+          >
             {settings.contact_email}
           </a>
           {chat ? " or " : ""}
@@ -80,7 +83,12 @@ export function ContactLine() {
       {chat && (
         <>
           message us on{" "}
-          <a className="font-semibold text-brand underline" href={chat} target="_blank" rel="noreferrer">
+          <a
+            className="font-semibold text-brand underline"
+            href={chat}
+            target="_blank"
+            rel="noreferrer"
+          >
             WhatsApp
           </a>
         </>

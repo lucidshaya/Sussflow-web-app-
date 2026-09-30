@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_site/size-guide")({
       {
         name: "description",
         content:
-          "Choose the right Sussflow reusable pad length (6\" to 16\"), period underwear size and menstrual cup for your flow.",
+          'Choose the right Sussflow reusable pad length (6" to 16"), period underwear size and menstrual cup for your flow.',
       },
     ],
   }),
@@ -22,12 +22,32 @@ export const Route = createFileRoute("/_site/size-guide")({
 });
 
 const PAD_SIZES = [
-  { length: '6"', cm: "about 15 cm", flow: "Spotting & very light days", use: "Pantyliner days, end of period, backup with a cup" },
-  { length: '8"', cm: "about 20 cm", flow: "Light flow", use: "Lighter days and everyday freshness" },
-  { length: '10"', cm: "about 25 cm", flow: "Light to moderate", use: "Everyday wear on regular days" },
+  {
+    length: '6"',
+    cm: "about 15 cm",
+    flow: "Spotting & very light days",
+    use: "Pantyliner days, end of period, backup with a cup",
+  },
+  {
+    length: '8"',
+    cm: "about 20 cm",
+    flow: "Light flow",
+    use: "Lighter days and everyday freshness",
+  },
+  {
+    length: '10"',
+    cm: "about 25 cm",
+    flow: "Light to moderate",
+    use: "Everyday wear on regular days",
+  },
   { length: '12"', cm: "about 30 cm", flow: "Moderate flow", use: "Your usual day-time pad" },
   { length: '14"', cm: "about 36 cm", flow: "Heavy flow", use: "Heavy days and longer wear" },
-  { length: '16"', cm: "about 41 cm", flow: "Heaviest flow & overnight", use: "Nights, heavy days and postpartum" },
+  {
+    length: '16"',
+    cm: "about 41 cm",
+    flow: "Heaviest flow & overnight",
+    use: "Nights, heavy days and postpartum",
+  },
 ];
 
 function SizeGuidePage() {
@@ -37,15 +57,15 @@ function SizeGuidePage() {
   return (
     <>
       <PageHero eyebrow="Size guide" title="Find your fit, size by size">
-        Pick pad lengths by flow, choose your usual underwear size and find the right cup. Not
-        sure? Message us and we'll help.
+        Pick pad lengths by flow, choose your usual underwear size and find the right cup. Not sure?
+        Message us and we'll help.
       </PageHero>
 
       <section className="mx-auto max-w-7xl px-5 py-8">
         <div className={`${glassCard} p-6 md:p-10`}>
           <SectionHeading eyebrow="Reusable pads" title="Pad lengths by flow">
-            Longer pads give more coverage. Most people mix two or three lengths across their
-            cycle: a longer pad for heavy days and nights, a shorter one for lighter days.
+            Longer pads give more coverage. Most people mix two or three lengths across their cycle:
+            a longer pad for heavy days and nights, a shorter one for lighter days.
           </SectionHeading>
 
           {/* Table on larger screens, cards on phones */}

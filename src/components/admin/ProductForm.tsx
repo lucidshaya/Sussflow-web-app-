@@ -144,7 +144,7 @@ export function ProductForm({
             />
           </Field>
         </div>
-        <Field label="Tagline">
+        <Field label="Tagline (for kits: the quote shown on the Bundles page)">
           <input
             value={values.tagline ?? ""}
             onChange={text("tagline")}
@@ -160,7 +160,7 @@ export function ProductForm({
             placeholder="Up to 100 washes · SON certified"
           />
         </Field>
-        <Field label="Description">
+        <Field label="Description (leave a blank line between paragraphs)">
           <textarea
             value={values.description ?? ""}
             onChange={text("description")}

@@ -1,19 +1,27 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { EMPTY_PRODUCT, ProductForm } from "@/components/admin/ProductForm";
-import { AdminPageHeader } from "@/components/admin/ui";
+import { AdminPageHeader, Loading } from "@/components/admin/ui";
+import { adminCategoriesQuery } from "@/lib/admin-queries";
 import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/admin/_dash/products/new")({
+  // ?kit=true pre-selects the Bundles category so the kit shows on the Bundles page.
+  validateSearch: z.object({ kit: z.boolean().optional() }),
   component: NewProduct,
 });
 
 function NewProduct() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { kit } = Route.useSearch();
+  const categories = useQuery(adminCategoriesQuery);
+  const bundlesId = categories.data?.find((c) => c.slug === "bundles")?.id ?? null;
+  if (kit && categories.isLoading) return <Loading />;
 
   return (
     <>
@@ -24,11 +32,16 @@ function NewProduct() {
         <ChevronLeft className="size-4" /> Products
       </Link>
       <AdminPageHeader
-        title="New product"
-        description="Create the product, then add its price options (length, pack size, price, stock)."
+        title={kit ? "New kit" : "New product"}
+        description={
+          kit
+            ? "Name the kit, add its quote and description, then add its price and what's inside."
+            : "Create the product, then add its price options (length, pack size, price, stock)."
+        }
       />
       <ProductForm
-        initial={EMPTY_PRODUCT}
+        key={kit ? "kit" : "product"}
+        initial={kit ? { ...EMPTY_PRODUCT, category_id: bundlesId } : EMPTY_PRODUCT}
         submitLabel="Create product"
         onSubmit={async (values) => {
           const { data, error } = await supabase

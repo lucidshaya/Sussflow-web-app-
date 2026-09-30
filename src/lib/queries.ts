@@ -1,7 +1,15 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { isSupabaseConfigured, supabase, unwrap } from "./supabase";
-import type { Category, ProductWithVariants, Settings } from "./types";
+import type {
+  BundleItemKind,
+  BundleItem,
+  Category,
+  Product,
+  ProductWithVariants,
+  Settings,
+  Variant,
+} from "./types";
 
 const PRODUCT_SELECT = "*, product_variants(*), categories(name, slug)";
 
@@ -60,3 +68,54 @@ export const settingsQuery = queryOptions({
   queryFn: async () =>
     unwrap<Settings | null>(await supabase.from("settings").select("*").eq("id", 1).maybeSingle()),
 });
+
+/** A kit line with its catalogue product (null for free-text lines or hidden products). */
+export interface BundleItemWithProduct extends BundleItem {
+  product:
+    | (Pick<Product, "id" | "name" | "slug" | "image_url"> & {
+        product_variants: Variant[];
+      })
+    | null;
+}
+
+/** True when the kit tables don't exist yet (migration 0005 not run). */
+function isMissingTable(error: { code?: string } | null) {
+  return error?.code === "PGRST205" || error?.code === "42P01";
+}
+
+/** Contents, add-ons and related products for one or more kits. */
+export const bundleItemsQuery = (bundleIds: string[]) =>
+  queryOptions({
+    queryKey: ["bundle-items", [...bundleIds].sort()],
+    enabled: isSupabaseConfigured && bundleIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bundle_items")
+        .select(
+          "*, product:products!bundle_items_product_id_fkey(id, name, slug, image_url, product_variants(*))",
+        )
+        .in("bundle_id", bundleIds)
+        .order("sort");
+      if (isMissingTable(error)) return [];
+      if (error) throw new Error(error.message);
+      return (data as BundleItemWithProduct[])
+        .map((item) =>
+          item.product
+            ? {
+                ...item,
+                product: {
+                  ...item.product,
+                  product_variants: item.product.product_variants
+                    .filter((v) => v.is_active)
+                    .sort((a, b) => a.sort - b.sort),
+                },
+              }
+            : item,
+        )
+        .filter((item) => item.product || item.label);
+    },
+  });
+
+/** Kit lines of one kind: "included", "addon" or "related". */
+export const itemsOf = (items: BundleItemWithProduct[] | undefined, kind: BundleItemKind) =>
+  (items ?? []).filter((item) => item.kind === kind);

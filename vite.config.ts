@@ -12,6 +12,41 @@ for (const [key, value] of Object.entries(
   if (process.env[key] === undefined) process.env[key] = value;
 }
 
+// Security headers on every response (applied by Vercel from the build output).
+// CSP allows only this site, Supabase (API, auth, storage images), Google Fonts and the
+// Paystack checkout redirect. TanStack Start's hydration uses inline scripts, hence 'unsafe-inline'.
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com data:",
+  "img-src 'self' data: blob: https://*.supabase.co",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+  "frame-src 'none'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self' https://checkout.paystack.com",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const SECURITY_HEADERS = {
+  "content-security-policy": CSP,
+  "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "DENY",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+  "cross-origin-opener-policy": "same-origin",
+};
+
+const ROUTE_RULES = {
+  "/**": { headers: SECURITY_HEADERS },
+  // Keep the dashboard and account pages out of search engines.
+  "/admin/**": { headers: { ...SECURITY_HEADERS, "x-robots-tag": "noindex, nofollow" } },
+  "/api/**": { headers: { ...SECURITY_HEADERS, "cache-control": "no-store" } },
+};
+
 export default defineConfig(({ command }) => ({
   server: { port: 8080 },
   resolve: {
@@ -30,7 +65,7 @@ export default defineConfig(({ command }) => ({
       },
     }),
     // Builds `.vercel/output` (Build Output API) for Vercel.
-    ...(command === "build" ? [nitro({ preset: "vercel" })] : []),
+    ...(command === "build" ? [nitro({ preset: "vercel", routeRules: ROUTE_RULES })] : []),
     viteReact(),
   ],
 }));

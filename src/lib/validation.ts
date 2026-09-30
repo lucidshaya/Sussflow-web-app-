@@ -99,7 +99,8 @@ export const ENQUIRY_TYPE_VALUES = [
 
 /** Enquiries from organisations: phone required, organisation shown. */
 export const ORG_ENQUIRY_TYPES = ["session", "partnership", "stockist", "distributor"] as const;
-export const isOrgEnquiry = (type: string) => (ORG_ENQUIRY_TYPES as readonly string[]).includes(type);
+export const isOrgEnquiry = (type: string) =>
+  (ORG_ENQUIRY_TYPES as readonly string[]).includes(type);
 
 /** Hidden form field that people never fill in; bots usually do. */
 export const honeypotSchema = z.string().max(200).optional();
@@ -150,10 +151,7 @@ export const trackOrderSchema = z.object({
 
 export const newPasswordSchema = z
   .object({
-    password: z
-      .string()
-      .min(8, "Use at least 8 characters")
-      .max(72, "Use 72 characters or fewer"),
+    password: z.string().min(8, "Use at least 8 characters").max(72, "Use 72 characters or fewer"),
     confirm: z.string(),
   })
   .refine((v) => v.password === v.confirm, {
@@ -309,3 +307,39 @@ export const categorySchema = z.object({
     .min(2, "Enter a slug")
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers and dashes only"),
 });
+
+/** One line of a kit's contents, edited in Admin → Products → Kit contents. */
+export const bundleItemSchema = z
+  .object({
+    kind: z.enum(["included", "addon", "related"]),
+    product_id: z
+      .string()
+      .trim()
+      .transform((v) => v || null)
+      .pipe(z.string().uuid("Choose a product").nullable()),
+    label: z
+      .string()
+      .trim()
+      .max(80, "Keep this under 80 characters")
+      .transform((v) => v || null),
+    quantity: z.coerce
+      .number({ invalid_type_error: "Enter a quantity" })
+      .int("Use a whole number")
+      .min(1, "At least 1")
+      .max(99, "99 at most"),
+    sort: z.coerce.number().int().min(0).max(999),
+  })
+  .superRefine((value, ctx) => {
+    if (!value.product_id && !value.label)
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["product_id"],
+        message: "Choose a product or type what's included",
+      });
+    if (value.kind !== "included" && !value.product_id)
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["product_id"],
+        message: "Add-ons and related items must be products from your catalogue",
+      });
+  });
