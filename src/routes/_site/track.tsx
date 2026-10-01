@@ -15,6 +15,7 @@ import { settingsQuery } from "@/lib/queries";
 import { readableError, toFieldErrors, trackOrderSchema, type FieldErrors } from "@/lib/validation";
 import { whatsappHref } from "@/lib/whatsapp";
 import { seo } from "@/lib/seo";
+import { OrderTotals } from "@/components/site/OrderTotals";
 
 export const Route = createFileRoute("/_site/track")({
   validateSearch: z.object({ ref: z.string().optional(), email: z.string().optional() }),
@@ -161,10 +162,13 @@ function TrackedOrderCard({ order }: { order: TrackedOrder }) {
           </li>
         ))}
       </ul>
-      <p className="flex justify-between border-t border-foreground/10 pt-3 text-base font-semibold">
-        <span>Total</span>
-        <span>{formatNaira(order.total)}</span>
-      </p>
+      <OrderTotals
+        subtotal={order.subtotal}
+        deliveryFee={order.delivery_fee}
+        total={order.total}
+        fulfilment={order.fulfilment}
+        className="border-t border-foreground/10 pt-3"
+      />
 
       <p className="mt-5 rounded-2xl border border-glass-border bg-glass-soft p-4 text-sm text-foreground/70">
         {order.fulfilment === "pickup" ? (

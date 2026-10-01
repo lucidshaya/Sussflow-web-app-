@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { z } from "zod";
 
 import { glassCard } from "@/components/site/primitives";
+import { OrderTotals } from "@/components/site/OrderTotals";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import { formatNaira } from "@/lib/format";
@@ -91,10 +92,14 @@ function CallbackPage() {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-3 flex justify-between border-t border-foreground/10 pt-3 font-semibold">
-                  <span>Total paid</span>
-                  <span>{formatNaira(result.data.order.total as number)}</span>
-                </p>
+                <OrderTotals
+                  subtotal={result.data.order.subtotal as number}
+                  deliveryFee={result.data.order.delivery_fee as number}
+                  total={result.data.order.total as number}
+                  fulfilment={result.data.order.fulfilment as "delivery" | "pickup"}
+                  totalLabel="Total paid"
+                  className="mt-3 border-t border-foreground/10 pt-3"
+                />
                 <p className="mt-3 text-xs text-foreground/60">
                   {result.data.order.fulfilment === "pickup"
                     ? "We'll contact you when your order is ready for pickup in Lagos."

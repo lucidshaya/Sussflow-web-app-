@@ -57,8 +57,8 @@ function StoreLocationPage() {
             Lagos deliveries are generally handled through dispatch.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-foreground/65">
-            Delivery fees are added to your total at checkout. Where a fee is “confirmed after you
-            order”, our team shares the delivery cost once your order is confirmed.
+            Delivery fees are shown at checkout under your subtotal and paid online together with
+            your order, so there's nothing extra to pay on arrival.
           </p>
           <DeliveryRates className="mt-4" />
           <Button asChild className="mt-4">

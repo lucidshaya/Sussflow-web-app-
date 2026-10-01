@@ -15,6 +15,7 @@ import {
   PageHero,
   SetupNotice,
 } from "@/components/site/primitives";
+import { OrderTotals } from "@/components/site/OrderTotals";
 import { Button } from "@/components/ui/button";
 import { getAccessToken, useAuth } from "@/lib/auth";
 import { useCart, useCartDetails } from "@/lib/cart";
@@ -192,10 +193,6 @@ function CheckoutPage() {
       if (form[key]) checkField(key);
     },
   });
-  const deliveryNote =
-    fulfilment === "delivery" && deliveryFee === 0
-      ? "The delivery fee for this location is confirmed by our team after your order and may be paid to the rider on arrival."
-      : null;
 
   return (
     <>
@@ -352,31 +349,15 @@ function CheckoutPage() {
               </li>
             ))}
           </ul>
-          <dl className="mt-5 space-y-2 border-t border-foreground/10 pt-4 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-foreground/65">Subtotal</dt>
-              <dd className="font-semibold">{formatNaira(subtotal)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-foreground/65">
-                {fulfilment === "pickup" ? "Pickup" : "Delivery"}
-              </dt>
-              <dd className="font-semibold">
-                {fulfilment === "pickup"
-                  ? "₦0"
-                  : deliveryFee
-                    ? formatNaira(deliveryFee)
-                    : "Confirmed after order"}
-              </dd>
-            </div>
-            <div className="flex justify-between border-t border-foreground/10 pt-3 text-base">
-              <dt className="font-semibold">Total today</dt>
-              <dd className="font-display text-xl font-semibold text-brand">
-                {formatNaira(total)}
-              </dd>
-            </div>
-          </dl>
-          {deliveryNote && <p className="mt-3 text-xs text-foreground/55">{deliveryNote}</p>}
+          <OrderTotals
+            subtotal={subtotal}
+            deliveryFee={deliveryFee}
+            total={total}
+            fulfilment={fulfilment}
+            totalLabel="Total to pay"
+            emphasise
+            className="mt-5 border-t border-foreground/10 pt-4"
+          />
           <Button
             type="submit"
             className="mt-5 w-full"

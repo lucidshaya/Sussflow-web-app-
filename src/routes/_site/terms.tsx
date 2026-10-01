@@ -75,8 +75,8 @@ function TermsPage() {
               </li>
               <li>
                 <strong>Nationwide delivery:</strong> we send orders by dispatch rider in Lagos and
-                by courier or waybill elsewhere. Delivery fees and timelines are confirmed with you
-                after your order.
+                by courier or waybill elsewhere. The delivery fee is shown at checkout and paid with
+                your order; delivery timelines are confirmed with you after your order.
               </li>
               <li>
                 You can follow your order on the{" "}

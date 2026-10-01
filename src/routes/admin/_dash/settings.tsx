@@ -183,7 +183,7 @@ function StoreSettings() {
         <AdminField
           error={errors["lagos_delivery_fee"]}
           label="Lagos delivery fee (₦)"
-          hint="0 = agreed after the order (e.g. paid to the rider)"
+          hint="Shown at checkout and added to the total. 0 = free delivery"
         >
           <input
             type="number"
@@ -196,7 +196,7 @@ function StoreSettings() {
         <AdminField
           error={errors["nationwide_delivery_fee"]}
           label="Outside Lagos fee (₦)"
-          hint="0 = agreed after the order (e.g. paid to the rider)"
+          hint="Shown at checkout and added to the total. 0 = free delivery"
         >
           <input
             type="number"

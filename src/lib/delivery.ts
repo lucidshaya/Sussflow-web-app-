@@ -1,7 +1,7 @@
 import { formatNaira } from "./format";
 import type { Settings } from "./types";
 
-// Delivery fees are set in Admin → Settings (kobo). 0 means the fee is agreed after the order.
+// Delivery fees are set in Admin → Settings (kobo). 0 means free delivery.
 type FeeSettings = Pick<
   Settings,
   "lagos_delivery_fee" | "nationwide_delivery_fee" | "free_delivery_threshold"
@@ -24,15 +24,16 @@ export function deliveryFeeFor(
   return isLagosState(order.state) ? settings.lagos_delivery_fee : settings.nationwide_delivery_fee;
 }
 
-const feeText = (fee: number) => (fee > 0 ? formatNaira(fee) : "confirmed after you order");
+/** How a delivery fee is shown to customers: the amount, or "Free" when it is ₦0. */
+export const deliveryLabel = (fee: number) => (fee > 0 ? formatNaira(fee) : "Free");
 
 /** Customer-facing summary of the current rates. */
 export function deliveryRates(settings: FeeSettings | null | undefined) {
   if (!settings) return [];
   return [
     { label: "Lagos pickup", value: "Free" },
-    { label: "Delivery within Lagos", value: feeText(settings.lagos_delivery_fee) },
-    { label: "Delivery outside Lagos", value: feeText(settings.nationwide_delivery_fee) },
+    { label: "Delivery within Lagos", value: deliveryLabel(settings.lagos_delivery_fee) },
+    { label: "Delivery outside Lagos", value: deliveryLabel(settings.nationwide_delivery_fee) },
     ...(settings.free_delivery_threshold != null
       ? [
           {

@@ -174,7 +174,7 @@ export const verifyPayment = createServerFn({ method: "POST" })
     const { data: order } = await getSupabaseAdmin()
       .from("orders")
       .select(
-        "reference, email, total, status, fulfilment, order_items(product_name, variant_label, quantity, unit_price)",
+        "reference, email, subtotal, delivery_fee, total, status, fulfilment, order_items(product_name, variant_label, quantity, unit_price)",
       )
       .eq("reference", data.reference)
       .maybeSingle();

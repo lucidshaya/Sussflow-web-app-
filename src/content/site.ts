@@ -357,10 +357,10 @@ export const FAQ_GROUPS: FaqGroup[] = [
         ],
       },
       {
-        q: "Can I pay the rider when my order is delivered?",
+        q: "Do I pay the rider for delivery?",
         a: [
-          "You may be able to pay the rider for the delivery fee when your order is delivered, depending on the delivery arrangement.",
-          "However, the cost of your products must be paid before your order is processed and dispatched.",
+          "No. Your delivery fee is shown at checkout under your subtotal and is paid online together with your products.",
+          "There's nothing extra to pay the rider when your order arrives.",
         ],
       },
       {
