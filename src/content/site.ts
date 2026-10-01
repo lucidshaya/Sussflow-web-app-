@@ -477,3 +477,150 @@ export const PRODUCT_FAQ_GROUP: Record<string, string> = {
   "back-to-school-kit": "first-period",
   "the-first-period-box": "first-period",
 };
+
+// Photos and facts from Sussflow's 2025 impact report and outreach posts (Google Drive).
+export interface ImpactPhoto {
+  src: string;
+  alt: string;
+  caption: string;
+}
+
+export const IMPACT_PHOTOS: ImpactPhoto[] = [
+  {
+    src: "/images/impact/girl-child-day-group.jpg",
+    alt: "Smiling teenage girls holding period-positive signs such as “Periods are powerful”",
+    caption: "International Day of the Girl Child: we visited schools to educate girls",
+  },
+  {
+    src: "/images/impact/school-pad-distribution.jpg",
+    alt: "A schoolgirl in uniform holding up a pack of Sussflow reusable pads",
+    caption: "Reusable pads and menstrual education for Lagos secondary schools, with SACSAN",
+  },
+  {
+    src: "/images/impact/girl-child-day-school.jpg",
+    alt: "A classroom full of schoolgirls in blue uniforms cheering",
+    caption: "A school session for International Day of the Girl Child",
+  },
+  {
+    src: "/images/impact/stakeholder-workshop.jpg",
+    alt: "Workshop participants posing together in a conference room",
+    caption: "Stakeholder workshop on hygiene financing and inclusion",
+  },
+  {
+    src: "/images/impact/student-period-pant.jpg",
+    alt: "A young student giving a thumbs up while holding a Sussflow period pant",
+    caption: "A student with her Sussflow period pant",
+  },
+  {
+    src: "/images/impact/community-project-talk.jpg",
+    alt: "A Sussflow speaker addressing young people at a community project",
+    caption: "Speaking at “Beyond the Classroom”, an SDSN Lagos community project",
+  },
+  {
+    src: "/images/impact/pachipanda-award.jpg",
+    alt: "Sussflow's founder receiving a prize cheque at the Africa PachiPanda Finale",
+    caption: "2nd place at the Africa PachiPanda Finale",
+  },
+  {
+    src: "/images/impact/i-love-my-sussflow-pad.jpg",
+    alt: "A woman at the Sussflow stand holding an “I love my Sussflow pad” sign",
+    caption: "Meeting customers at a Sussflow product stand",
+  },
+  {
+    src: "/images/impact/sussflow-team.jpg",
+    alt: "Four women from the Sussflow team in branded T-shirts",
+    caption: "The Sussflow team",
+  },
+];
+
+export const IMPACT_HIGHLIGHTS = [
+  "2,000+ women and girls educated on menstrual and climate health",
+  "Partnerships with schools, NGOs and women's groups in Lagos and Ogun States",
+  "350 packs of reusable pads distributed with SACSAN, alongside menstrual education for 6 secondary schools in Lagos Zone 2",
+  "Pottersville School and Pink Up for Girls: about 150 girls reached",
+  "Stakeholder workshop with the Development Bank of Nigeria, UNICEF and WaterAid on hygiene financing and inclusion",
+  "SON-certified reusable pads, menstrual cups and period pants (June 2025)",
+  "Featured on MTN Nigeria, TVC and Unilag FM, and a speaker at the Girl Pad Summit 2025",
+];
+
+// Customer reviews as Sussflow published them on social media.
+export interface Review {
+  name: string;
+  product: string;
+  quote: string;
+}
+
+export const REVIEWS: Review[] = [
+  {
+    name: "DSQ Titilope Alao",
+    product: "Reusable pads",
+    quote:
+      "It's exactly one year I switched to your reusable pads and I have felt NO itchiness. There is no sanitary brand I have not bought o. I just said let me try your 5-in-1 pack, then as my Snapchat reminded me now, I said let me give you guys your flowers.",
+  },
+  {
+    name: "Sarah Olagoke",
+    product: "Period pant",
+    quote:
+      "I am in love with this period pant oh. My period flow has increased and it held the flow well, even under white attire yesterday ooh… Na to buy two more once I get money.",
+  },
+  {
+    name: "DSQ Olabisi",
+    product: "Menstrual cup",
+    quote:
+      "Since I started using the cup, I have not cancelled my weekend swimming classes because period or no period, I'm good to go. The applicator is always in my bag, so changing on the go is easy pizzy.",
+  },
+  {
+    name: "Mummy Ife",
+    product: "Pads + period pants",
+    quote:
+      "Thank you for telling me I can pair the Sussflow pads with my period pants. As a heavy bleeder I'm always conscious during my period, but now that extra security is the bomb.",
+  },
+  {
+    name: "Mrs Afolashade",
+    product: "Reusable pads",
+    quote:
+      "Truth be told, I just bought it to support a friend, but I'm glad I did. I'm never going back to disposables, because what do you mean I have been using plastic all the while? Thank you Sussflow.",
+  },
+  {
+    name: "DSQ Damilola",
+    product: "Reusable pads",
+    quote:
+      "I was skeptical at first to try a new product after being used to disposables all my life, but I'm glad I did. These did not give me any rash and I felt comfortable all through my cycle.",
+  },
+  {
+    name: "Mrs Calista",
+    product: "Period pant + cup",
+    quote:
+      "I can't believe you had to convince me this long to make the switch, because this is really good. And I like that I have options, so I use them interchangeably depending on my lifestyle.",
+  },
+  {
+    name: "DSQ Rukayat",
+    product: "Menstrual cup",
+    quote:
+      "It's been awesome honestly. I can wear white without worries of getting stained! I love it.",
+  },
+  {
+    name: "DSQ Rukayat",
+    product: "Menstrual cup",
+    quote:
+      "I used to feel pain removing it until you explained these steps to me. I've been enjoying it. Been saving pad money too.",
+  },
+  {
+    name: "Regina Oluwayemisi",
+    product: "Menstrual cup",
+    quote:
+      "Thank God I chose these cups over pads… I love it. It's still strange, being the second day of use… but it's so convenient.",
+  },
+  {
+    name: "DSQ Omotolani",
+    product: "Period pant",
+    quote:
+      "Using the Sussflow pant has actually been a game changer. It feels so comfortable and absorbs so well.",
+  },
+  {
+    name: "DSQ Blessing",
+    product: "Reusable pads",
+    quote:
+      "I will rate Sussflow 8/10. For a first-time user, the switch to reusable pads is the best decision ever.",
+  },
+];

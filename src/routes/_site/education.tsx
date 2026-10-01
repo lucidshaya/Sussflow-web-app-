@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { GraduationCap, HandHeart, Package, Truck } from "lucide-react";
+import { BadgeCheck, GraduationCap, HandHeart, Package, Quote, Truck } from "lucide-react";
 
 import { EnquiryForm } from "@/components/site/EnquiryForm";
 import { glassCard, glassPanel, PageHero, SectionHeading } from "@/components/site/primitives";
-import { EDUCATION_TOPICS, STATS } from "@/content/site";
+import { SwipeRow } from "@/components/site/SwipeRow";
+import { EDUCATION_TOPICS, IMPACT_HIGHLIGHTS, IMPACT_PHOTOS, REVIEWS, STATS } from "@/content/site";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/education")({
@@ -65,6 +66,41 @@ function EducationPage() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-7xl px-5 py-8">
+        <SectionHeading
+          eyebrow="Where we've been"
+          title="Schools, communities and partners we've worked with"
+        >
+          Real moments from our outreach: International Day of the Girl Child school visits, pad
+          distributions, workshops and events across Lagos and Ogun States.
+        </SectionHeading>
+        <div className="mt-6">
+          <SwipeRow label="Photos from Sussflow outreach" itemClass="w-[82%]">
+            {IMPACT_PHOTOS.map((photo) => (
+              <figure key={photo.src} className={`${glassPanel} overflow-hidden`}>
+                <img
+                  src={photo.src}
+                  alt={photo.alt}
+                  loading="lazy"
+                  className="aspect-[4/3] w-full object-cover object-top"
+                />
+                <figcaption className="p-4 text-sm font-medium leading-snug text-foreground/75">
+                  {photo.caption}
+                </figcaption>
+              </figure>
+            ))}
+          </SwipeRow>
+        </div>
+        <ul className={`${glassCard} mt-6 grid gap-3 p-6 sm:grid-cols-2 md:p-8`}>
+          {IMPACT_HIGHLIGHTS.map((item) => (
+            <li key={item} className="flex gap-2 text-sm leading-relaxed">
+              <BadgeCheck className="mt-0.5 size-4 shrink-0 text-leaf" />
+              {item}
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section className="mx-auto grid max-w-7xl gap-6 px-5 py-8 md:grid-cols-2">
         <div className={`${glassCard} p-7 md:p-10`}>
           <SectionHeading
@@ -105,6 +141,31 @@ function EducationPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-8">
+        <SectionHeading eyebrow="Reviews" title="What women say after switching to Sussflow" />
+        <div className="mt-6">
+          <SwipeRow label="Customer reviews" itemClass="w-[85%]">
+            {REVIEWS.map((review) => (
+              <figure
+                key={review.name + review.quote}
+                className={`${glassPanel} flex flex-col p-6`}
+              >
+                <Quote className="size-6 text-brand" aria-hidden="true" />
+                <blockquote className="mt-3 flex-1 leading-relaxed text-foreground/80">
+                  {review.quote}
+                </blockquote>
+                <figcaption className="mt-4 flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-semibold">{review.name}</span>
+                  <span className="rounded-full border border-glass-border bg-glass-soft px-3 py-1 text-xs font-medium text-foreground/70">
+                    {review.product}
+                  </span>
+                </figcaption>
+              </figure>
+            ))}
+          </SwipeRow>
         </div>
       </section>
 
