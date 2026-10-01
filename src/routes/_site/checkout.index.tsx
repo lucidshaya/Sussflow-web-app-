@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { getAccessToken, useAuth } from "@/lib/auth";
 import { useCart, useCartDetails } from "@/lib/cart";
+import { deliveryFeeFor } from "@/lib/delivery";
 import { formatNaira } from "@/lib/format";
 import { settingsQuery } from "@/lib/queries";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
@@ -119,13 +120,7 @@ function CheckoutPage() {
       });
   }, [user]);
 
-  const isLagos = state.toLowerCase().includes("lagos");
-  let deliveryFee = 0;
-  if (fulfilment === "delivery" && settings) {
-    deliveryFee = isLagos ? settings.lagos_delivery_fee : settings.nationwide_delivery_fee;
-    if (settings.free_delivery_threshold != null && subtotal >= settings.free_delivery_threshold)
-      deliveryFee = 0;
-  }
+  const deliveryFee = deliveryFeeFor(settings, { fulfilment, state, subtotal });
   const total = subtotal + deliveryFee;
 
   const validate = () => checkoutCustomerSchema.safeParse({ ...form, fulfilment, state });
@@ -199,7 +194,7 @@ function CheckoutPage() {
   });
   const deliveryNote =
     fulfilment === "delivery" && deliveryFee === 0
-      ? "Delivery fee is confirmed by our team after your order and may be paid to the rider on arrival."
+      ? "The delivery fee for this location is confirmed by our team after your order and may be paid to the rider on arrival."
       : null;
 
   return (

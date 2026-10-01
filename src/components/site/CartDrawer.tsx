@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+
+import { DeliveryRates } from "./DeliveryRates";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { useCart, useCartDetails } from "@/lib/cart";
 import { formatNaira } from "@/lib/format";
@@ -92,9 +94,7 @@ export function CartDrawer() {
                 <span className="text-foreground/70">Subtotal</span>
                 <span className="text-lg font-semibold">{formatNaira(subtotal)}</span>
               </div>
-              <p className="text-xs text-foreground/55">
-                Choose nationwide delivery or Lagos pickup at checkout.
-              </p>
+              <DeliveryRates />
               <Button className="w-full" asChild onClick={() => setOpen(false)}>
                 <Link to="/checkout">Checkout</Link>
               </Button>

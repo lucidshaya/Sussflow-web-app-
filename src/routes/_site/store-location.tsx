@@ -7,6 +7,7 @@ import { glassCard, PageHero, SectionHeading } from "@/components/site/primitive
 import { Button } from "@/components/ui/button";
 import { whatsappHref } from "@/lib/whatsapp";
 import { settingsQuery } from "@/lib/queries";
+import { DeliveryRates } from "@/components/site/DeliveryRates";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/store-location")({
@@ -56,10 +57,10 @@ function StoreLocationPage() {
             Lagos deliveries are generally handled through dispatch.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-foreground/65">
-            Product costs are paid online before dispatch. Depending on the arrangement, you may pay
-            the rider the delivery fee on arrival — our team shares delivery details after your
-            order is confirmed.
+            Delivery fees are added to your total at checkout. Where a fee is “confirmed after you
+            order”, our team shares the delivery cost once your order is confirmed.
           </p>
+          <DeliveryRates className="mt-4" />
           <Button asChild className="mt-4">
             <Link to="/shop">Shop online</Link>
           </Button>

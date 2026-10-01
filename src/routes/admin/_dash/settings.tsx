@@ -24,6 +24,7 @@ import type { Settings } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { emailSchema, settingsSchema, toFieldErrors, type FieldErrors } from "@/lib/validation";
 import { grantAdmin, listAdmins, revokeAdmin } from "@/functions/admin";
+import { deliveryRates } from "@/lib/delivery";
 
 const SOCIAL_FIELDS = [
   { key: "tiktok_url", label: "TikTok link", placeholder: "https://www.tiktok.com/@…" },
@@ -182,7 +183,7 @@ function StoreSettings() {
         <AdminField
           error={errors["lagos_delivery_fee"]}
           label="Lagos delivery fee (₦)"
-          hint="0 = confirmed after order / paid to rider"
+          hint="0 = agreed after the order (e.g. paid to the rider)"
         >
           <input
             type="number"
@@ -195,7 +196,7 @@ function StoreSettings() {
         <AdminField
           error={errors["nationwide_delivery_fee"]}
           label="Outside Lagos fee (₦)"
-          hint="0 = confirmed after order / paid to rider"
+          hint="0 = agreed after the order (e.g. paid to the rider)"
         >
           <input
             type="number"
@@ -225,6 +226,19 @@ function StoreSettings() {
             }
           />
         </AdminField>
+        <div className="rounded-2xl border border-glass-border bg-glass-soft p-3 text-xs sm:col-span-2">
+          <p className="font-semibold">Customers see (bag, checkout and Store & delivery page):</p>
+          <ul className="mt-1.5 grid gap-1 sm:grid-cols-2">
+            {deliveryRates(draft).map((rate) => (
+              <li key={rate.label}>
+                <span className="text-foreground/60">{rate.label}:</span> {rate.value}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1.5 text-foreground/55">
+            Checkout adds the fee to the total customers pay through Paystack. Save to apply.
+          </p>
+        </div>
         <AdminField error={errors["contact_phone"]} label="Contact phone">
           <input type="tel" className={cls("contact_phone")} {...text("contact_phone")} />
         </AdminField>

@@ -5,6 +5,7 @@ import { variantLabel } from "@/lib/format";
 import { checkoutCustomerSchema } from "@/lib/validation";
 import { getSupabaseAdmin, getUserFromToken, serverEnv } from "@/lib/supabase.server";
 import { fetchPaystackTransaction, markOrderPaid, PAYSTACK_API } from "./paystack.server";
+import { deliveryFeeFor } from "@/lib/delivery";
 
 const checkoutSchema = z
   .object({
@@ -76,13 +77,12 @@ export const initCheckout = createServerFn({ method: "POST" })
     const subtotal = lines.reduce((sum, line) => sum + line.variant.price * line.quantity, 0);
 
     const { data: settings } = await db.from("settings").select("*").eq("id", 1).maybeSingle();
-    let deliveryFee = 0;
-    if (data.fulfilment === "delivery" && settings) {
-      const isLagos = (data.state ?? "").toLowerCase().includes("lagos");
-      deliveryFee = isLagos ? settings.lagos_delivery_fee : settings.nationwide_delivery_fee;
-      if (settings.free_delivery_threshold != null && subtotal >= settings.free_delivery_threshold)
-        deliveryFee = 0;
-    }
+    // Same rule the checkout page shows (src/lib/delivery.ts), recomputed here from the DB.
+    const deliveryFee = deliveryFeeFor(settings, {
+      fulfilment: data.fulfilment,
+      state: data.state,
+      subtotal,
+    });
     const total = subtotal + deliveryFee;
     const reference = `SF-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
 

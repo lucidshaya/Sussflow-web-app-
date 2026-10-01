@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, Trash2 } from "lucide-react";
 
+import { DeliveryRates } from "@/components/site/DeliveryRates";
 import { EmptyState, glassCard, PageHero } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
 import { useCart, useCartDetails } from "@/lib/cart";
@@ -116,9 +117,7 @@ function CartPage() {
                 <span className="text-foreground/65">Subtotal</span>
                 <span className="font-semibold">{formatNaira(subtotal)}</span>
               </div>
-              <p className="mt-2 text-xs text-foreground/55">
-                Delivery or Lagos pickup is selected at checkout.
-              </p>
+              <DeliveryRates className="mt-3" />
               <Button className="mt-5 w-full" asChild>
                 <Link to="/checkout">Checkout</Link>
               </Button>
