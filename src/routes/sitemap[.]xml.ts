@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { BLOG_POSTS } from "@/content/blog";
 import { absoluteUrl } from "@/lib/seo";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
@@ -12,6 +13,12 @@ const STATIC_PAGES = [
   { path: "/find-your-fit", priority: "0.7", changefreq: "monthly" },
   { path: "/education", priority: "0.7", changefreq: "monthly" },
   { path: "/faq", priority: "0.7", changefreq: "monthly" },
+  { path: "/blog", priority: "0.7", changefreq: "weekly" },
+  ...BLOG_POSTS.map((post) => ({
+    path: `/blog/${post.slug}`,
+    priority: "0.6",
+    changefreq: "monthly",
+  })),
   { path: "/size-guide", priority: "0.6", changefreq: "monthly" },
   { path: "/store-location", priority: "0.6", changefreq: "monthly" },
   { path: "/about", priority: "0.5", changefreq: "monthly" },

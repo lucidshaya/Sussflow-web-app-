@@ -18,6 +18,7 @@ const NAV = [
   { to: "/find-your-fit", label: "Find your fit" },
   { to: "/education", label: "Education" },
   { to: "/faq", label: "FAQs" },
+  { to: "/blog", label: "Blog" },
 ] as const;
 
 const MARQUEE =

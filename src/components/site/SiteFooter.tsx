@@ -36,6 +36,7 @@ const COLUMNS = [
     links: [
       { to: "/find-your-fit", label: "Find your fit" },
       { to: "/faq", label: "FAQs" },
+      { to: "/blog", label: "Blog" },
       { to: "/education", label: "Menstrual health education" },
       { to: "/about", label: "About Sussflow" },
     ],

@@ -72,6 +72,8 @@ function ResetPasswordPage() {
       }
       const { data } = await supabase.auth.getSession();
       if (data.session) ready();
+      // Opened without any reset token (e.g. typed in): nothing to wait for.
+      else if (!tokenHash && !code && !hash.get("access_token") && !settled) setStage("invalid");
     })();
     // No session appears → the link was already used, expired or opened on another device.
     const timer = window.setTimeout(() => {

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BadgeCheck, GraduationCap, MapPin, Truck } from "lucide-react";
 
+import { BlogCard } from "@/components/site/BlogCard";
 import { DealBanners, TrustBadges } from "@/components/site/Deals";
 import { HomeHero, TrustStrip } from "@/components/site/HomeHero";
 import { PersonaCard } from "@/components/site/PersonaCard";
@@ -9,6 +10,7 @@ import { glassCard, glassPanel, SectionHeading, SetupNotice } from "@/components
 import { ProductCard, ProductGridSkeleton } from "@/components/site/ProductCard";
 import { SwipeRow } from "@/components/site/SwipeRow";
 import { Button } from "@/components/ui/button";
+import { BLOG_POSTS } from "@/content/blog";
 import { EDUCATION_TOPICS, PERSONAS, STATS } from "@/content/site";
 import { formatNaira, lowestPrice } from "@/lib/format";
 import { prefetch, productsQuery, settingsQuery } from "@/lib/queries";
@@ -447,6 +449,25 @@ function HomePage() {
               <Link to="/find-your-fit">Find my period care</Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* From the blog */}
+      <section className="mx-auto max-w-7xl px-5 py-10">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <SectionHeading eyebrow="From the blog" title="Period care, explained simply" />
+          <Button variant="glass" asChild>
+            <Link to="/blog">
+              All articles <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
+        <div className="mt-6">
+          <SwipeRow label="Latest articles" itemClass="w-[82%]">
+            {BLOG_POSTS.slice(0, 3).map((post) => (
+              <BlogCard key={post.slug} post={post} />
+            ))}
+          </SwipeRow>
         </div>
       </section>
 

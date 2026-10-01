@@ -1,4 +1,6 @@
 import { formatNaira } from "./format";
+import type { BlogPost } from "@/content/blog";
+
 import type { ProductWithVariants, Settings } from "./types";
 
 /**
@@ -198,5 +200,19 @@ export function faqJsonLd(items: { q: string; a: string[] }[]): JsonLd {
       name: item.q,
       acceptedAnswer: { "@type": "Answer", text: item.a.join(" ") },
     })),
+  };
+}
+
+export function articleJsonLd(post: BlogPost): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    image: [absoluteUrl(post.image)],
+    datePublished: post.published,
+    url: absoluteUrl(`/blog/${post.slug}`),
+    author: { "@type": "Organization", name: SITE_NAME, url: `${SITE_URL}/` },
+    publisher: { "@id": `${SITE_URL}/#organization` },
   };
 }

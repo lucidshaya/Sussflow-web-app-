@@ -33,6 +33,8 @@ import { Route as SiteTrackRouteImport } from './routes/_site/track'
 import { Route as AdminDashRouteImport } from './routes/admin/_dash'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as SiteAccountIndexRouteImport } from './routes/_site/account.index'
+import { Route as SiteBlogIndexRouteImport } from './routes/_site/blog.index'
+import { Route as SiteBlogSlugRouteImport } from './routes/_site/blog.$slug'
 import { Route as SiteCheckoutIndexRouteImport } from './routes/_site/checkout.index'
 import { Route as SiteCheckoutCallbackRouteImport } from './routes/_site/checkout.callback'
 import { Route as SiteProductsSlugRouteImport } from './routes/_site/products.$slug'
@@ -169,6 +171,16 @@ const SiteAccountIndexRoute = SiteAccountIndexRouteImport.update({
   path: '/account/',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteBlogIndexRoute = SiteBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteBlogSlugRoute = SiteBlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteCheckoutIndexRoute = SiteCheckoutIndexRouteImport.update({
   id: '/checkout/',
   path: '/checkout/',
@@ -273,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/track': typeof SiteTrackRoute
   '/admin': typeof AdminDashRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/blog/$slug': typeof SiteBlogSlugRoute
   '/checkout/callback': typeof SiteCheckoutCallbackRoute
   '/products/$slug': typeof SiteProductsSlugRoute
   '/admin/categories': typeof AdminDashCategoriesRoute
@@ -282,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminDashSettingsRoute
   '/api/paystack/webhook': typeof ApiPaystackWebhookRoute
   '/account/': typeof SiteAccountIndexRoute
+  '/blog/': typeof SiteBlogIndexRoute
   '/checkout/': typeof SiteCheckoutIndexRoute
   '/admin/': typeof AdminDashIndexRoute
   '/account/orders/$id': typeof SiteAccountOrdersIdRoute
@@ -313,6 +327,7 @@ export interface FileRoutesByTo {
   '/track': typeof SiteTrackRoute
   '/admin/login': typeof AdminLoginRoute
   '/': typeof SiteIndexRoute
+  '/blog/$slug': typeof SiteBlogSlugRoute
   '/checkout/callback': typeof SiteCheckoutCallbackRoute
   '/products/$slug': typeof SiteProductsSlugRoute
   '/admin/categories': typeof AdminDashCategoriesRoute
@@ -322,6 +337,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminDashSettingsRoute
   '/api/paystack/webhook': typeof ApiPaystackWebhookRoute
   '/account': typeof SiteAccountIndexRoute
+  '/blog': typeof SiteBlogIndexRoute
   '/checkout': typeof SiteCheckoutIndexRoute
   '/admin': typeof AdminDashIndexRoute
   '/account/orders/$id': typeof SiteAccountOrdersIdRoute
@@ -356,6 +372,7 @@ export interface FileRoutesById {
   '/admin/_dash': typeof AdminDashRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/_site/': typeof SiteIndexRoute
+  '/_site/blog/$slug': typeof SiteBlogSlugRoute
   '/_site/checkout/callback': typeof SiteCheckoutCallbackRoute
   '/_site/products/$slug': typeof SiteProductsSlugRoute
   '/admin/_dash/categories': typeof AdminDashCategoriesRoute
@@ -365,6 +382,7 @@ export interface FileRoutesById {
   '/admin/_dash/settings': typeof AdminDashSettingsRoute
   '/api/paystack/webhook': typeof ApiPaystackWebhookRoute
   '/_site/account/': typeof SiteAccountIndexRoute
+  '/_site/blog/': typeof SiteBlogIndexRoute
   '/_site/checkout/': typeof SiteCheckoutIndexRoute
   '/admin/_dash/': typeof AdminDashIndexRoute
   '/_site/account/orders/$id': typeof SiteAccountOrdersIdRoute
@@ -399,6 +417,7 @@ export interface FileRouteTypes {
     | '/track'
     | '/admin'
     | '/admin/login'
+    | '/blog/$slug'
     | '/checkout/callback'
     | '/products/$slug'
     | '/admin/categories'
@@ -408,6 +427,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/api/paystack/webhook'
     | '/account/'
+    | '/blog/'
     | '/checkout/'
     | '/admin/'
     | '/account/orders/$id'
@@ -439,6 +459,7 @@ export interface FileRouteTypes {
     | '/track'
     | '/admin/login'
     | '/'
+    | '/blog/$slug'
     | '/checkout/callback'
     | '/products/$slug'
     | '/admin/categories'
@@ -448,6 +469,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/api/paystack/webhook'
     | '/account'
+    | '/blog'
     | '/checkout'
     | '/admin'
     | '/account/orders/$id'
@@ -481,6 +503,7 @@ export interface FileRouteTypes {
     | '/admin/_dash'
     | '/admin/login'
     | '/_site/'
+    | '/_site/blog/$slug'
     | '/_site/checkout/callback'
     | '/_site/products/$slug'
     | '/admin/_dash/categories'
@@ -490,6 +513,7 @@ export interface FileRouteTypes {
     | '/admin/_dash/settings'
     | '/api/paystack/webhook'
     | '/_site/account/'
+    | '/_site/blog/'
     | '/_site/checkout/'
     | '/admin/_dash/'
     | '/_site/account/orders/$id'
@@ -679,6 +703,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteAccountIndexRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/blog/': {
+      id: '/_site/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof SiteBlogIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/blog/$slug': {
+      id: '/_site/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof SiteBlogSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/checkout/': {
       id: '/_site/checkout/'
       path: '/checkout'
@@ -813,9 +851,11 @@ interface SiteRouteChildren {
   SiteTermsRoute: typeof SiteTermsRoute
   SiteTrackRoute: typeof SiteTrackRoute
   SiteIndexRoute: typeof SiteIndexRoute
+  SiteBlogSlugRoute: typeof SiteBlogSlugRoute
   SiteCheckoutCallbackRoute: typeof SiteCheckoutCallbackRoute
   SiteProductsSlugRoute: typeof SiteProductsSlugRoute
   SiteAccountIndexRoute: typeof SiteAccountIndexRoute
+  SiteBlogIndexRoute: typeof SiteBlogIndexRoute
   SiteCheckoutIndexRoute: typeof SiteCheckoutIndexRoute
   SiteAccountOrdersIdRoute: typeof SiteAccountOrdersIdRoute
 }
@@ -839,9 +879,11 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteTermsRoute: SiteTermsRoute,
   SiteTrackRoute: SiteTrackRoute,
   SiteIndexRoute: SiteIndexRoute,
+  SiteBlogSlugRoute: SiteBlogSlugRoute,
   SiteCheckoutCallbackRoute: SiteCheckoutCallbackRoute,
   SiteProductsSlugRoute: SiteProductsSlugRoute,
   SiteAccountIndexRoute: SiteAccountIndexRoute,
+  SiteBlogIndexRoute: SiteBlogIndexRoute,
   SiteCheckoutIndexRoute: SiteCheckoutIndexRoute,
   SiteAccountOrdersIdRoute: SiteAccountOrdersIdRoute,
 }
