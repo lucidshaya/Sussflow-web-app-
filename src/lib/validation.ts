@@ -343,3 +343,15 @@ export const bundleItemSchema = z
         message: "Add-ons and related items must be products from your catalogue",
       });
   });
+
+export const blogPostSchema = z.object({
+  title: z.string().trim().min(3, "Add a title").max(140, "Keep the title under 140 characters"),
+  slug: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Use lowercase letters, numbers and dashes")
+    .max(100),
+  excerpt: z.string().trim().min(10, "Add a short summary").max(300, "Keep the summary under 300"),
+  tag: z.string().trim().min(2, "Add a tag").max(40),
+  body: z.string().trim().min(20, "Write the article"),
+});

@@ -62,6 +62,15 @@ select id, 'admin' from auth.users where email = 'you@example.com';
 4. Paystack (Live) → Webhook URL: `https://<your-domain>/api/paystack/webhook`.
 5. Google Search Console: add the domain and submit `https://<your-domain>/sitemap.xml`.
 
+## Products, sizes and choices
+
+- Each product's price options are by **Length** (pads) or **Size** (period underwear XS–4XL, cups Size 1 / Size 2): Admin → Products → Options & choices. Each option has its own price and stock; sizes must be picked by the customer.
+- **Customer choices** (e.g. pads: Flow type, Colour) don't change price or stock. The customer must pick one of each; picks are saved on the order line (`order_items.variant_label`) and validated on the server (`src/lib/choices.ts`).
+
+## Blog
+
+Articles live in `blog_posts` (migration 0006) and are managed in **Admin → Blog**: write, publish/unpublish, edit and delete, with a cover image. Body format: blank line between paragraphs, `## ` for a heading, `- ` for a bullet. Published articles appear on `/blog`, the home page and the sitemap.
+
 ## SEO
 
 - Every public page sets its title, description, canonical URL and share-card tags with `seo()` in `src/lib/seo.ts`; bag, checkout and account pages use `privatePage()` (noindex).

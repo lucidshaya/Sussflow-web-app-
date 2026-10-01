@@ -46,6 +46,9 @@ import { Route as AdminDashPriceListRouteImport } from './routes/admin/_dash/pri
 import { Route as AdminDashSettingsRouteImport } from './routes/admin/_dash/settings'
 import { Route as ApiPaystackWebhookRouteImport } from './routes/api/paystack/webhook'
 import { Route as SiteAccountOrdersIdRouteImport } from './routes/_site/account.orders.$id'
+import { Route as AdminDashBlogIndexRouteImport } from './routes/admin/_dash/blog.index'
+import { Route as AdminDashBlogIdRouteImport } from './routes/admin/_dash/blog.$id'
+import { Route as AdminDashBlogNewRouteImport } from './routes/admin/_dash/blog.new'
 import { Route as AdminDashOrdersIndexRouteImport } from './routes/admin/_dash/orders.index'
 import { Route as AdminDashOrdersIdRouteImport } from './routes/admin/_dash/orders.$id'
 import { Route as AdminDashProductsIndexRouteImport } from './routes/admin/_dash/products.index'
@@ -236,6 +239,21 @@ const SiteAccountOrdersIdRoute = SiteAccountOrdersIdRouteImport.update({
   path: '/account/orders/$id',
   getParentRoute: () => SiteRoute,
 } as any)
+const AdminDashBlogIndexRoute = AdminDashBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => AdminDashRoute,
+} as any)
+const AdminDashBlogIdRoute = AdminDashBlogIdRouteImport.update({
+  id: '/blog/$id',
+  path: '/blog/$id',
+  getParentRoute: () => AdminDashRoute,
+} as any)
+const AdminDashBlogNewRoute = AdminDashBlogNewRouteImport.update({
+  id: '/blog/new',
+  path: '/blog/new',
+  getParentRoute: () => AdminDashRoute,
+} as any)
 const AdminDashOrdersIndexRoute = AdminDashOrdersIndexRouteImport.update({
   id: '/orders/',
   path: '/orders/',
@@ -299,9 +317,12 @@ export interface FileRoutesByFullPath {
   '/checkout/': typeof SiteCheckoutIndexRoute
   '/admin/': typeof AdminDashIndexRoute
   '/account/orders/$id': typeof SiteAccountOrdersIdRoute
+  '/admin/blog/$id': typeof AdminDashBlogIdRoute
+  '/admin/blog/new': typeof AdminDashBlogNewRoute
   '/admin/orders/$id': typeof AdminDashOrdersIdRoute
   '/admin/products/$id': typeof AdminDashProductsIdRoute
   '/admin/products/new': typeof AdminDashProductsNewRoute
+  '/admin/blog/': typeof AdminDashBlogIndexRoute
   '/admin/orders/': typeof AdminDashOrdersIndexRoute
   '/admin/products/': typeof AdminDashProductsIndexRoute
 }
@@ -341,9 +362,12 @@ export interface FileRoutesByTo {
   '/checkout': typeof SiteCheckoutIndexRoute
   '/admin': typeof AdminDashIndexRoute
   '/account/orders/$id': typeof SiteAccountOrdersIdRoute
+  '/admin/blog/$id': typeof AdminDashBlogIdRoute
+  '/admin/blog/new': typeof AdminDashBlogNewRoute
   '/admin/orders/$id': typeof AdminDashOrdersIdRoute
   '/admin/products/$id': typeof AdminDashProductsIdRoute
   '/admin/products/new': typeof AdminDashProductsNewRoute
+  '/admin/blog': typeof AdminDashBlogIndexRoute
   '/admin/orders': typeof AdminDashOrdersIndexRoute
   '/admin/products': typeof AdminDashProductsIndexRoute
 }
@@ -386,9 +410,12 @@ export interface FileRoutesById {
   '/_site/checkout/': typeof SiteCheckoutIndexRoute
   '/admin/_dash/': typeof AdminDashIndexRoute
   '/_site/account/orders/$id': typeof SiteAccountOrdersIdRoute
+  '/admin/_dash/blog/$id': typeof AdminDashBlogIdRoute
+  '/admin/_dash/blog/new': typeof AdminDashBlogNewRoute
   '/admin/_dash/orders/$id': typeof AdminDashOrdersIdRoute
   '/admin/_dash/products/$id': typeof AdminDashProductsIdRoute
   '/admin/_dash/products/new': typeof AdminDashProductsNewRoute
+  '/admin/_dash/blog/': typeof AdminDashBlogIndexRoute
   '/admin/_dash/orders/': typeof AdminDashOrdersIndexRoute
   '/admin/_dash/products/': typeof AdminDashProductsIndexRoute
 }
@@ -431,9 +458,12 @@ export interface FileRouteTypes {
     | '/checkout/'
     | '/admin/'
     | '/account/orders/$id'
+    | '/admin/blog/$id'
+    | '/admin/blog/new'
     | '/admin/orders/$id'
     | '/admin/products/$id'
     | '/admin/products/new'
+    | '/admin/blog/'
     | '/admin/orders/'
     | '/admin/products/'
   fileRoutesByTo: FileRoutesByTo
@@ -473,9 +503,12 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/admin'
     | '/account/orders/$id'
+    | '/admin/blog/$id'
+    | '/admin/blog/new'
     | '/admin/orders/$id'
     | '/admin/products/$id'
     | '/admin/products/new'
+    | '/admin/blog'
     | '/admin/orders'
     | '/admin/products'
   id:
@@ -517,9 +550,12 @@ export interface FileRouteTypes {
     | '/_site/checkout/'
     | '/admin/_dash/'
     | '/_site/account/orders/$id'
+    | '/admin/_dash/blog/$id'
+    | '/admin/_dash/blog/new'
     | '/admin/_dash/orders/$id'
     | '/admin/_dash/products/$id'
     | '/admin/_dash/products/new'
+    | '/admin/_dash/blog/'
     | '/admin/_dash/orders/'
     | '/admin/_dash/products/'
   fileRoutesById: FileRoutesById
@@ -794,6 +830,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteAccountOrdersIdRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/admin/_dash/blog/': {
+      id: '/admin/_dash/blog/'
+      path: '/blog'
+      fullPath: '/admin/blog/'
+      preLoaderRoute: typeof AdminDashBlogIndexRouteImport
+      parentRoute: typeof AdminDashRoute
+    }
+    '/admin/_dash/blog/$id': {
+      id: '/admin/_dash/blog/$id'
+      path: '/blog/$id'
+      fullPath: '/admin/blog/$id'
+      preLoaderRoute: typeof AdminDashBlogIdRouteImport
+      parentRoute: typeof AdminDashRoute
+    }
+    '/admin/_dash/blog/new': {
+      id: '/admin/_dash/blog/new'
+      path: '/blog/new'
+      fullPath: '/admin/blog/new'
+      preLoaderRoute: typeof AdminDashBlogNewRouteImport
+      parentRoute: typeof AdminDashRoute
+    }
     '/admin/_dash/orders/': {
       id: '/admin/_dash/orders/'
       path: '/orders'
@@ -897,9 +954,12 @@ interface AdminDashRouteChildren {
   AdminDashPriceListRoute: typeof AdminDashPriceListRoute
   AdminDashSettingsRoute: typeof AdminDashSettingsRoute
   AdminDashIndexRoute: typeof AdminDashIndexRoute
+  AdminDashBlogIdRoute: typeof AdminDashBlogIdRoute
+  AdminDashBlogNewRoute: typeof AdminDashBlogNewRoute
   AdminDashOrdersIdRoute: typeof AdminDashOrdersIdRoute
   AdminDashProductsIdRoute: typeof AdminDashProductsIdRoute
   AdminDashProductsNewRoute: typeof AdminDashProductsNewRoute
+  AdminDashBlogIndexRoute: typeof AdminDashBlogIndexRoute
   AdminDashOrdersIndexRoute: typeof AdminDashOrdersIndexRoute
   AdminDashProductsIndexRoute: typeof AdminDashProductsIndexRoute
 }
@@ -911,9 +971,12 @@ const AdminDashRouteChildren: AdminDashRouteChildren = {
   AdminDashPriceListRoute: AdminDashPriceListRoute,
   AdminDashSettingsRoute: AdminDashSettingsRoute,
   AdminDashIndexRoute: AdminDashIndexRoute,
+  AdminDashBlogIdRoute: AdminDashBlogIdRoute,
+  AdminDashBlogNewRoute: AdminDashBlogNewRoute,
   AdminDashOrdersIdRoute: AdminDashOrdersIdRoute,
   AdminDashProductsIdRoute: AdminDashProductsIdRoute,
   AdminDashProductsNewRoute: AdminDashProductsNewRoute,
+  AdminDashBlogIndexRoute: AdminDashBlogIndexRoute,
   AdminDashOrdersIndexRoute: AdminDashOrdersIndexRoute,
   AdminDashProductsIndexRoute: AdminDashProductsIndexRoute,
 }

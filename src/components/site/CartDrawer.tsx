@@ -37,7 +37,7 @@ export function CartDrawer() {
               {isLoading && <li className="text-sm text-foreground/60">Loading your bag…</li>}
               {items.map((item) => (
                 <li
-                  key={item.variantId}
+                  key={item.key}
                   className="flex gap-3 rounded-2xl border border-glass-border bg-glass p-3"
                 >
                   <img
@@ -53,7 +53,7 @@ export function CartDrawer() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => remove(item.variantId)}
+                        onClick={() => remove(item.key)}
                         className="text-foreground/40 hover:text-alert"
                         aria-label={`Remove ${item.productName}`}
                       >
@@ -65,7 +65,7 @@ export function CartDrawer() {
                         <button
                           type="button"
                           className="grid size-7 place-items-center rounded-full hover:bg-glass"
-                          onClick={() => update(item.variantId, item.quantity - 1)}
+                          onClick={() => update(item.key, item.quantity - 1)}
                           aria-label="Decrease quantity"
                         >
                           <Minus className="size-3.5" />
@@ -76,7 +76,7 @@ export function CartDrawer() {
                         <button
                           type="button"
                           className="grid size-7 place-items-center rounded-full hover:bg-glass disabled:opacity-40"
-                          onClick={() => update(item.variantId, item.quantity + 1)}
+                          onClick={() => update(item.key, item.quantity + 1)}
                           disabled={item.quantity >= item.stock}
                           aria-label="Increase quantity"
                         >

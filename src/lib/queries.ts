@@ -2,6 +2,7 @@ import { queryOptions, type QueryClient } from "@tanstack/react-query";
 
 import { isSupabaseConfigured, supabase, unwrap } from "./supabase";
 import type {
+  BlogPostRow,
   BundleItemKind,
   BundleItem,
   Category,
@@ -72,7 +73,7 @@ export const settingsQuery = queryOptions({
 /** A kit line with its catalogue product (null for free-text lines or hidden products). */
 export interface BundleItemWithProduct extends BundleItem {
   product:
-    | (Pick<Product, "id" | "name" | "slug" | "image_url"> & {
+    | (Pick<Product, "id" | "name" | "slug" | "image_url" | "choices"> & {
         product_variants: Variant[];
       })
     | null;
@@ -92,7 +93,7 @@ export const bundleItemsQuery = (bundleIds: string[]) =>
       const { data, error } = await supabase
         .from("bundle_items")
         .select(
-          "*, product:products!bundle_items_product_id_fkey(id, name, slug, image_url, product_variants(*))",
+          "*, product:products!bundle_items_product_id_fkey(id, name, slug, image_url, choices, product_variants(*))",
         )
         .in("bundle_id", bundleIds)
         .order("sort");
@@ -135,3 +136,42 @@ export async function prefetch(
     ),
   );
 }
+
+const BLOG_FIELDS =
+  "id, slug, title, excerpt, tag, image_url, body, is_published, published_at, created_at, updated_at";
+
+/** Published blog posts, newest first (Admin → Blog). Empty until migration 0006 has run. */
+export const blogPostsQuery = (limit?: number) =>
+  queryOptions({
+    queryKey: ["blog", limit ?? "all"],
+    enabled: isSupabaseConfigured,
+    queryFn: async () => {
+      let query = supabase
+        .from("blog_posts")
+        .select(BLOG_FIELDS)
+        .eq("is_published", true)
+        .order("published_at", { ascending: false });
+      if (limit) query = query.limit(limit);
+      const { data, error } = await query;
+      if (isMissingTable(error)) return [];
+      if (error) throw new Error(error.message);
+      return data as BlogPostRow[];
+    },
+  });
+
+export const blogPostQuery = (slug: string) =>
+  queryOptions({
+    queryKey: ["blog", "post", slug],
+    enabled: isSupabaseConfigured,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select(BLOG_FIELDS)
+        .eq("slug", slug)
+        .eq("is_published", true)
+        .maybeSingle();
+      if (isMissingTable(error)) return null;
+      if (error) throw new Error(error.message);
+      return data as BlogPostRow | null;
+    },
+  });

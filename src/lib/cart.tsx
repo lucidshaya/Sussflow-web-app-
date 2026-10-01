@@ -9,22 +9,28 @@ import {
   type ReactNode,
 } from "react";
 
+import { choicesText, lineKey, type ChosenOptions } from "./choices";
 import { variantLabel } from "./format";
 import { isSupabaseConfigured, supabase, unwrap } from "./supabase";
 
 export interface CartLine {
   variantId: string;
   quantity: number;
+  /** Customer choices such as flow type and colour (no effect on price). */
+  choices?: ChosenOptions;
 }
+
+const keyOf = (line: CartLine) => lineKey(line.variantId, line.choices);
 
 interface CartState {
   lines: CartLine[];
   count: number;
   open: boolean;
   setOpen: (open: boolean) => void;
-  add: (variantId: string, quantity?: number) => void;
-  update: (variantId: string, quantity: number) => void;
-  remove: (variantId: string) => void;
+  add: (variantId: string, quantity?: number, choices?: ChosenOptions) => void;
+  /** `key` is CartItemDetail.key (variant + choices). */
+  update: (key: string, quantity: number) => void;
+  remove: (key: string) => void;
   clear: () => void;
 }
 
@@ -40,7 +46,10 @@ function readStoredCart(): CartLine[] {
       (line): line is CartLine =>
         typeof line?.variantId === "string" &&
         Number.isInteger(line?.quantity) &&
-        line.quantity > 0,
+        line.quantity > 0 &&
+        (line.choices === undefined ||
+          (typeof line.choices === "object" &&
+            Object.values(line.choices as object).every((v) => typeof v === "string"))),
     );
   } catch {
     return [];
@@ -66,29 +75,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [lines, hydrated]);
 
-  const add = useCallback((variantId: string, quantity = 1) => {
+  const add = useCallback((variantId: string, quantity = 1, choices?: ChosenOptions) => {
+    const added: CartLine = { variantId, quantity, ...(choices && { choices }) };
+    const key = keyOf(added);
     setLines((current) => {
-      const existing = current.find((line) => line.variantId === variantId);
-      if (existing)
+      if (current.some((line) => keyOf(line) === key))
         return current.map((line) =>
-          line.variantId === variantId ? { ...line, quantity: line.quantity + quantity } : line,
+          keyOf(line) === key ? { ...line, quantity: line.quantity + quantity } : line,
         );
-      return [...current, { variantId, quantity }];
+      return [...current, added];
     });
     setOpen(true);
   }, []);
 
-  const update = useCallback((variantId: string, quantity: number) => {
+  const update = useCallback((key: string, quantity: number) => {
     setLines((current) =>
       quantity <= 0
-        ? current.filter((line) => line.variantId !== variantId)
-        : current.map((line) => (line.variantId === variantId ? { ...line, quantity } : line)),
+        ? current.filter((line) => keyOf(line) !== key)
+        : current.map((line) => (keyOf(line) === key ? { ...line, quantity } : line)),
     );
   }, []);
 
   const remove = useCallback(
-    (variantId: string) =>
-      setLines((current) => current.filter((line) => line.variantId !== variantId)),
+    (key: string) => setLines((current) => current.filter((line) => keyOf(line) !== key)),
     [],
   );
   const clear = useCallback(() => setLines([]), []);
@@ -117,7 +126,10 @@ export function useCart() {
 }
 
 export interface CartItemDetail {
+  /** Identifies the bag line (variant + choices) for update/remove. */
+  key: string;
   variantId: string;
+  choices?: ChosenOptions;
   quantity: number;
   unitPrice: number;
   lineTotal: number;
@@ -158,8 +170,11 @@ export function useCartDetails() {
   for (const line of lines) {
     const row = query.data?.find((variant) => variant.id === line.variantId);
     if (!row || !row.products) continue;
+    const options = choicesText(line.choices);
     items.push({
+      key: keyOf(line),
       variantId: line.variantId,
+      ...(line.choices && { choices: line.choices }),
       quantity: line.quantity,
       unitPrice: row.price,
       lineTotal: row.price * line.quantity,
@@ -167,7 +182,7 @@ export function useCartDetails() {
       productName: row.products.name,
       productSlug: row.products.slug,
       imageUrl: row.products.image_url,
-      label: variantLabel(row, row.products.slug),
+      label: [variantLabel(row, row.products.slug), options].filter(Boolean).join(" · "),
     });
   }
   const unavailable = query.isSuccess

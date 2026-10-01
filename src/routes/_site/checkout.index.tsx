@@ -150,7 +150,11 @@ function CheckoutPage() {
       const response = await startCheckout({
         data: {
           accessToken: await getAccessToken(),
-          items: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
+          items: lines.map((line) => ({
+            variantId: line.variantId,
+            quantity: line.quantity,
+            ...(line.choices && { choices: line.choices }),
+          })),
           ...data,
         },
       });
@@ -333,7 +337,7 @@ function CheckoutPage() {
           <ul className="mt-4 space-y-3">
             {isLoading && <li className="text-sm text-foreground/60">Loading…</li>}
             {items.map((item) => (
-              <li key={item.variantId} className="flex items-center gap-3 text-sm">
+              <li key={item.key} className="flex items-center gap-3 text-sm">
                 <img
                   src={item.imageUrl ?? "/images/pads.jpg"}
                   alt=""

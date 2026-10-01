@@ -1,16 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 
-import { formatPostDate, readingMinutes, type BlogPost } from "@/content/blog";
+import { formatPostDate, readingMinutes } from "@/lib/blog";
+import type { BlogPostRow } from "@/lib/types";
 
 import { glassPanel } from "./primitives";
 
-export function BlogCard({ post }: { post: BlogPost }) {
+export function BlogCard({ post }: { post: BlogPostRow }) {
   return (
     <article className={`${glassPanel} group flex flex-col overflow-hidden`}>
       <Link to="/blog/$slug" params={{ slug: post.slug }} tabIndex={-1} aria-hidden="true">
         <img
-          src={post.image}
+          src={post.image_url ?? "/images/pads.jpg"}
           alt=""
           loading="lazy"
           className="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
@@ -18,7 +19,7 @@ export function BlogCard({ post }: { post: BlogPost }) {
       </Link>
       <div className="flex flex-1 flex-col p-5">
         <p className="text-xs font-semibold uppercase text-brand">
-          {post.tag} · {readingMinutes(post)} min read
+          {post.tag} · {readingMinutes(post.body)} min read
         </p>
         <h3 className="mt-2 font-display text-lg font-semibold leading-snug">
           <Link to="/blog/$slug" params={{ slug: post.slug }} className="hover:text-brand">
@@ -27,7 +28,7 @@ export function BlogCard({ post }: { post: BlogPost }) {
         </h3>
         <p className="mt-2 flex-1 text-sm leading-relaxed text-foreground/65">{post.excerpt}</p>
         <div className="mt-4 flex items-center justify-between gap-2 text-xs text-foreground/55">
-          <time dateTime={post.published}>{formatPostDate(post.published)}</time>
+          <time dateTime={post.published_at ?? undefined}>{formatPostDate(post.published_at)}</time>
           <Link
             to="/blog/$slug"
             params={{ slug: post.slug }}

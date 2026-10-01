@@ -10,10 +10,9 @@ import { glassCard, glassPanel, SectionHeading, SetupNotice } from "@/components
 import { ProductCard, ProductGridSkeleton } from "@/components/site/ProductCard";
 import { SwipeRow } from "@/components/site/SwipeRow";
 import { Button } from "@/components/ui/button";
-import { BLOG_POSTS } from "@/content/blog";
 import { EDUCATION_TOPICS, PERSONAS, STATS } from "@/content/site";
 import { formatNaira, lowestPrice } from "@/lib/format";
-import { prefetch, productsQuery, settingsQuery } from "@/lib/queries";
+import { blogPostsQuery, prefetch, productsQuery, settingsQuery } from "@/lib/queries";
 import { organizationJsonLd, seo, SITE_TITLE } from "@/lib/seo";
 import { isSupabaseConfigured } from "@/lib/supabase";
 
@@ -24,6 +23,7 @@ export const Route = createFileRoute("/_site/")({
       productsQuery({ featured: true }),
       productsQuery(), // deals and pairs
       settingsQuery,
+      blogPostsQuery(3),
     );
     return { settings: queryClient.getQueryData(settingsQuery.queryKey) ?? null };
   },
@@ -68,6 +68,7 @@ const CATEGORY_GROUPS = [
 
 function HomePage() {
   const featured = useQuery(productsQuery({ featured: true }));
+  const latestPosts = useQuery(blogPostsQuery(3)).data ?? [];
   const pads = featured.data?.find((product) => product.slug === "reusable-menstrual-pads");
   const padsFrom = pads ? lowestPrice(pads.product_variants) : null;
 
@@ -452,24 +453,26 @@ function HomePage() {
         </div>
       </section>
 
-      {/* From the blog */}
-      <section className="mx-auto max-w-7xl px-5 py-10">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <SectionHeading eyebrow="From the blog" title="Period care, explained simply" />
-          <Button variant="glass" asChild>
-            <Link to="/blog">
-              All articles <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </div>
-        <div className="mt-6">
-          <SwipeRow label="Latest articles" itemClass="w-[82%]">
-            {BLOG_POSTS.slice(0, 3).map((post) => (
-              <BlogCard key={post.slug} post={post} />
-            ))}
-          </SwipeRow>
-        </div>
-      </section>
+      {/* From the blog (Admin → Blog) */}
+      {latestPosts.length > 0 && (
+        <section className="mx-auto max-w-7xl px-5 py-10">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <SectionHeading eyebrow="From the blog" title="Period care, explained simply" />
+            <Button variant="glass" asChild>
+              <Link to="/blog">
+                All articles <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </div>
+          <div className="mt-6">
+            <SwipeRow label="Latest articles" itemClass="w-[82%]">
+              {latestPosts.map((post) => (
+                <BlogCard key={post.id} post={post} />
+              ))}
+            </SwipeRow>
+          </div>
+        </section>
+      )}
 
       {/* Final CTA — big statement type on a full-bleed brand band */}
       <section className="mt-10 overflow-hidden bg-brand text-primary-foreground">

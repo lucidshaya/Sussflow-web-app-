@@ -3,6 +3,7 @@ import { ArrowRight, Check, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
+import { parseChoices } from "@/lib/choices";
 import { formatNaira, lowestPrice } from "@/lib/format";
 import type { BundleItemWithProduct } from "@/lib/queries";
 
@@ -65,7 +66,10 @@ export function KitAddons({ items }: { items: BundleItemWithProduct[] }) {
         {addons.map((item) => {
           const product = item.product!;
           const variants = product.product_variants;
-          const single = variants.length === 1 ? variants[0] : undefined;
+          const single =
+            variants.length === 1 && parseChoices(product.choices).length === 0
+              ? variants[0]
+              : undefined;
           const price = lowestPrice(variants);
           return (
             <li

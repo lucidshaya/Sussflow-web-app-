@@ -68,10 +68,13 @@ const EMPTY_DRAFT: Draft = {
 export function VariantRows({
   productId,
   variants,
+  optionName = "Length",
   showHeader = true,
 }: {
   productId: string;
   variants: Variant[];
+  /** "Length" for pads, "Size" for underwear and cups. */
+  optionName?: string;
   showHeader?: boolean;
 }) {
   const queryClient = useQueryClient();
@@ -90,7 +93,7 @@ export function VariantRows({
         {showHeader && (
           <thead>
             <tr className="border-b border-foreground/10">
-              <th className={th}>Length</th>
+              <th className={th}>{optionName}</th>
               <th className={th}>Pack (in 1)</th>
               <th className={th}>Price (₦)</th>
               {withCompare && <th className={th}>Was (₦)</th>}
@@ -289,7 +292,7 @@ function DraftCells({
         <input
           value={draft.length_label}
           onChange={set("length_label")}
-          placeholder='e.g. 16"'
+          placeholder='e.g. 16" or M'
           className={cn(adminInput, "w-24")}
         />
       </td>

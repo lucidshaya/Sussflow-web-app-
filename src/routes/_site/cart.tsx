@@ -52,7 +52,7 @@ function CartPage() {
               )}
               <ul className="divide-y divide-foreground/10">
                 {items.map((item) => (
-                  <li key={item.variantId} className="flex gap-4 py-4 first:pt-0 last:pb-0">
+                  <li key={item.key} className="flex gap-4 py-4 first:pt-0 last:pb-0">
                     <Link to="/products/$slug" params={{ slug: item.productSlug }}>
                       <img
                         src={item.imageUrl ?? "/images/pads.jpg"}
@@ -82,7 +82,7 @@ function CartPage() {
                           <button
                             type="button"
                             className="grid size-8 place-items-center rounded-full hover:bg-glass"
-                            onClick={() => update(item.variantId, item.quantity - 1)}
+                            onClick={() => update(item.key, item.quantity - 1)}
                             aria-label="Decrease"
                           >
                             <Minus className="size-4" />
@@ -91,7 +91,7 @@ function CartPage() {
                           <button
                             type="button"
                             className="grid size-8 place-items-center rounded-full hover:bg-glass disabled:opacity-40"
-                            onClick={() => update(item.variantId, item.quantity + 1)}
+                            onClick={() => update(item.key, item.quantity + 1)}
                             disabled={item.quantity >= item.stock}
                             aria-label="Increase"
                           >
@@ -100,7 +100,7 @@ function CartPage() {
                         </div>
                         <button
                           type="button"
-                          onClick={() => remove(item.variantId)}
+                          onClick={() => remove(item.key)}
                           className="flex items-center gap-1 text-sm text-foreground/50 hover:text-alert"
                         >
                           <Trash2 className="size-4" /> Remove

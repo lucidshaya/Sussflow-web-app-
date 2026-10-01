@@ -16,6 +16,7 @@ import { VariantRows } from "@/components/admin/VariantRows";
 import { Button } from "@/components/ui/button";
 import { supabase, unwrap } from "@/lib/supabase";
 import type { ProductWithVariants } from "@/lib/types";
+import { parseChoices } from "@/lib/choices";
 
 export const Route = createFileRoute("/admin/_dash/products/$id")({
   component: EditProduct,
@@ -100,9 +101,10 @@ function EditProduct() {
       <section className={`${adminCard} mb-5`}>
         <h2 className="font-display text-lg font-semibold">Price options</h2>
         <p className="mb-3 text-sm text-foreground/60">
-          Each option is a length + pack size combination with its own price and stock.
+          Each option is a {p.option_name.toLowerCase()} + pack size combination with its own price
+          and stock.
         </p>
-        <VariantRows productId={p.id} variants={p.product_variants} />
+        <VariantRows productId={p.id} variants={p.product_variants} optionName={p.option_name} />
       </section>
 
       <section className={`${adminCard} mb-5`}>
@@ -129,6 +131,8 @@ function EditProduct() {
           is_active: p.is_active,
           featured: p.featured,
           sort: p.sort,
+          option_name: p.option_name ?? "Length",
+          choices: parseChoices(p.choices),
         }}
         submitLabel="Save changes"
         onSubmit={async (values) => {

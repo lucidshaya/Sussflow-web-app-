@@ -4,6 +4,7 @@ import { ArrowRight, Award, Heart, Leaf, MapPin, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
+import { parseChoices } from "@/lib/choices";
 import { dealPercent, formatNaira } from "@/lib/format";
 import { productsQuery } from "@/lib/queries";
 import type { ProductWithVariants, Variant } from "@/lib/types";
@@ -27,7 +28,7 @@ const DEALS: Deal[] = [
   {
     id: "pants",
     slug: "period-underwear",
-    skus: ["UNDERWEAR-BLK-3"],
+    skus: ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"].map((size) => `UNDERWEAR-BLK-3-${size}`),
     title: (price) => `3 period pants for ${price}`,
     body: "Comfortable, discreet, reusable. Stock up for every day of your cycle.",
     tone: "leaf",
@@ -113,7 +114,7 @@ export function DealBanners() {
 function DealBanner({ deal }: { deal: LiveDeal }) {
   const { add } = useCart();
   const price = formatNaira(deal.cheapest.price);
-  const single = deal.variants.length === 1;
+  const single = deal.variants.length === 1 && parseChoices(deal.product.choices).length === 0;
   const soldOut = deal.variants.every((v) => v.stock <= 0);
   const was = deal.cheapest.compare_at_price;
 
@@ -169,7 +170,7 @@ function DealBanner({ deal }: { deal: LiveDeal }) {
           ) : (
             <Button size="small" asChild>
               <Link to="/products/$slug" params={{ slug: deal.slug }}>
-                Choose length <ArrowRight className="size-4" />
+                Choose {deal.product.option_name.toLowerCase()} <ArrowRight className="size-4" />
               </Link>
             </Button>
           )}

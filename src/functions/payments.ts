@@ -5,13 +5,23 @@ import { variantLabel } from "@/lib/format";
 import { checkoutCustomerSchema } from "@/lib/validation";
 import { getSupabaseAdmin, getUserFromToken, serverEnv } from "@/lib/supabase.server";
 import { fetchPaystackTransaction, markOrderPaid, PAYSTACK_API } from "./paystack.server";
+import { choicesError, choicesText, parseChoices } from "@/lib/choices";
 import { deliveryFeeFor } from "@/lib/delivery";
 
 const checkoutSchema = z
   .object({
     accessToken: z.string().nullable(),
     items: z
-      .array(z.object({ variantId: z.string().uuid(), quantity: z.number().int().min(1).max(100) }))
+      .array(
+        z.object({
+          variantId: z.string().uuid(),
+          quantity: z.number().int().min(1).max(100),
+          choices: z
+            .record(z.string().max(60), z.string().max(60))
+            .refine((c) => Object.keys(c).length <= 10)
+            .optional(),
+        }),
+      )
       .min(1)
       .max(50),
   })
@@ -25,7 +35,7 @@ interface VariantRow {
   length_label: string | null;
   pack_size: number;
   product_id: string;
-  products: { name: string; slug: string; is_active: boolean } | null;
+  products: { name: string; slug: string; is_active: boolean; choices: unknown } | null;
 }
 
 function variantText(v: VariantRow) {
@@ -46,32 +56,40 @@ export const initCheckout = createServerFn({ method: "POST" })
     const db = getSupabaseAdmin();
     const user = await getUserFromToken(data.accessToken);
 
-    // Merge repeated lines so stock is checked against the real total per option.
-    const merged = new Map<string, number>();
+    // Lines with the same variant (e.g. different colours) share its stock.
+    const perVariant = new Map<string, number>();
     for (const item of data.items)
-      merged.set(item.variantId, (merged.get(item.variantId) ?? 0) + item.quantity);
-    const items = [...merged].map(([variantId, quantity]) => ({ variantId, quantity }));
-    const ids = items.map((item) => item.variantId);
+      perVariant.set(item.variantId, (perVariant.get(item.variantId) ?? 0) + item.quantity);
+    const ids = [...perVariant.keys()];
     const { data: variants, error } = await db
       .from("product_variants")
       .select(
-        "id, price, stock, is_active, length_label, pack_size, product_id, products(name, slug, is_active)",
+        "id, price, stock, is_active, length_label, pack_size, product_id, products(name, slug, is_active, choices)",
       )
       .in("id", ids)
       .returns<VariantRow[]>();
     if (error) throw new Error(error.message);
 
-    const lines = items.map((item) => {
+    const lines = data.items.map((item) => {
       const variant = variants?.find((v) => v.id === item.variantId);
       if (!variant || !variant.is_active || !variant.products?.is_active) {
         throw new Error("An item in your bag is no longer available. Please review your bag.");
       }
-      if (variant.stock < item.quantity) {
+      const wanted = perVariant.get(variant.id) ?? item.quantity;
+      if (variant.stock < wanted) {
         throw new Error(
           `Only ${variant.stock} left of ${variant.products.name}${variantText(variant) ? ` (${variantText(variant)})` : ""}.`,
         );
       }
-      return { variant, quantity: item.quantity };
+      // Choices (flow type, colour…) must be ones the product offers; extras are dropped.
+      const choices = parseChoices(variant.products.choices);
+      const missing = choicesError(choices, item.choices);
+      if (missing) throw new Error(`${missing} for ${variant.products.name}.`);
+      const picked = Object.fromEntries(choices.map((c) => [c.name, item.choices![c.name]!]));
+      const label = [variantText(variant), choicesText(picked, choices)]
+        .filter(Boolean)
+        .join(" · ");
+      return { variant, quantity: item.quantity, label: label || null };
     });
 
     const subtotal = lines.reduce((sum, line) => sum + line.variant.price * line.quantity, 0);
@@ -113,7 +131,7 @@ export const initCheckout = createServerFn({ method: "POST" })
         product_id: line.variant.product_id,
         variant_id: line.variant.id,
         product_name: line.variant.products?.name ?? "Product",
-        variant_label: variantText(line.variant),
+        variant_label: line.label,
         unit_price: line.variant.price,
         quantity: line.quantity,
       })),

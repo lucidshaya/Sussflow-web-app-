@@ -1,7 +1,5 @@
 import { formatNaira } from "./format";
-import type { BlogPost } from "@/content/blog";
-
-import type { ProductWithVariants, Settings } from "./types";
+import type { BlogPostRow, ProductWithVariants, Settings } from "./types";
 
 /**
  * The public address of the site, e.g. https://sussflow.vercel.app or a custom domain.
@@ -203,14 +201,15 @@ export function faqJsonLd(items: { q: string; a: string[] }[]): JsonLd {
   };
 }
 
-export function articleJsonLd(post: BlogPost): JsonLd {
+export function articleJsonLd(post: BlogPostRow): JsonLd {
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
     description: post.excerpt,
-    image: [absoluteUrl(post.image)],
-    datePublished: post.published,
+    ...(post.image_url ? { image: [absoluteUrl(post.image_url)] } : {}),
+    ...(post.published_at ? { datePublished: post.published_at } : {}),
+    dateModified: post.updated_at,
     url: absoluteUrl(`/blog/${post.slug}`),
     author: { "@type": "Organization", name: SITE_NAME, url: `${SITE_URL}/` },
     publisher: { "@id": `${SITE_URL}/#organization` },

@@ -22,6 +22,7 @@ import { ProductGallery } from "@/components/site/ProductGallery";
 import { Button } from "@/components/ui/button";
 import { FAQ_GROUPS, PRODUCT_FAQ_GROUP } from "@/content/site";
 import { useCart } from "@/lib/cart";
+import { choicesError, parseChoices, type ChosenOptions } from "@/lib/choices";
 import { dealPercent, formatNaira, packLabel, soldInPairs } from "@/lib/format";
 import { bundleItemsQuery, itemsOf, productBySlugQuery } from "@/lib/queries";
 import { productDescription, productJsonLd, seo } from "@/lib/seo";
@@ -75,20 +76,35 @@ function ProductPage() {
     [variants],
   );
 
+  // "Length" for pads, "Size" for underwear and cups (set per product in the dashboard).
+  const optionName = product.data?.option_name || "Length";
+  // Sizes must be picked on purpose; lengths start on the first option.
+  const mustPickOption = optionName.toLowerCase() === "size" && lengths.length > 1;
+  const choices = useMemo(() => parseChoices(product.data?.choices), [product.data]);
+
   const [length, setLength] = useState<string | null>(null);
   const [packSize, setPackSize] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [picked, setPicked] = useState<ChosenOptions>({});
+  const [hint, setHint] = useState<string | null>(null);
 
   useEffect(() => {
     const first = variants[0];
-    setLength(first?.length_label ?? null);
+    setLength(mustPickOption ? null : (first?.length_label ?? null));
     setPackSize(first?.pack_size ?? null);
     setQuantity(1);
-  }, [variants]);
+    setPicked({});
+    setHint(null);
+  }, [variants, mustPickOption]);
 
+  // Before a size is chosen, show packs and prices from the first size (prices match).
+  const shownLength = length ?? (lengths.length ? lengths[0] : null);
   const packsForLength = variants.filter((v) =>
-    lengths.length ? v.length_label === length : true,
+    lengths.length ? v.length_label === shownLength : true,
   );
+  const needs =
+    (mustPickOption && !length ? `Choose a ${optionName.toLowerCase()}` : null) ??
+    choicesError(choices, picked);
   const selected: Variant | undefined =
     packsForLength.find((v) => v.pack_size === packSize) ?? packsForLength[0];
   const selectedDeal = selected ? dealPercent(selected) : null;
@@ -167,13 +183,14 @@ function ProductPage() {
           ) : (
             <div className="mt-6 space-y-5">
               {lengths.length > 0 && (
-                <OptionGroup label="Length">
+                <OptionGroup label={optionName}>
                   {lengths.map((l) => (
                     <OptionButton
                       key={l}
                       active={l === length}
                       onClick={() => {
                         setLength(l);
+                        setHint(null);
                         const packs = variants.filter((v) => v.length_label === l);
                         if (!packs.some((v) => v.pack_size === packSize))
                           setPackSize(packs[0]?.pack_size ?? null);
@@ -207,6 +224,22 @@ function ProductPage() {
                   ))}
                 </OptionGroup>
               )}
+              {choices.map((choice) => (
+                <OptionGroup key={choice.name} label={choice.name}>
+                  {choice.values.map((value) => (
+                    <OptionButton
+                      key={value}
+                      active={picked[choice.name] === value}
+                      onClick={() => {
+                        setPicked((current) => ({ ...current, [choice.name]: value }));
+                        setHint(null);
+                      }}
+                    >
+                      {value}
+                    </OptionButton>
+                  ))}
+                </OptionGroup>
+              ))}
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-1 rounded-full border border-glass-border bg-glass-soft p-1">
                   <button
@@ -231,7 +264,14 @@ function ProductPage() {
                 <Button
                   className="flex-1"
                   disabled={outOfStock}
-                  onClick={() => selected && add(selected.id, quantity)}
+                  onClick={() => {
+                    if (!selected) return;
+                    if (needs) {
+                      setHint(needs);
+                      return;
+                    }
+                    add(selected.id, quantity, choices.length ? picked : undefined);
+                  }}
                 >
                   <ShoppingBag className="size-4" />{" "}
                   {outOfStock ? (
@@ -247,6 +287,11 @@ function ProductPage() {
                   )}
                 </Button>
               </div>
+              {hint && (
+                <p role="alert" className="text-sm font-semibold text-alert">
+                  {hint}
+                </p>
+              )}
               {selected && selected.stock > 0 && selected.stock <= 5 && (
                 <p className="text-xs font-semibold text-alert">Only {selected.stock} left</p>
               )}

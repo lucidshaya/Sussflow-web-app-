@@ -4,9 +4,9 @@ import { toast } from "sonner";
 
 import { PRODUCT_IMAGES_BUCKET, supabase } from "@/lib/supabase";
 
-export async function uploadProductImage(file: File) {
+export async function uploadProductImage(file: File, folder = "products") {
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const path = `products/${crypto.randomUUID()}.${ext}`;
+  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage
     .from(PRODUCT_IMAGES_BUCKET)
     .upload(path, file, { cacheControl: "31536000", upsert: false, contentType: file.type });
@@ -18,10 +18,13 @@ export function ImageUpload({
   value,
   onChange,
   label = "Upload image",
+  folder = "products",
 }: {
   value: string | null;
   onChange: (url: string | null) => void;
   label?: string;
+  /** Storage folder in the product-images bucket, e.g. "blog". */
+  folder?: string;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -38,7 +41,7 @@ export function ImageUpload({
     }
     setBusy(true);
     try {
-      onChange(await uploadProductImage(file));
+      onChange(await uploadProductImage(file, folder));
       toast.success("Image uploaded");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Upload failed");

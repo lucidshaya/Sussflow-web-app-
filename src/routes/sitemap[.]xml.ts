@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { BLOG_POSTS } from "@/content/blog";
 import { absoluteUrl } from "@/lib/seo";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
@@ -14,11 +13,6 @@ const STATIC_PAGES = [
   { path: "/education", priority: "0.7", changefreq: "monthly" },
   { path: "/faq", priority: "0.7", changefreq: "monthly" },
   { path: "/blog", priority: "0.7", changefreq: "weekly" },
-  ...BLOG_POSTS.map((post) => ({
-    path: `/blog/${post.slug}`,
-    priority: "0.6",
-    changefreq: "monthly",
-  })),
   { path: "/size-guide", priority: "0.6", changefreq: "monthly" },
   { path: "/store-location", priority: "0.6", changefreq: "monthly" },
   { path: "/about", priority: "0.5", changefreq: "monthly" },
@@ -37,11 +31,17 @@ async function catalogPages() {
     supabase.from("products").select("slug").eq("is_active", true).order("sort"),
     supabase.from("categories").select("slug").order("sort"),
   ]);
+  const posts = await supabase.from("blog_posts").select("slug").eq("is_published", true);
   return [
     ...(categories.data ?? []).map((c: { slug: string }) => ({
       path: `/shop?category=${encodeURIComponent(c.slug)}`,
       priority: "0.8",
       changefreq: "weekly",
+    })),
+    ...(posts.data ?? []).map((p: { slug: string }) => ({
+      path: `/blog/${encodeURIComponent(p.slug)}`,
+      priority: "0.6",
+      changefreq: "monthly",
     })),
     ...(products.data ?? []).map((p: { slug: string }) => ({
       path: `/products/${encodeURIComponent(p.slug)}`,

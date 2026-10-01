@@ -3,6 +3,7 @@ import { ArrowRight, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
+import { parseChoices } from "@/lib/choices";
 import { dealPercent, formatNaira, lowestPrice } from "@/lib/format";
 import type { ProductWithVariants } from "@/lib/types";
 
@@ -15,7 +16,9 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
   const { add } = useCart();
   const active = product.product_variants.filter((variant) => variant.is_active);
   const from = lowestPrice(active);
-  const single = active.length === 1 ? active[0] : undefined;
+  // Quick add only when there's nothing to choose (one option, no flow/colour choices).
+  const single =
+    active.length === 1 && parseChoices(product.choices).length === 0 ? active[0] : undefined;
   const deal = Math.max(0, ...active.map((variant) => dealPercent(variant) ?? 0));
   const soldOut = active.length > 0 && active.every((variant) => variant.stock <= 0);
 

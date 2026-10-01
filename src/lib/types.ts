@@ -61,6 +61,10 @@ export interface Product {
   featured: boolean;
   sort: number;
   created_at: string;
+  /** What the variant option is called: "Length" (pads) or "Size" (underwear, cups). */
+  option_name: string;
+  /** Extra customer choices, e.g. flow type and colour (see src/lib/choices.ts). */
+  choices: unknown;
 }
 
 export interface ProductWithVariants extends Product {
@@ -166,4 +170,18 @@ export interface BundleItem {
   kind: BundleItemKind;
   quantity: number;
   sort: number;
+}
+
+export interface BlogPostRow {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  tag: string;
+  image_url: string | null;
+  body: string;
+  is_published: boolean;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
 }

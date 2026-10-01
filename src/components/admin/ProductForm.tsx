@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { adminCategoriesQuery } from "@/lib/admin-queries";
+import type { ProductChoice } from "@/lib/choices";
 import { slugify } from "@/lib/format";
 import { productBasicsSchema } from "@/lib/validation";
 import type { Product } from "@/lib/types";
@@ -26,7 +27,8 @@ export type ProductInput = Pick<
   | "is_active"
   | "featured"
   | "sort"
->;
+  | "option_name"
+> & { choices: ProductChoice[] };
 
 export const EMPTY_PRODUCT: ProductInput = {
   name: "",
@@ -41,6 +43,8 @@ export const EMPTY_PRODUCT: ProductInput = {
   is_active: true,
   featured: false,
   sort: 0,
+  option_name: "Length",
+  choices: [],
 };
 
 export function ProductForm({
@@ -168,6 +172,29 @@ export function ProductForm({
             className={adminInput}
           />
         </Field>
+        <div className="rounded-2xl border border-glass-border bg-glass-soft p-4">
+          <p className="text-xs font-semibold uppercase text-foreground/55">Options & choices</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-[12rem_1fr] sm:items-start [&>*]:min-w-0">
+            <Field label="Price options are by">
+              <select
+                value={values.option_name}
+                onChange={(e) => set("option_name", e.target.value)}
+                className={adminInput}
+              >
+                <option value="Length">Length (e.g. 16", 14")</option>
+                <option value="Size">Size (e.g. XS–4XL, Size 1 / 2)</option>
+              </select>
+            </Field>
+            <p className="text-xs leading-relaxed text-foreground/60 sm:pt-6">
+              Each price option below has its own {values.option_name.toLowerCase()}, price and
+              stock. Sizes must be picked by the customer before adding to bag.
+            </p>
+          </div>
+          <ChoicesEditor
+            initial={initial.choices}
+            onChange={(choices) => set("choices", choices)}
+          />
+        </div>
         <Field label="Perfect for">
           <textarea
             value={values.perfect_for ?? ""}
@@ -238,6 +265,87 @@ export function ProductForm({
         </div>
       </div>
     </form>
+  );
+}
+
+/**
+ * Extra choices with no effect on price or stock (e.g. pads: flow type, colour).
+ * Values are typed comma-separated; the customer must pick one of each.
+ */
+function ChoicesEditor({
+  initial,
+  onChange,
+}: {
+  initial: ProductChoice[];
+  onChange: (choices: ProductChoice[]) => void;
+}) {
+  const [rows, setRows] = useState(() =>
+    initial.map((c) => ({ name: c.name, values: c.values.join(", ") })),
+  );
+  const update = (next: { name: string; values: string }[]) => {
+    setRows(next);
+    onChange(
+      next
+        .map((r) => ({
+          name: r.name.trim(),
+          values: r.values
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean),
+        }))
+        .filter((c) => c.name && c.values.length),
+    );
+  };
+  return (
+    <div className="mt-4">
+      <p className="text-xs font-semibold uppercase text-foreground/55">
+        Customer choices (no effect on price)
+      </p>
+      <div className="mt-2 space-y-2">
+        {rows.map((row, i) => (
+          <div key={i} className="grid gap-2 sm:grid-cols-[10rem_1fr_auto] [&>*]:min-w-0">
+            <input
+              value={row.name}
+              onChange={(e) =>
+                update(rows.map((r, j) => (j === i ? { ...r, name: e.target.value } : r)))
+              }
+              placeholder="e.g. Flow type"
+              aria-label="Choice name"
+              maxLength={40}
+              className={adminInput}
+            />
+            <input
+              value={row.values}
+              onChange={(e) =>
+                update(rows.map((r, j) => (j === i ? { ...r, values: e.target.value } : r)))
+              }
+              placeholder="e.g. Normal flow, Heavy flow"
+              aria-label="Options, separated by commas"
+              maxLength={300}
+              className={adminInput}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="small"
+              onClick={() => update(rows.filter((_, j) => j !== i))}
+              aria-label="Remove choice"
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+      <Button
+        type="button"
+        variant="ghost"
+        size="small"
+        className="mt-2"
+        onClick={() => setRows([...rows, { name: "", values: "" }])}
+      >
+        <Plus className="size-4" /> Add a choice
+      </Button>
+    </div>
   );
 }
 

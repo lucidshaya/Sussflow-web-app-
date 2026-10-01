@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
+import { choicesError, parseChoices, type ChosenOptions } from "@/lib/choices";
 import { formatNaira, soldInPairs, variantLabel } from "@/lib/format";
 import { productsQuery } from "@/lib/queries";
 import type { ProductWithVariants, Variant } from "@/lib/types";
@@ -39,6 +40,9 @@ const PAIRS = [
 ] as const;
 
 export const PAIR_PRODUCT_SLUGS: ReadonlySet<string> = new Set(PAIRS.flatMap((p) => p.slugs));
+
+const pairSelect =
+  "mt-1 w-full rounded-full border border-glass-border bg-glass-soft px-3 py-2 text-sm font-medium text-foreground outline-none focus:border-brand";
 
 /** Heavy-flow default: the longest single pack (e.g. 16" 3-in-1), else the first option. */
 function defaultVariant(variants: Variant[]) {
@@ -104,13 +108,27 @@ function PairCard({
 }) {
   const { add } = useCart();
   const [chosen, setChosen] = useState<Record<string, string>>({});
+  const [picked, setPicked] = useState<Record<string, ChosenOptions>>({});
+  const [hint, setHint] = useState<string | null>(null);
   const picks = products.map((product) => {
     const variants = product.product_variants.filter((v) => v.is_active);
-    const variant = variants.find((v) => v.id === chosen[product.id]) ?? defaultVariant(variants);
-    return { product, variants, variant };
+    // Sizes (pants, cups) are picked by the customer; lengths default to a heavy-flow option.
+    const mustPick = product.option_name.toLowerCase() === "size" && variants.length > 1;
+    const fallback = defaultVariant(variants);
+    const variant =
+      variants.find((v) => v.id === chosen[product.id]) ?? (mustPick ? undefined : fallback);
+    const choices = parseChoices(product.choices);
+    return { product, variants, variant, shown: variant ?? fallback, mustPick, choices };
   });
-  const total = picks.reduce((sum, pick) => sum + (pick.variant?.price ?? 0), 0);
-  const soldOut = picks.some((pick) => !pick.variant || pick.variant.stock <= 0);
+  const total = picks.reduce((sum, pick) => sum + (pick.shown?.price ?? 0), 0);
+  const soldOut = picks.some((pick) => !pick.shown || pick.variants.every((v) => v.stock <= 0));
+  const needs = picks
+    .map(({ product, variant, mustPick, choices }) =>
+      mustPick && !variant
+        ? `Choose a ${product.option_name.toLowerCase()} for ${product.name}`
+        : choicesError(choices, picked[product.id]),
+    )
+    .find(Boolean);
 
   return (
     <article className="flex flex-col rounded-[28px] border border-glass-border bg-glass p-5 shadow-glass backdrop-blur-xl">
@@ -141,34 +159,76 @@ function PairCard({
       <p className="mt-1 text-sm text-foreground/65">→ {bestFor}</p>
 
       <div className="mt-4 space-y-2">
-        {picks.map(({ product, variants, variant }) =>
-          variants.length > 1 ? (
-            <label key={product.id} className="block text-xs font-semibold text-foreground/60">
-              {product.name}
-              <select
-                value={variant?.id}
-                onChange={(e) => setChosen((c) => ({ ...c, [product.id]: e.target.value }))}
-                className="mt-1 w-full rounded-full border border-glass-border bg-glass-soft px-3 py-2 text-sm font-medium text-foreground outline-none focus:border-brand"
-              >
-                {variants.map((v) => (
-                  <option key={v.id} value={v.id} disabled={v.stock <= 0}>
-                    {variantLabel(v, product.slug) ||
-                      (soldInPairs(product.slug) ? "1 pair" : "Single")}{" "}
-                    · {formatNaira(v.price)}
-                    {v.stock <= 0 ? " (sold out)" : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
+        {picks.map(({ product, variants, variant, shown, mustPick, choices }) =>
+          variants.length > 1 || choices.length > 0 ? (
+            <div key={product.id} className="space-y-1.5">
+              {variants.length > 1 && (
+                <label className="block text-xs font-semibold text-foreground/60">
+                  {product.name}
+                  <select
+                    value={variant?.id ?? ""}
+                    onChange={(e) => {
+                      setChosen((c) => ({ ...c, [product.id]: e.target.value }));
+                      setHint(null);
+                    }}
+                    className={pairSelect}
+                  >
+                    {mustPick && !variant && (
+                      <option value="" disabled>
+                        Choose {product.option_name.toLowerCase()}
+                      </option>
+                    )}
+                    {variants.map((v) => (
+                      <option key={v.id} value={v.id} disabled={v.stock <= 0}>
+                        {variantLabel(v, product.slug) ||
+                          (soldInPairs(product.slug) ? "1 pair" : "Single")}{" "}
+                        · {formatNaira(v.price)}
+                        {v.stock <= 0 ? " (sold out)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              {choices.map((choice) => (
+                <label key={choice.name} className="block text-xs font-semibold text-foreground/60">
+                  {variants.length > 1 ? choice.name : `${product.name}: ${choice.name}`}
+                  <select
+                    value={picked[product.id]?.[choice.name] ?? ""}
+                    onChange={(e) => {
+                      setPicked((p) => ({
+                        ...p,
+                        [product.id]: { ...p[product.id], [choice.name]: e.target.value },
+                      }));
+                      setHint(null);
+                    }}
+                    className={pairSelect}
+                  >
+                    <option value="" disabled>
+                      Choose {choice.name.toLowerCase()}
+                    </option>
+                    {choice.values.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
           ) : (
             <p key={product.id} className="flex justify-between text-sm">
               <span className="font-medium">{product.name}</span>
-              {variant && <span>{formatNaira(variant.price)}</span>}
+              {shown && <span>{formatNaira(shown.price)}</span>}
             </p>
           ),
         )}
       </div>
 
+      {hint && (
+        <p role="alert" className="mt-3 text-sm font-semibold text-alert">
+          {hint}
+        </p>
+      )}
       <div className="mt-auto flex items-center justify-between gap-3 pt-5">
         <span className="font-display text-xl font-semibold">{formatNaira(total)}</span>
         <Button
@@ -176,7 +236,12 @@ function PairCard({
           disabled={soldOut}
           className={cn(soldOut && "opacity-60")}
           onClick={() => {
-            for (const { variant } of picks) if (variant) add(variant.id);
+            if (needs) {
+              setHint(needs);
+              return;
+            }
+            for (const { product, variant, choices } of picks)
+              if (variant) add(variant.id, 1, choices.length ? picked[product.id] : undefined);
           }}
         >
           <ShoppingBag className="size-4" /> {soldOut ? "Sold out" : "Shop the pair"}
