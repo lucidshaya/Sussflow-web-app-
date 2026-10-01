@@ -76,7 +76,10 @@ function AuthPage() {
           redirectTo: `${window.location.origin}/reset-password`,
         });
         if (error) throw error;
-        toast.success("Password reset link sent — check your email.");
+        // Supabase reports success for unknown emails too (so accounts can't be probed).
+        toast.success(
+          "If there's a Sussflow account for that email, a reset link is on its way. Check your inbox and spam folder.",
+        );
         setMode("signin");
       }
     } catch (error) {
