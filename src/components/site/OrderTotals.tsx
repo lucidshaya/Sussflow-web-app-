@@ -1,4 +1,3 @@
-import { deliveryLabel } from "@/lib/delivery";
 import { formatNaira } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -28,11 +27,9 @@ export function OrderTotals({
       </div>
       <div className="flex justify-between">
         <dt className="text-foreground/65">
-          {fulfilment === "pickup" ? "Lagos pickup" : "Delivery"}
+          {fulfilment === "pickup" ? "Delivery fee (Lagos pickup)" : "Delivery fee"}
         </dt>
-        <dd className="font-semibold">
-          {fulfilment === "pickup" ? "Free" : deliveryLabel(deliveryFee)}
-        </dd>
+        <dd className="font-semibold">{formatNaira(deliveryFee)}</dd>
       </div>
       <div className="flex justify-between border-t border-foreground/10 pt-3 text-base">
         <dt className="font-semibold">{totalLabel}</dt>

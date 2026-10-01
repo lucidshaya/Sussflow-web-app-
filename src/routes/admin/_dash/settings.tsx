@@ -139,7 +139,7 @@ function StoreSettings() {
         const result = settingsSchema.safeParse({
           lagos_delivery_fee: draft.lagos_delivery_fee,
           nationwide_delivery_fee: draft.nationwide_delivery_fee,
-          free_delivery_threshold: draft.free_delivery_threshold,
+          free_delivery_threshold: null,
           pickup_address: draft.pickup_address ?? "",
           pickup_instructions: draft.pickup_instructions ?? "",
           contact_email: draft.contact_email ?? "",
@@ -183,7 +183,7 @@ function StoreSettings() {
         <AdminField
           error={errors["lagos_delivery_fee"]}
           label="Lagos delivery fee (₦)"
-          hint="Shown at checkout and added to the total. 0 = free delivery"
+          hint="Shown at checkout and added to the total"
         >
           <input
             type="number"
@@ -196,7 +196,7 @@ function StoreSettings() {
         <AdminField
           error={errors["nationwide_delivery_fee"]}
           label="Outside Lagos fee (₦)"
-          hint="Shown at checkout and added to the total. 0 = free delivery"
+          hint="Shown at checkout and added to the total"
         >
           <input
             type="number"
@@ -204,26 +204,6 @@ function StoreSettings() {
             step={50}
             className={cls("nationwide_delivery_fee")}
             {...money("nationwide_delivery_fee")}
-          />
-        </AdminField>
-        <AdminField
-          error={errors["free_delivery_threshold"]}
-          label="Free delivery from (₦)"
-          hint="Leave empty to disable"
-        >
-          <input
-            type="number"
-            min={0}
-            step={500}
-            className={cls("free_delivery_threshold")}
-            value={draft.free_delivery_threshold != null ? draft.free_delivery_threshold / 100 : ""}
-            onChange={(e) =>
-              setDraft({
-                ...draft,
-                free_delivery_threshold:
-                  e.target.value === "" ? null : Math.round(Number(e.target.value) * 100),
-              })
-            }
           />
         </AdminField>
         <div className="rounded-2xl border border-glass-border bg-glass-soft p-3 text-xs sm:col-span-2">

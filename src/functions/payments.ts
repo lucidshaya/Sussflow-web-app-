@@ -81,7 +81,6 @@ export const initCheckout = createServerFn({ method: "POST" })
     const deliveryFee = deliveryFeeFor(settings, {
       fulfilment: data.fulfilment,
       state: data.state,
-      subtotal,
     });
     const total = subtotal + deliveryFee;
     const reference = `SF-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;

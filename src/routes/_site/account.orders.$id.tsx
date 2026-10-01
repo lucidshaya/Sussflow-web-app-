@@ -12,7 +12,6 @@ import { supabase, unwrap } from "@/lib/supabase";
 import type { OrderWithItems } from "@/lib/types";
 import { whatsappHref } from "@/lib/whatsapp";
 import { privatePage } from "@/lib/seo";
-import { deliveryLabel } from "@/lib/delivery";
 
 export const Route = createFileRoute("/_site/account/orders/$id")({
   head: () => privatePage("Order details | Sussflow"),
@@ -85,13 +84,11 @@ function OrderDetailPage() {
             </div>
             <div className="flex justify-between">
               <dt className="text-foreground/60">
-                {order.data.fulfilment === "pickup" ? "Lagos pickup" : "Delivery"}
-              </dt>
-              <dd>
                 {order.data.fulfilment === "pickup"
-                  ? "Free"
-                  : deliveryLabel(order.data.delivery_fee)}
-              </dd>
+                  ? "Delivery fee (Lagos pickup)"
+                  : "Delivery fee"}
+              </dt>
+              <dd>{formatNaira(order.data.delivery_fee)}</dd>
             </div>
             <div className="flex justify-between text-base font-semibold">
               <dt>Total</dt>

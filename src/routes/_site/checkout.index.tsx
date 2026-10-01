@@ -121,7 +121,7 @@ function CheckoutPage() {
       });
   }, [user]);
 
-  const deliveryFee = deliveryFeeFor(settings, { fulfilment, state, subtotal });
+  const deliveryFee = deliveryFeeFor(settings, { fulfilment, state });
   const total = subtotal + deliveryFee;
 
   const validate = () => checkoutCustomerSchema.safeParse({ ...form, fulfilment, state });
