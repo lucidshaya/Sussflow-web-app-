@@ -2,6 +2,8 @@
 
 Full-stack e-commerce storefront and admin dashboard for **Sussflow Reusable Nigeria Limited**.
 
+> **Running the store?** Read the **[platform manual](MANUAL.md)**: every website and dashboard feature, with step-by-step instructions. This README is the technical setup guide.
+
 - **Frontend:** TanStack Start (React 19, SSR, file-based routing) · Tailwind v4 · shadcn/ui · Poppins
 - **Database, auth and storage:** [Supabase](https://supabase.com) (Postgres + RLS)
 - **Hosting:** [Vercel](https://vercel.com) (nitro `vercel` preset)
