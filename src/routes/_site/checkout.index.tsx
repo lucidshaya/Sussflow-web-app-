@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Lock, MapPin, Truck } from "lucide-react";
@@ -83,9 +83,15 @@ const NIGERIAN_STATES = [
 
 function CheckoutPage() {
   const { lines } = useCart();
-  const { items, subtotal, isLoading } = useCartDetails();
+  const { items, subtotal, isLoading } = useCartDetails({ live: true });
   const { user } = useAuth();
-  const { data: settings } = useQuery(settingsQuery);
+  // Delivery fees and points rules stay current while the page is open.
+  const { data: settings } = useQuery({
+    ...settingsQuery,
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: "always",
+  });
+  const queryClient = useQueryClient();
   const startCheckout = useServerFn(initCheckout);
 
   const [fulfilment, setFulfilment] = useState<Fulfilment>("delivery");
@@ -175,12 +181,16 @@ function CheckoutPage() {
           })),
           ...(redeemPoints > 0 && { redeemPoints }),
           ...(chosenArea && { lagosArea: chosenArea.id }),
+          expectedTotal: total,
           ...data,
         },
       });
       window.location.href = response.authorizationUrl;
     } catch (error) {
       toast.error(readableError(error, "Could not start payment"));
+      // Prices or fees may have changed: reload them so the summary shows the real total.
+      void queryClient.invalidateQueries({ queryKey: ["settings"] });
+      void queryClient.invalidateQueries({ queryKey: ["cart-variants"] });
       setBusy(false);
     }
   };

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { variantLabel } from "@/lib/format";
+import { formatNaira, variantLabel } from "@/lib/format";
 import { checkoutCustomerSchema } from "@/lib/validation";
 import { getSupabaseAdmin, getUserFromToken, serverEnv } from "@/lib/supabase.server";
 import { fetchPaystackTransaction, markOrderPaid, PAYSTACK_API } from "./paystack.server";
@@ -27,6 +27,8 @@ const checkoutSchema = z
       .max(50),
     /** Lagos delivery area id (required when delivering to Lagos and areas are set up). */
     lagosArea: z.string().max(60).optional(),
+    /** Total the customer saw (kobo). If prices or fees changed meanwhile, we stop and say so. */
+    expectedTotal: z.number().int().min(0).optional(),
     /** Points to spend (signed-in customers); capped on the server. */
     redeemPoints: z.number().int().min(0).max(10_000_000).optional(),
   })
@@ -129,6 +131,11 @@ export const initCheckout = createServerFn({ method: "POST" })
       pointsDiscount = pointsValue(pointsRedeemed, settings);
     }
     const total = subtotal - pointsDiscount + deliveryFee;
+    if (data.expectedTotal !== undefined && data.expectedTotal !== total) {
+      throw new Error(
+        `Prices or delivery fees were just updated — your total is now ${formatNaira(total)}. Please review your order and tap Pay again.`,
+      );
+    }
     const reference = `SF-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
 
     const { data: order, error: orderError } = await db

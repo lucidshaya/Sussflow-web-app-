@@ -92,6 +92,7 @@ Only accounts with admin access can open the dashboard. To give a teammate acces
 
 Behind the scenes:
 - **Prices are checked again on the server**, so customers can't change them.
+- **Checkout stays up to date:** an open checkout page refreshes prices and delivery fees every 30 seconds. If something changed just before the customer clicks Pay, they see "your total is now ₦X, please review" instead of paying an amount they didn't see.
 - **Payment confirmation:** Paystack confirms every payment directly to the site (the webhook), even if the customer closes the page.
 - **Stock goes down automatically** when an order is paid.
 
@@ -270,6 +271,8 @@ On a published post, click **Email to list**:
 
 ### Settings
 
+> Settings only change on the website after you **save**. While you have unsaved changes, a bar at the bottom says **"You have unsaved changes · Save settings"**, and your browser warns you if you try to leave the page.
+
 **Rewards (points)**
 - **Turn on rewards:** switch rewards on or off for the whole site.
 - **Spend (₦) to earn 1 point:** e.g. `100` means a ₦15,500 order earns 155 points.
@@ -289,7 +292,7 @@ How points work for customers:
 - **Banner link** (optional): a page on the site like `/deals`, or a full `https://` link. Leave it empty if the banner shouldn't be clickable.
 
 **Store & delivery**
-- **Lagos delivery areas (₦):** each area has its own name and fee. When a customer chooses delivery to Lagos, checkout asks **"Where in Lagos?"** and uses that area's fee. Pickup and other states don't ask. You can edit names and fees, **Add an area** or remove one with ✕, then click Save.
+- **Lagos delivery areas (₦):** each area has its own name and fee. When a customer chooses delivery to Lagos, checkout asks **"Where in Lagos?"** and uses that area's fee. Pickup and other states don't ask. You can edit names and fees, **Add an area** or remove one with ✕, then click **Save Lagos areas** (right under the list). Until you save, it says "Unsaved — click Save Lagos areas", and checkout keeps using the old fees.
 
   | Starting area | Fee |
   |---|---|

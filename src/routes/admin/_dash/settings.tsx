@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ShieldCheck, UserPlus } from "lucide-react";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import {
@@ -65,14 +65,54 @@ function SettingsPage() {
   );
 }
 
+/** Compare settings ignoring updated_at (it changes on every save). */
+function sameSettings(a: Settings | null | undefined, b: Settings | null | undefined) {
+  if (!a || !b) return false;
+  const { updated_at: _a, ...restA } = a as Settings & { updated_at?: string };
+  const { updated_at: _b, ...restB } = b as Settings & { updated_at?: string };
+  return JSON.stringify(restA) === JSON.stringify(restB);
+}
+
 function StoreSettings() {
   const queryClient = useQueryClient();
   const settings = useQuery(settingsQuery);
   const [draft, setDraft] = useState<Settings | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
+  // Server copy the draft was last loaded from. A background refetch only replaces the draft
+  // when it has no unsaved edits, so typing is never thrown away.
+  const loaded = useRef<Settings | null>(null);
   useEffect(() => {
-    if (settings.data) setDraft(settings.data);
+    if (!settings.data) return;
+    const fresh = settings.data;
+    setDraft((current) => {
+      // Keep the draft only if it has edits that aren't in the database yet.
+      const keep =
+        current !== null && !sameSettings(current, loaded.current) && !sameSettings(current, fresh);
+      loaded.current = fresh;
+      return keep ? current : fresh;
+    });
   }, [settings.data]);
+  const dirty =
+    draft !== null && settings.data !== undefined && !sameSettings(draft, settings.data);
+  // Warn before leaving the page with unsaved changes.
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+
+  // Lagos areas save on their own, straight away, from the button under the list.
+  const saveAreas = useMutation({
+    mutationFn: async (areas: unknown) => {
+      unwrap(await supabase.from("settings").update({ lagos_areas: areas }).eq("id", 1).select());
+    },
+    onSuccess: () => {
+      toast.success("Lagos delivery areas saved — checkout now uses the new fees");
+      void queryClient.invalidateQueries({ queryKey: ["settings"] });
+    },
+    onError: (error) => toast.error(error.message),
+  });
 
   const save = useMutation({
     mutationFn: async (values: Settings) => {
@@ -251,7 +291,13 @@ function StoreSettings() {
 
       <h2 className="font-display text-lg font-semibold">Store & delivery</h2>
       <div className="grid gap-3 sm:grid-cols-2">
-        <LagosAreasEditor draft={draft} setDraft={setDraft} />
+        <LagosAreasEditor
+          draft={draft}
+          setDraft={setDraft}
+          saved={settings.data?.lagos_areas}
+          saving={saveAreas.isPending}
+          onSave={(areas) => saveAreas.mutate(areas)}
+        />
         {errors["lagos_areas"] && (
           <p role="alert" className="text-xs font-medium text-alert sm:col-span-2">
             {errors["lagos_areas"]}
@@ -347,6 +393,17 @@ function StoreSettings() {
           {...text("pickup_instructions")}
         />
       </AdminField>
+      {dirty && (
+        <div
+          role="status"
+          className="sticky bottom-3 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand/40 bg-background/95 p-3 text-sm font-semibold shadow-lg backdrop-blur"
+        >
+          You have unsaved changes
+          <Button type="submit" size="small" disabled={save.isPending}>
+            Save settings
+          </Button>
+        </div>
+      )}
       <Button type="submit" disabled={save.isPending}>
         Save settings
       </Button>

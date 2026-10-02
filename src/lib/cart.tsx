@@ -157,13 +157,15 @@ interface VariantRow {
 }
 
 /** Joins cart lines with live prices from the database. */
-export function useCartDetails() {
+export function useCartDetails(options: { live?: boolean } = {}) {
   const { lines } = useCart();
   const ids = lines.map((line) => line.variantId).sort();
 
   const query = useQuery({
     queryKey: ["cart-variants", ids],
     enabled: isSupabaseConfigured && ids.length > 0,
+    // Checkout keeps prices current while it's open (admin price edits show within 30s).
+    ...(options.live && { refetchInterval: 30_000, refetchOnWindowFocus: "always" as const }),
     queryFn: async () =>
       unwrap<VariantRow[]>(
         await supabase

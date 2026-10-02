@@ -1,4 +1,5 @@
-import { Plus, X } from "lucide-react";
+import { Check, Loader2, Plus, X } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { lagosAreas, type LagosArea } from "@/lib/delivery";
@@ -19,15 +20,24 @@ const newId = (name: string) =>
 export function LagosAreasEditor({
   draft,
   setDraft,
+  saved,
+  saving,
+  onSave,
 }: {
   draft: Settings;
   setDraft: (next: Settings) => void;
+  /** The areas currently live (from the database), to show unsaved changes. */
+  saved: unknown;
+  saving: boolean;
+  onSave: (areas: LagosArea[]) => void;
 }) {
   // Raw list (not lagosAreas(), which drops unnamed rows) so a name can be cleared while typing.
   const areas: LagosArea[] = Array.isArray(draft.lagos_areas)
     ? (draft.lagos_areas as LagosArea[])
     : lagosAreas(draft);
   const save = (next: LagosArea[]) => setDraft({ ...draft, lagos_areas: next });
+  const changed = JSON.stringify(areas) !== JSON.stringify(saved ?? []);
+  const [problem, setProblem] = useState<string | null>(null);
 
   return (
     <div className="sm:col-span-2">
@@ -77,15 +87,40 @@ export function LagosAreasEditor({
           </li>
         ))}
       </ul>
-      <Button
-        type="button"
-        variant="ghost"
-        size="small"
-        className="mt-2"
-        onClick={() => save([...areas, { id: newId("new-area"), name: "New area", fee: 0 }])}
-      >
-        <Plus className="size-4" /> Add an area
-      </Button>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="small"
+          onClick={() => save([...areas, { id: newId("new-area"), name: "New area", fee: 0 }])}
+        >
+          <Plus className="size-4" /> Add an area
+        </Button>
+        <Button
+          type="button"
+          size="small"
+          disabled={saving || !changed}
+          onClick={() => {
+            const names = areas.map((a) => a.name.trim().toLowerCase());
+            if (names.some((n) => !n)) return setProblem("Give every area a name");
+            if (new Set(names).size !== names.length)
+              return setProblem("Two areas have the same name");
+            setProblem(null);
+            onSave(areas.map((a) => ({ ...a, name: a.name.trim() })));
+          }}
+        >
+          {saving ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />} Save
+          Lagos areas
+        </Button>
+        {changed && !saving && (
+          <span className="text-xs font-semibold text-alert">Unsaved — click Save Lagos areas</span>
+        )}
+      </div>
+      {problem && (
+        <p role="alert" className="mt-1 text-xs font-medium text-alert">
+          {problem}
+        </p>
+      )}
     </div>
   );
 }
