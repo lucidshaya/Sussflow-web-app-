@@ -20,6 +20,7 @@ export interface TrackedOrder {
   total: number;
   city: string | null;
   state: string | null;
+  delivery_area: string | null;
   items: {
     product_name: string;
     variant_label: string | null;
@@ -63,6 +64,7 @@ export const trackOrder = createServerFn({ method: "POST" })
       total: order.total,
       city: order.city,
       state: order.state,
+      delivery_area: order.delivery_area ?? null,
       items: order.order_items ?? [],
     };
   });

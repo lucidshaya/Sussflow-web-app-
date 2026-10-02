@@ -16,6 +16,7 @@ import { readableError, toFieldErrors, trackOrderSchema, type FieldErrors } from
 import { whatsappHref } from "@/lib/whatsapp";
 import { seo } from "@/lib/seo";
 import { OrderTotals } from "@/components/site/OrderTotals";
+import { deliveryFeeLabel } from "@/lib/delivery";
 
 export const Route = createFileRoute("/_site/track")({
   validateSearch: z.object({ ref: z.string().optional(), email: z.string().optional() }),
@@ -168,6 +169,7 @@ function TrackedOrderCard({ order }: { order: TrackedOrder }) {
         pointsDiscount={order.points_discount}
         total={order.total}
         fulfilment={order.fulfilment}
+        deliveryLabel={deliveryFeeLabel(order.fulfilment, order.state, order.delivery_area)}
         className="border-t border-foreground/10 pt-3"
       />
 

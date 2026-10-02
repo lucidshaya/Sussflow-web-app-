@@ -33,7 +33,37 @@ export type ZoneId = (typeof DELIVERY_ZONES)[number]["id"];
 
 type FeeSettings = Pick<Settings, "lagos_delivery_fee" | "nationwide_delivery_fee"> & {
   zone_fees?: Partial<Record<ZoneId, number>> | null;
+  lagos_areas?: unknown;
 };
+
+/** A delivery area inside Lagos with its own fee (Admin → Settings → Lagos delivery areas). */
+export interface LagosArea {
+  id: string;
+  name: string;
+  fee: number; // kobo
+}
+
+/** Areas as stored in settings.lagos_areas (jsonb), keeping only well-formed ones. */
+export function lagosAreas(settings: FeeSettings | null | undefined): LagosArea[] {
+  const raw = settings?.lagos_areas;
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((a) =>
+    typeof a?.id === "string" &&
+    typeof a?.name === "string" &&
+    a.name.trim() &&
+    Number.isFinite(a?.fee) &&
+    a.fee >= 0
+      ? [{ id: a.id, name: a.name.trim(), fee: Math.round(a.fee) }]
+      : [],
+  );
+}
+
+/** Lagos delivery needs an area whenever areas are set up. */
+export const needsLagosArea = (
+  settings: FeeSettings | null | undefined,
+  order: { fulfilment: "delivery" | "pickup"; state: string | null | undefined },
+) =>
+  order.fulfilment === "delivery" && isLagosState(order.state) && lagosAreas(settings).length > 0;
 
 export const isLagosState = (state: string | null | undefined) =>
   (state ?? "").toLowerCase().includes("lagos");
@@ -62,10 +92,18 @@ export function zoneFee(settings: FeeSettings, zone: ZoneId) {
 /** The fee charged at checkout. Used by both the checkout page and the payment server function. */
 export function deliveryFeeFor(
   settings: FeeSettings | null | undefined,
-  order: { fulfilment: "delivery" | "pickup"; state: string | null | undefined },
+  order: {
+    fulfilment: "delivery" | "pickup";
+    state: string | null | undefined;
+    /** Lagos area id, when delivering in Lagos. */
+    area?: string | null | undefined;
+  },
 ) {
   if (order.fulfilment !== "delivery" || !settings) return 0;
-  if (isLagosState(order.state)) return settings.lagos_delivery_fee;
+  if (isLagosState(order.state)) {
+    const area = lagosAreas(settings).find((a) => a.id === order.area);
+    return area ? area.fee : settings.lagos_delivery_fee;
+  }
   const zone = zoneForState(order.state);
   return zone ? zoneFee(settings, zone.id) : settings.nationwide_delivery_fee;
 }
@@ -74,18 +112,24 @@ export function deliveryFeeFor(
 export function deliveryFeeLabel(
   fulfilment: "delivery" | "pickup",
   state: string | null | undefined,
+  areaName?: string | null,
 ) {
   if (fulfilment === "pickup") return "Delivery fee (Lagos pickup)";
-  if (isLagosState(state)) return "Delivery fee (within Lagos)";
+  if (isLagosState(state)) return `Delivery fee (Lagos${areaName ? ` – ${areaName}` : ""})`;
   const zone = zoneForState(state);
   return zone ? `Delivery fee (${zone.name} waybill)` : "Delivery fee";
 }
 
 /** Customer-facing breakdown of the current delivery fees. */
-export function deliveryRates(settings: FeeSettings | null | undefined) {
+export function deliveryRates(
+  settings: FeeSettings | null | undefined,
+): { label: string; value: string; hint?: string }[] {
   if (!settings) return [];
+  const areas = lagosAreas(settings);
   return [
-    { label: "Within Lagos", value: formatNaira(settings.lagos_delivery_fee) },
+    ...(areas.length
+      ? areas.map((area) => ({ label: `Lagos – ${area.name}`, value: formatNaira(area.fee) }))
+      : [{ label: "Within Lagos", value: formatNaira(settings.lagos_delivery_fee) }]),
     ...DELIVERY_ZONES.map((zone) => ({
       label: `${zone.name} (waybill)`,
       value: formatNaira(zoneFee(settings, zone.id)),

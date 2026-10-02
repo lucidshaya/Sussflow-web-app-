@@ -97,6 +97,8 @@ export interface Order {
   points_redeemed?: number;
   points_discount?: number;
   points_earned?: number;
+  /** Lagos delivery area chosen at checkout (0010 migration). */
+  delivery_area?: string | null;
   status: OrderStatus;
   paystack_payload: Record<string, unknown> | null;
   paid_at: string | null;
@@ -154,6 +156,8 @@ export interface Settings {
   nationwide_delivery_fee: number;
   /** Waybill fee per zone (kobo), keyed by DELIVERY_ZONES ids (0007 migration). */
   zone_fees?: Record<string, number> | null;
+  /** Delivery areas inside Lagos [{ id, name, fee }] (0010 migration). */
+  lagos_areas?: unknown;
   announcement_enabled?: boolean;
   announcement_text?: string;
   announcement_link?: string | null;

@@ -22,7 +22,7 @@ export function DeliveryRates({ className }: { className?: string }) {
           <div key={rate.label} className="flex justify-between gap-3">
             <dt className="text-foreground/60">
               {rate.label}
-              {"hint" in rate && rate.hint && (
+              {rate.hint && (
                 <span className="block text-[10px] leading-snug text-foreground/40">
                   {rate.hint}
                 </span>

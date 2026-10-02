@@ -84,7 +84,7 @@ Only accounts with admin access can open the dashboard. To give a teammate acces
    - **Delivery:** the customer gives their address and state.
    - **Lagos pickup:** no address needed.
 3. **Delivery fee:** worked out from the customer's state:
-   - **Within Lagos:** the Lagos fee.
+   - **Lagos:** the customer also chooses **where in Lagos** (e.g. Mainland, Victoria Island to Lekki), and that area's fee is used.
    - **Elsewhere:** the waybill fee for that state's region.
 4. **Summary:** Subtotal, then Points discount (if used), then Delivery fee, then **Total to pay**.
 5. **Payment:** the customer pays on Paystack by card, bank transfer or USSD.
@@ -289,7 +289,19 @@ How points work for customers:
 - **Banner link** (optional): a page on the site like `/deals`, or a full `https://` link. Leave it empty if the banner shouldn't be clickable.
 
 **Store & delivery**
-- **Within Lagos (₦):** the delivery fee for Lagos addresses.
+- **Lagos delivery areas (₦):** each area has its own name and fee. When a customer chooses delivery to Lagos, checkout asks **"Where in Lagos?"** and uses that area's fee. Pickup and other states don't ask. You can edit names and fees, **Add an area** or remove one with ✕, then click Save.
+
+  | Starting area | Fee |
+  |---|---|
+  | Victoria Island to Lekki | ₦5,000 |
+  | Badore to Awoyaya | ₦7,000 |
+  | Mainland | ₦4,000 |
+  | Ikorodu (except Caleb University) | ₦5,000 |
+  | Mile 2 to Festac | ₦5,000 |
+  | Satellite Town | ₦6,000 |
+  | Alakuko to part of Sango Ota | ₦6,000 |
+
+- **Lagos fee if no areas are listed (₦):** only used when the area list is empty.
 - **Waybill fees by region (₦):** one fee per region. Checkout picks the right one from the customer's state.
 
   | Region | States |
@@ -348,7 +360,7 @@ After changing any variable, **redeploy**: Vercel → Deployments → ⋯ → Re
 - **Supabase → Authentication → SMTP:** Gmail (`smtp.gmail.com`, port 587) with an app password.
 
 ### Database changes (migrations)
-The files are in `supabase/migrations`, applied in order from `0001` to `0009`:
+The files are in `supabase/migrations`, applied in order from `0001` to `0010`:
 - **0001–0002:** shop, orders, settings and seed products.
 - **0003:** order timeline.
 - **0004:** deals and social links.
@@ -357,8 +369,9 @@ The files are in `supabase/migrations`, applied in order from `0001` to `0009`:
 - **0007:** sizes, reviews, delivery zones, the banner and blog emails.
 - **0008:** rewards.
 - **0009:** security hardening (who can call database functions).
+- **0010:** Lagos delivery areas.
 
-A new database needs all nine run in the Supabase SQL editor.
+A new database needs all ten run in the Supabase SQL editor.
 
 ### Changing the domain
 See the [README → Custom domain](README.md#6-custom-domain) section. In short:
@@ -386,6 +399,6 @@ See the [README → Custom domain](README.md#6-custom-domain) section. In short:
 | **"Email to list" says sending isn't set up** | `GMAIL_USER` or `GMAIL_APP_PASSWORD` is missing in Vercel; add them and redeploy |
 | **"Gmail's daily sending limit was reached"** | Normal for big lists. Try again the next day; it continues where it stopped |
 | **A review isn't on the website** | It needs approving in **Reviews** |
-| **The delivery fee looks wrong** | Check **Settings → Store & delivery** and which region the customer's state belongs to (table above) |
+| **The delivery fee looks wrong** | Check **Settings → Store & delivery**: for Lagos, the area the customer chose (shown on the order page); for other states, which region the state belongs to (table above) |
 | **Points didn't appear for a customer** | Rewards must be **on**, the customer must have checked out **signed in**, and the order must be **Paid**. You can add points by hand in **Customers** |
 | **A change isn't showing on the website** | Refresh the page. Dashboard changes appear straight away; code changes appear about a minute after they're pushed to GitHub |

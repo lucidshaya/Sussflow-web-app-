@@ -16,6 +16,7 @@ import {
   ErrorNote,
   Loading,
 } from "@/components/admin/ui";
+import { LagosAreasEditor } from "@/components/admin/LagosAreasEditor";
 import { RewardsSettings } from "@/components/admin/RewardsSettings";
 import { Button } from "@/components/ui/button";
 import { getAccessToken, useAuth } from "@/lib/auth";
@@ -146,6 +147,13 @@ function StoreSettings() {
           !/^(\/[\w\-/?=&#.]*|https:\/\/\S+)$/.test(draft.announcement_link)
         )
           bannerErrors["announcement_link"] = "Use a page like /deals or a full https:// link";
+        const areaList = Array.isArray(draft.lagos_areas)
+          ? (draft.lagos_areas as { name?: string }[])
+          : [];
+        const names = areaList.map((a) => (a.name ?? "").trim().toLowerCase());
+        if (names.some((n) => !n)) bannerErrors["lagos_areas"] = "Give every Lagos area a name";
+        else if (new Set(names).size !== names.length)
+          bannerErrors["lagos_areas"] = "Two Lagos areas have the same name";
         if ((draft.reward_spend_per_point ?? 1) < 100)
           bannerErrors["reward_spend_per_point"] = "Enter at least ₦1";
         if ((draft.reward_point_value ?? 1) < 1)
@@ -243,10 +251,16 @@ function StoreSettings() {
 
       <h2 className="font-display text-lg font-semibold">Store & delivery</h2>
       <div className="grid gap-3 sm:grid-cols-2">
+        <LagosAreasEditor draft={draft} setDraft={setDraft} />
+        {errors["lagos_areas"] && (
+          <p role="alert" className="text-xs font-medium text-alert sm:col-span-2">
+            {errors["lagos_areas"]}
+          </p>
+        )}
         <AdminField
           error={errors["lagos_delivery_fee"]}
-          label="Within Lagos (₦)"
-          hint="Shown at checkout and added to the total"
+          label="Lagos fee if no areas are listed (₦)"
+          hint="Only used when the list above is empty"
         >
           <input
             type="number"

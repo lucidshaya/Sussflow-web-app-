@@ -12,6 +12,7 @@ import { useCart } from "@/lib/cart";
 import { formatNaira } from "@/lib/format";
 import { verifyPayment } from "@/functions/payments";
 import { privatePage } from "@/lib/seo";
+import { deliveryFeeLabel } from "@/lib/delivery";
 
 export const Route = createFileRoute("/_site/checkout/callback")({
   validateSearch: z.object({ reference: z.string().optional(), trxref: z.string().optional() }),
@@ -98,6 +99,11 @@ function CallbackPage() {
                   pointsDiscount={(result.data.order.points_discount as number | null) ?? 0}
                   total={result.data.order.total as number}
                   fulfilment={result.data.order.fulfilment as "delivery" | "pickup"}
+                  deliveryLabel={deliveryFeeLabel(
+                    result.data.order.fulfilment as "delivery" | "pickup",
+                    result.data.order.state as string | null,
+                    result.data.order.delivery_area as string | null,
+                  )}
                   totalLabel="Total paid"
                   className="mt-3 border-t border-foreground/10 pt-3"
                 />

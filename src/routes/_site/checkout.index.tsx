@@ -20,7 +20,7 @@ import { PointsBox, usePointsToRedeem } from "@/components/site/PointsBox";
 import { Button } from "@/components/ui/button";
 import { getAccessToken, useAuth } from "@/lib/auth";
 import { useCart, useCartDetails } from "@/lib/cart";
-import { deliveryFeeFor, deliveryFeeLabel } from "@/lib/delivery";
+import { deliveryFeeFor, deliveryFeeLabel, lagosAreas, needsLagosArea } from "@/lib/delivery";
 import { pointsValue, rewardsActive } from "@/lib/rewards";
 import { formatNaira } from "@/lib/format";
 import { settingsQuery } from "@/lib/queries";
@@ -92,6 +92,7 @@ function CheckoutPage() {
   const [state, setState] = useState("Lagos");
   const [busy, setBusy] = useState(false);
   const [usePoints, setUsePoints] = useState(false);
+  const [lagosArea, setLagosArea] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [form, setForm] = useState({
     fullName: "",
@@ -124,7 +125,14 @@ function CheckoutPage() {
       });
   }, [user]);
 
-  const deliveryFee = deliveryFeeFor(settings, { fulfilment, state });
+  const areas = lagosAreas(settings);
+  const askArea = needsLagosArea(settings, { fulfilment, state });
+  const chosenArea = askArea ? areas.find((a) => a.id === lagosArea) : undefined;
+  // Until a Lagos area is picked, leave delivery out of the total rather than guess a fee.
+  const areaPending = askArea && !chosenArea;
+  const deliveryFee = areaPending
+    ? 0
+    : deliveryFeeFor(settings, { fulfilment, state, area: chosenArea?.id });
   const rewards = rewardsActive(settings) ? settings : null;
   const redeemPoints = usePointsToRedeem(rewards, user?.id, subtotal, usePoints);
   const pointsDiscount = rewards ? pointsValue(redeemPoints, rewards) : 0;
@@ -142,8 +150,12 @@ function CheckoutPage() {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const result = validate();
-    if (!result.success) {
-      const fieldErrors = toFieldErrors(result.error);
+    const areaMissing = askArea && !chosenArea;
+    if (!result.success || areaMissing) {
+      const fieldErrors = {
+        ...(result.success ? {} : toFieldErrors(result.error)),
+        ...(areaMissing && { lagosArea: "Choose your area in Lagos" }),
+      };
       setErrors(fieldErrors);
       focusFirstError(fieldErrors);
       toast.error("Please fix the highlighted fields.");
@@ -162,6 +174,7 @@ function CheckoutPage() {
             ...(line.choices && { choices: line.choices }),
           })),
           ...(redeemPoints > 0 && { redeemPoints }),
+          ...(chosenArea && { lagosArea: chosenArea.id }),
           ...data,
         },
       });
@@ -320,6 +333,35 @@ function CheckoutPage() {
                   </select>
                   <FieldError id="state-error" message={errors["state"]} />
                 </label>
+                {askArea && (
+                  <label htmlFor="lagosArea" className="block sm:col-span-2">
+                    <span className="mb-1 block text-xs font-semibold uppercase text-foreground/60">
+                      Where in Lagos? *
+                    </span>
+                    <select
+                      id="lagosArea"
+                      name="lagosArea"
+                      value={lagosArea}
+                      onChange={(e) => {
+                        setLagosArea(e.target.value);
+                        setErrors((er) => ({ ...er, lagosArea: undefined }));
+                      }}
+                      aria-invalid={errors["lagosArea"] ? true : undefined}
+                      aria-describedby={errors["lagosArea"] ? "lagosArea-error" : undefined}
+                      className={cn(fieldClass, errors["lagosArea"] && invalidField)}
+                    >
+                      <option value="" disabled>
+                        Choose your area
+                      </option>
+                      {areas.map((area) => (
+                        <option key={area.id} value={area.id}>
+                          {area.name} · {formatNaira(area.fee)}
+                        </option>
+                      ))}
+                    </select>
+                    <FieldError id="lagosArea-error" message={errors["lagosArea"]} />
+                  </label>
+                )}
               </div>
             ) : (
               <p className="mt-4 rounded-2xl border border-glass-border bg-glass-soft p-4 text-sm text-foreground/70">
@@ -376,7 +418,8 @@ function CheckoutPage() {
             pointsDiscount={pointsDiscount}
             total={total}
             fulfilment={fulfilment}
-            deliveryLabel={deliveryFeeLabel(fulfilment, state)}
+            deliveryLabel={deliveryFeeLabel(fulfilment, state, chosenArea?.name)}
+            deliveryText={areaPending ? "Choose your area" : undefined}
             totalLabel="Total to pay"
             emphasise
             className="mt-5 border-t border-foreground/10 pt-4"
@@ -387,7 +430,11 @@ function CheckoutPage() {
             disabled={busy || isLoading || items.length === 0}
           >
             <Lock className="size-4" />{" "}
-            {busy ? "Redirecting to Paystack…" : `Pay ${formatNaira(total)} with Paystack`}
+            {busy
+              ? "Redirecting to Paystack…"
+              : areaPending
+                ? "Choose your area in Lagos to continue"
+                : `Pay ${formatNaira(total)} with Paystack`}
           </Button>
           <p className="mt-3 text-center text-xs text-foreground/50">
             Secure payment by Paystack · cards, bank transfer & USSD

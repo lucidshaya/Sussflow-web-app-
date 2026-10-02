@@ -10,6 +10,7 @@ export function OrderTotals({
   totalLabel = "Total",
   deliveryLabel,
   pointsDiscount = 0,
+  deliveryText,
   emphasise = false,
   className,
 }: {
@@ -20,6 +21,8 @@ export function OrderTotals({
   totalLabel?: string;
   /** e.g. "Delivery fee (South-West waybill)"; defaults to "Delivery fee". */
   deliveryLabel?: string;
+  /** Shown instead of the fee amount, e.g. "Choose your area" before a Lagos area is picked. */
+  deliveryText?: string | undefined;
   /** Kobo taken off by points (rewards). */
   pointsDiscount?: number;
   emphasise?: boolean;
@@ -42,7 +45,7 @@ export function OrderTotals({
           {deliveryLabel ??
             (fulfilment === "pickup" ? "Delivery fee (Lagos pickup)" : "Delivery fee")}
         </dt>
-        <dd className="font-semibold">{formatNaira(deliveryFee)}</dd>
+        <dd className="font-semibold">{deliveryText ?? formatNaira(deliveryFee)}</dd>
       </div>
       <div className="flex justify-between border-t border-foreground/10 pt-3 text-base">
         <dt className="font-semibold">{totalLabel}</dt>

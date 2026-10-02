@@ -231,7 +231,11 @@ function OrderDetail() {
               )}
               <div className="flex justify-between">
                 <dt className="text-foreground/60">
-                  {o.fulfilment === "pickup" ? "Lagos pickup" : "Delivery"}
+                  {o.fulfilment === "pickup"
+                    ? "Lagos pickup"
+                    : o.delivery_area
+                      ? `Delivery (${o.delivery_area})`
+                      : "Delivery"}
                 </dt>
                 <dd>{formatNaira(o.delivery_fee)}</dd>
               </div>
@@ -260,7 +264,11 @@ function OrderDetail() {
               </a>
               <span className="inline-flex items-center gap-1 rounded-full border border-glass-border bg-glass-soft px-3 py-1.5">
                 <MapPin className="size-4" />{" "}
-                {o.fulfilment === "pickup" ? "Lagos pickup" : "Delivery"}
+                {o.fulfilment === "pickup"
+                  ? "Lagos pickup"
+                  : o.delivery_area
+                    ? `Delivery · Lagos – ${o.delivery_area}`
+                    : "Delivery"}
               </span>
               {o.user_id ? <Pill tone="brand">Registered customer</Pill> : <Pill>Guest</Pill>}
             </div>

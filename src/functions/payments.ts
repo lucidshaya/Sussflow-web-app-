@@ -6,7 +6,7 @@ import { checkoutCustomerSchema } from "@/lib/validation";
 import { getSupabaseAdmin, getUserFromToken, serverEnv } from "@/lib/supabase.server";
 import { fetchPaystackTransaction, markOrderPaid, PAYSTACK_API } from "./paystack.server";
 import { choicesError, choicesText, parseChoices } from "@/lib/choices";
-import { deliveryFeeFor } from "@/lib/delivery";
+import { deliveryFeeFor, lagosAreas, needsLagosArea } from "@/lib/delivery";
 import { maxRedeemable, pointsValue, rewardsActive } from "@/lib/rewards";
 
 const checkoutSchema = z
@@ -25,6 +25,8 @@ const checkoutSchema = z
       )
       .min(1)
       .max(50),
+    /** Lagos delivery area id (required when delivering to Lagos and areas are set up). */
+    lagosArea: z.string().max(60).optional(),
     /** Points to spend (signed-in customers); capped on the server. */
     redeemPoints: z.number().int().min(0).max(10_000_000).optional(),
   })
@@ -107,10 +109,14 @@ export const initCheckout = createServerFn({ method: "POST" })
 
     const { data: settings } = await db.from("settings").select("*").eq("id", 1).maybeSingle();
     // Same rule the checkout page shows (src/lib/delivery.ts), recomputed here from the DB.
-    const deliveryFee = deliveryFeeFor(settings, {
-      fulfilment: data.fulfilment,
-      state: data.state,
-    });
+    // Lagos delivery: the customer's area decides the fee (Admin → Settings → Lagos areas).
+    const where = { fulfilment: data.fulfilment, state: data.state };
+    const area = needsLagosArea(settings, where)
+      ? lagosAreas(settings).find((a) => a.id === data.lagosArea)
+      : undefined;
+    if (needsLagosArea(settings, where) && !area)
+      throw new Error("Choose your area in Lagos for delivery.");
+    const deliveryFee = deliveryFeeFor(settings, { ...where, area: area?.id });
     // Points discount (signed-in customers only), re-checked against the real balance here.
     let pointsRedeemed = 0;
     let pointsDiscount = 0;
@@ -142,6 +148,7 @@ export const initCheckout = createServerFn({ method: "POST" })
         delivery_fee: deliveryFee,
         total,
         status: "pending",
+        ...(area && { delivery_area: area.name }),
         ...(pointsRedeemed > 0 && {
           points_redeemed: pointsRedeemed,
           points_discount: pointsDiscount,
@@ -217,7 +224,7 @@ export const verifyPayment = createServerFn({ method: "POST" })
     const { data: order } = await getSupabaseAdmin()
       .from("orders")
       .select(
-        "reference, email, subtotal, delivery_fee, total, points_discount, points_earned, status, fulfilment, order_items(product_name, variant_label, quantity, unit_price)",
+        "reference, email, subtotal, delivery_fee, delivery_area, state, total, points_discount, points_earned, status, fulfilment, order_items(product_name, variant_label, quantity, unit_price)",
       )
       .eq("reference", data.reference)
       .maybeSingle();
