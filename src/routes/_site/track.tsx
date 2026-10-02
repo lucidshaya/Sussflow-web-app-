@@ -165,6 +165,7 @@ function TrackedOrderCard({ order }: { order: TrackedOrder }) {
       <OrderTotals
         subtotal={order.subtotal}
         deliveryFee={order.delivery_fee}
+        pointsDiscount={order.points_discount}
         total={order.total}
         fulfilment={order.fulfilment}
         className="border-t border-foreground/10 pt-3"

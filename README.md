@@ -75,6 +75,10 @@ select id, 'admin' from auth.users where email = 'you@example.com';
 - **Delivery fees:** Admin → Settings: within Lagos plus a waybill fee for each zone (South-West, South-South, South-East, North-Central & Abuja, North-East, North-West). Zones are mapped from the checkout state in `src/lib/delivery.ts`.
 - **Top banner:** Admin → Settings → Top banner (text, link, on/off).
 
+## Rewards (points)
+
+**Admin → Settings → Rewards:** switch on/off, "Spend ₦X to earn 1 point", "1 point is worth ₦Y", and a calculator showing what any product earns. Customers with an account earn points when an order is paid (on the products total after any points discount, not delivery) and can tick "Use my points" at checkout; points can pay for products down to ₦100. Balances live in `reward_ledger` (migration 0008). Admin → Customers → points button adjusts a balance; a cancelled order's page offers "Reverse points". Rules are in `src/lib/rewards.ts` and re-checked on the server.
+
 ## Blog
 
 Articles live in `blog_posts` (migration 0006) and are managed in **Admin → Blog**: write, publish/unpublish, edit and delete, with a cover image. Body format: blank line between paragraphs, `## ` for a heading, `- ` for a bullet. Published articles appear on `/blog`, the home page and the sitemap.

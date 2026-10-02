@@ -5,6 +5,7 @@ import type {
   BlogPostRow,
   BundleItemKind,
   ProductReview,
+  RewardLedgerRow,
   BundleItem,
   Category,
   Product,
@@ -220,3 +221,20 @@ export const ratingSummaryQuery = queryOptions({
     return summary;
   },
 });
+
+/** The signed-in customer's points history (RLS: own rows only); balance = sum of points. */
+export const rewardLedgerQuery = (userId: string | undefined) =>
+  queryOptions({
+    queryKey: ["rewards", userId],
+    enabled: isSupabaseConfigured && Boolean(userId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reward_ledger")
+        .select("*")
+        .eq("user_id", userId!)
+        .order("created_at", { ascending: false });
+      if (isMissingTable(error)) return [] as RewardLedgerRow[];
+      if (error) throw new Error(error.message);
+      return data as RewardLedgerRow[];
+    },
+  });

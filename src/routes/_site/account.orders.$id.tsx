@@ -82,6 +82,12 @@ function OrderDetailPage() {
               <dt className="text-foreground/60">Subtotal</dt>
               <dd>{formatNaira(order.data.subtotal)}</dd>
             </div>
+            {(order.data.points_discount ?? 0) > 0 && (
+              <div className="flex justify-between text-leaf">
+                <dt>Points discount</dt>
+                <dd>−{formatNaira(order.data.points_discount ?? 0)}</dd>
+              </div>
+            )}
             <div className="flex justify-between">
               <dt className="text-foreground/60">
                 {order.data.fulfilment === "pickup"

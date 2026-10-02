@@ -17,6 +17,7 @@ import {
   td,
   th,
 } from "@/components/admin/ui";
+import { AdjustPoints } from "@/components/admin/AdjustPoints";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { formatDate, formatNaira } from "@/lib/format";
@@ -51,13 +52,19 @@ function Customers() {
   const data = useQuery({
     queryKey: ["admin", "customers"],
     queryFn: async () => {
-      const [profiles, orders] = await Promise.all([
+      const [profiles, orders, ledger] = await Promise.all([
         supabase.from("profiles").select("*").order("created_at", { ascending: false }),
         supabase
           .from("orders")
           .select("email, full_name, phone, state, status, total, created_at, user_id"),
+        supabase.from("reward_ledger").select("user_id, points"),
       ]);
+      // Points balance per account (empty before migration 0008).
+      const points: Record<string, number> = {};
+      for (const row of (ledger.data ?? []) as { user_id: string; points: number }[])
+        points[row.user_id] = (points[row.user_id] ?? 0) + row.points;
       return {
+        points,
         profiles: unwrap<Profile[]>(profiles),
         orders:
           unwrap<
@@ -180,6 +187,7 @@ function Customers() {
                   <th className={th}>Orders</th>
                   <th className={th}>Spent</th>
                   <th className={th}>Last order</th>
+                  <th className={th}>Points</th>
                   <th className={`${th} text-right`}>Edit</th>
                 </tr>
               </thead>
@@ -203,6 +211,20 @@ function Customers() {
                     <td className={td}>{row.orders}</td>
                     <td className={`${td} font-semibold`}>{formatNaira(row.spent)}</td>
                     <td className={td}>{row.lastOrder ? formatDate(row.lastOrder) : "—"}</td>
+                    <td className={td}>
+                      {row.profile ? (
+                        <AdjustPoints
+                          userId={row.profile.id}
+                          name={row.name && row.name !== "—" ? row.name : row.email}
+                          balance={data.data?.points[row.profile.id] ?? 0}
+                          onDone={() =>
+                            void queryClient.invalidateQueries({ queryKey: ["admin", "customers"] })
+                          }
+                        />
+                      ) : (
+                        "—"
+                      )}
+                    </td>
                     <td className={`${td} text-right`}>
                       {row.profile && (
                         <Button

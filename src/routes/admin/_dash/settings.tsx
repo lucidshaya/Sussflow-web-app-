@@ -16,6 +16,7 @@ import {
   ErrorNote,
   Loading,
 } from "@/components/admin/ui";
+import { RewardsSettings } from "@/components/admin/RewardsSettings";
 import { Button } from "@/components/ui/button";
 import { getAccessToken, useAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/format";
@@ -145,6 +146,10 @@ function StoreSettings() {
           !/^(\/[\w\-/?=&#.]*|https:\/\/\S+)$/.test(draft.announcement_link)
         )
           bannerErrors["announcement_link"] = "Use a page like /deals or a full https:// link";
+        if ((draft.reward_spend_per_point ?? 1) < 100)
+          bannerErrors["reward_spend_per_point"] = "Enter at least ₦1";
+        if ((draft.reward_point_value ?? 1) < 1)
+          bannerErrors["reward_point_value"] = "Enter an amount above ₦0";
         if (Object.keys(bannerErrors).length) {
           setErrors(bannerErrors);
           toast.error("Please fix the highlighted fields.");
@@ -192,6 +197,8 @@ function StoreSettings() {
         });
       }}
     >
+      <RewardsSettings draft={draft} setDraft={setDraft} errors={errors} />
+
       <h2 className="font-display text-lg font-semibold">Top banner</h2>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="flex items-center justify-between gap-3 rounded-xl border border-glass-border bg-glass px-3 py-2 text-sm font-semibold sm:col-span-2">

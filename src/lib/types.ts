@@ -93,6 +93,10 @@ export interface Order {
   subtotal: number;
   delivery_fee: number;
   total: number;
+  /** Points rewards (0008 migration). */
+  points_redeemed?: number;
+  points_discount?: number;
+  points_earned?: number;
   status: OrderStatus;
   paystack_payload: Record<string, unknown> | null;
   paid_at: string | null;
@@ -153,6 +157,10 @@ export interface Settings {
   announcement_enabled?: boolean;
   announcement_text?: string;
   announcement_link?: string | null;
+  /** Points rewards (0008 migration). Amounts in kobo. */
+  rewards_enabled?: boolean;
+  reward_spend_per_point?: number;
+  reward_point_value?: number;
   free_delivery_threshold: number | null;
   pickup_address: string;
   pickup_instructions: string | null;
@@ -203,5 +211,15 @@ export interface ProductReview {
   rating: number;
   comment: string;
   is_approved: boolean;
+  created_at: string;
+}
+
+export interface RewardLedgerRow {
+  id: string;
+  user_id: string;
+  order_id: string | null;
+  points: number;
+  reason: "earned" | "redeemed" | "reversed" | "adjustment";
+  note: string | null;
   created_at: string;
 }

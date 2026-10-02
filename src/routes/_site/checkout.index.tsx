@@ -16,10 +16,12 @@ import {
   SetupNotice,
 } from "@/components/site/primitives";
 import { OrderTotals } from "@/components/site/OrderTotals";
+import { PointsBox, usePointsToRedeem } from "@/components/site/PointsBox";
 import { Button } from "@/components/ui/button";
 import { getAccessToken, useAuth } from "@/lib/auth";
 import { useCart, useCartDetails } from "@/lib/cart";
 import { deliveryFeeFor, deliveryFeeLabel } from "@/lib/delivery";
+import { pointsValue, rewardsActive } from "@/lib/rewards";
 import { formatNaira } from "@/lib/format";
 import { settingsQuery } from "@/lib/queries";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
@@ -89,6 +91,7 @@ function CheckoutPage() {
   const [fulfilment, setFulfilment] = useState<Fulfilment>("delivery");
   const [state, setState] = useState("Lagos");
   const [busy, setBusy] = useState(false);
+  const [usePoints, setUsePoints] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [form, setForm] = useState({
     fullName: "",
@@ -122,7 +125,10 @@ function CheckoutPage() {
   }, [user]);
 
   const deliveryFee = deliveryFeeFor(settings, { fulfilment, state });
-  const total = subtotal + deliveryFee;
+  const rewards = rewardsActive(settings) ? settings : null;
+  const redeemPoints = usePointsToRedeem(rewards, user?.id, subtotal, usePoints);
+  const pointsDiscount = rewards ? pointsValue(redeemPoints, rewards) : 0;
+  const total = subtotal - pointsDiscount + deliveryFee;
 
   const validate = () => checkoutCustomerSchema.safeParse({ ...form, fulfilment, state });
 
@@ -155,6 +161,7 @@ function CheckoutPage() {
             quantity: line.quantity,
             ...(line.choices && { choices: line.choices }),
           })),
+          ...(redeemPoints > 0 && { redeemPoints }),
           ...data,
         },
       });
@@ -353,9 +360,20 @@ function CheckoutPage() {
               </li>
             ))}
           </ul>
+          {rewards && (
+            <PointsBox
+              settings={rewards}
+              userId={user?.id}
+              subtotal={subtotal}
+              usePoints={usePoints}
+              onUsePointsChange={setUsePoints}
+              className="mt-5"
+            />
+          )}
           <OrderTotals
             subtotal={subtotal}
             deliveryFee={deliveryFee}
+            pointsDiscount={pointsDiscount}
             total={total}
             fulfilment={fulfilment}
             deliveryLabel={deliveryFeeLabel(fulfilment, state)}

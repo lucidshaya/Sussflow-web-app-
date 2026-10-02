@@ -7,6 +7,7 @@ import { getSupabaseAdmin, getUserFromToken, serverEnv } from "@/lib/supabase.se
 import { fetchPaystackTransaction, markOrderPaid, PAYSTACK_API } from "./paystack.server";
 import { choicesError, choicesText, parseChoices } from "@/lib/choices";
 import { deliveryFeeFor } from "@/lib/delivery";
+import { maxRedeemable, pointsValue, rewardsActive } from "@/lib/rewards";
 
 const checkoutSchema = z
   .object({
@@ -24,6 +25,8 @@ const checkoutSchema = z
       )
       .min(1)
       .max(50),
+    /** Points to spend (signed-in customers); capped on the server. */
+    redeemPoints: z.number().int().min(0).max(10_000_000).optional(),
   })
   .and(checkoutCustomerSchema);
 
@@ -108,7 +111,18 @@ export const initCheckout = createServerFn({ method: "POST" })
       fulfilment: data.fulfilment,
       state: data.state,
     });
-    const total = subtotal + deliveryFee;
+    // Points discount (signed-in customers only), re-checked against the real balance here.
+    let pointsRedeemed = 0;
+    let pointsDiscount = 0;
+    if (user && data.redeemPoints && rewardsActive(settings)) {
+      const { data: balance } = await db.rpc("reward_balance", { _user_id: user.id });
+      pointsRedeemed = Math.min(
+        data.redeemPoints,
+        maxRedeemable(Number(balance ?? 0), subtotal, settings),
+      );
+      pointsDiscount = pointsValue(pointsRedeemed, settings);
+    }
+    const total = subtotal - pointsDiscount + deliveryFee;
     const reference = `SF-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
 
     const { data: order, error: orderError } = await db
@@ -128,6 +142,10 @@ export const initCheckout = createServerFn({ method: "POST" })
         delivery_fee: deliveryFee,
         total,
         status: "pending",
+        ...(pointsRedeemed > 0 && {
+          points_redeemed: pointsRedeemed,
+          points_discount: pointsDiscount,
+        }),
       })
       .select("id")
       .single();
@@ -199,7 +217,7 @@ export const verifyPayment = createServerFn({ method: "POST" })
     const { data: order } = await getSupabaseAdmin()
       .from("orders")
       .select(
-        "reference, email, subtotal, delivery_fee, total, status, fulfilment, order_items(product_name, variant_label, quantity, unit_price)",
+        "reference, email, subtotal, delivery_fee, total, points_discount, points_earned, status, fulfilment, order_items(product_name, variant_label, quantity, unit_price)",
       )
       .eq("reference", data.reference)
       .maybeSingle();

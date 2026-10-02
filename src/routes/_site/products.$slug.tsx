@@ -42,7 +42,9 @@ import {
   prefetch,
   productBySlugQuery,
   productReviewsQuery,
+  settingsQuery,
 } from "@/lib/queries";
+import { pointsEarned, pointsValue, rewardsActive } from "@/lib/rewards";
 import { productDescription, productJsonLd, seo } from "@/lib/seo";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import type { Variant } from "@/lib/types";
@@ -88,6 +90,8 @@ function ProductPage() {
     related: itemsOf(kitItems.data, "related"),
   };
   const { add } = useCart();
+  const { data: storeSettings } = useQuery(settingsQuery);
+  const rewards = rewardsActive(storeSettings) ? storeSettings : null;
 
   const variants = useMemo(
     () => (product.data?.product_variants ?? []).filter((v) => v.is_active),
@@ -198,6 +202,13 @@ function ProductPage() {
                 </>
               )}
             </div>
+          )}
+          {selected && rewards && pointsEarned(selected.price, rewards) > 0 && (
+            <p className="mt-1 text-sm text-foreground/65">
+              🎁 Earn <strong>{pointsEarned(selected.price, rewards)} points</strong> (
+              {formatNaira(pointsValue(pointsEarned(selected.price, rewards), rewards))} off a
+              future order) when you buy with an account.
+            </p>
           )}
 
           {variants.length === 0 ? (

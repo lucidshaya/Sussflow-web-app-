@@ -4,6 +4,7 @@ import { LogOut, Package } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
+import { MyPoints } from "@/components/site/MyPoints";
 import { OrderStatusBadge } from "@/components/site/OrderStatusBadge";
 import { focusFirstError, FormField } from "@/components/site/FormField";
 import { EmptyState, glassCard, PageHero } from "@/components/site/primitives";
@@ -121,6 +122,7 @@ function AccountPage() {
       >
         <span className="text-sm">{user.email}</span>
       </PageHero>
+      <MyPoints userId={user.id} />
       <section className="mx-auto grid max-w-7xl gap-6 px-5 py-8 lg:grid-cols-[1fr_380px]">
         <div className={`${glassCard} p-6 md:p-8`}>
           <h2 className="font-display text-xl font-semibold">Order history</h2>

@@ -1,3 +1,4 @@
+import { pointsEarned, rewardsActive } from "@/lib/rewards";
 import { getSupabaseAdmin, serverEnv } from "@/lib/supabase.server";
 
 export const PAYSTACK_API = "https://api.paystack.co";
@@ -19,7 +20,7 @@ export async function markOrderPaid(reference: string, tx: PaystackVerifyData) {
   const db = getSupabaseAdmin();
   const { data: order } = await db
     .from("orders")
-    .select("id, total, status, admin_notes")
+    .select("id, total, status, admin_notes, user_id, subtotal, points_redeemed, points_discount")
     .eq("reference", reference)
     .maybeSingle();
   if (!order) return { ok: false as const, reason: "Order not found" };
@@ -64,8 +65,52 @@ export async function markOrderPaid(reference: string, tx: PaystackVerifyData) {
       if (item.variant_id)
         await db.rpc("decrement_stock", { _variant_id: item.variant_id, _qty: item.quantity });
     }
+    await settleRewards(order);
   }
   return { ok: true as const, orderId: order.id as string };
+}
+
+/**
+ * Points for a newly paid order: record points spent, and credit points earned on what the
+ * customer paid for products. Runs once (only after pending → paid); the ledger's unique
+ * (order_id, reason) index also blocks doubles. Never fails the payment itself.
+ */
+async function settleRewards(order: {
+  id: string;
+  user_id: string | null;
+  subtotal: number;
+  points_redeemed: number | null;
+  points_discount: number | null;
+}) {
+  if (!order.user_id) return;
+  const db = getSupabaseAdmin();
+  try {
+    if ((order.points_redeemed ?? 0) > 0) {
+      await db.from("reward_ledger").insert({
+        user_id: order.user_id,
+        order_id: order.id,
+        points: -(order.points_redeemed ?? 0),
+        reason: "redeemed",
+      });
+    }
+    const { data: settings } = await db
+      .from("settings")
+      .select("rewards_enabled, reward_spend_per_point, reward_point_value")
+      .eq("id", 1)
+      .maybeSingle();
+    if (!rewardsActive(settings)) return;
+    const earned = pointsEarned(order.subtotal - (order.points_discount ?? 0), settings);
+    if (earned <= 0) return;
+    const { error } = await db.from("reward_ledger").insert({
+      user_id: order.user_id,
+      order_id: order.id,
+      points: earned,
+      reason: "earned",
+    });
+    if (!error) await db.from("orders").update({ points_earned: earned }).eq("id", order.id);
+  } catch (error) {
+    console.error("Rewards not settled for order", order.id, error);
+  }
 }
 
 export async function fetchPaystackTransaction(reference: string) {

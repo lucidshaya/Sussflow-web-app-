@@ -95,11 +95,18 @@ function CallbackPage() {
                 <OrderTotals
                   subtotal={result.data.order.subtotal as number}
                   deliveryFee={result.data.order.delivery_fee as number}
+                  pointsDiscount={(result.data.order.points_discount as number | null) ?? 0}
                   total={result.data.order.total as number}
                   fulfilment={result.data.order.fulfilment as "delivery" | "pickup"}
                   totalLabel="Total paid"
                   className="mt-3 border-t border-foreground/10 pt-3"
                 />
+                {((result.data.order.points_earned as number | null) ?? 0) > 0 && (
+                  <p className="mt-3 rounded-xl bg-leaf/10 px-3 py-2 text-sm font-semibold text-leaf">
+                    🎁 You earned {result.data.order.points_earned as number} Sussflow points on
+                    this order.
+                  </p>
+                )}
                 <p className="mt-3 text-xs text-foreground/60">
                   {result.data.order.fulfilment === "pickup"
                     ? "We'll contact you when your order is ready for pickup in Lagos."

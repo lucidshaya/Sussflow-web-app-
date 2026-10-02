@@ -16,6 +16,7 @@ export interface TrackedOrder {
   cancelled_at: string | null;
   subtotal: number;
   delivery_fee: number;
+  points_discount: number;
   total: number;
   city: string | null;
   state: string | null;
@@ -58,6 +59,7 @@ export const trackOrder = createServerFn({ method: "POST" })
       cancelled_at: stamp("cancelled_at"),
       subtotal: order.subtotal,
       delivery_fee: order.delivery_fee,
+      points_discount: order.points_discount ?? 0,
       total: order.total,
       city: order.city,
       state: order.state,

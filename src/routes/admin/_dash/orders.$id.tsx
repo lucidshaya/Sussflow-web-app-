@@ -29,6 +29,7 @@ import {
 } from "@/lib/validation";
 import { cn } from "@/lib/utils";
 import { ORDER_STATUSES, type Order, type OrderStatus, type OrderWithItems } from "@/lib/types";
+import { OrderPoints } from "@/components/admin/OrderPoints";
 
 export const Route = createFileRoute("/admin/_dash/orders/$id")({
   component: OrderDetail,
@@ -84,7 +85,8 @@ function OrderDetail() {
       if (!current) return;
       const update: Record<string, unknown> = { ...values };
       if (values.delivery_fee !== undefined)
-        update["total"] = current.subtotal + values.delivery_fee;
+        // Keep any points discount when the delivery fee is edited.
+        update["total"] = current.subtotal - (current.points_discount ?? 0) + values.delivery_fee;
       unwrap(await supabase.from("orders").update(update).eq("id", current.id).select());
     },
     onSuccess: () => {
@@ -221,6 +223,12 @@ function OrderDetail() {
                 <dt className="text-foreground/60">Subtotal</dt>
                 <dd>{formatNaira(o.subtotal)}</dd>
               </div>
+              {(o.points_discount ?? 0) > 0 && (
+                <div className="flex justify-between text-leaf">
+                  <dt>Points discount</dt>
+                  <dd>−{formatNaira(o.points_discount ?? 0)}</dd>
+                </div>
+              )}
               <div className="flex justify-between">
                 <dt className="text-foreground/60">
                   {o.fulfilment === "pickup" ? "Lagos pickup" : "Delivery"}
@@ -232,6 +240,7 @@ function OrderDetail() {
                 <dd>{formatNaira(o.total)}</dd>
               </div>
             </dl>
+            <OrderPoints order={o} />
           </section>
 
           <section className={adminCard}>

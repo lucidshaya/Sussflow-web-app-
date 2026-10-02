@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { glassCard, PageHero } from "@/components/site/primitives";
@@ -9,6 +10,8 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { FAQ_GROUPS } from "@/content/site";
+import { settingsQuery } from "@/lib/queries";
+import { rewardsActive, rewardsSummary } from "@/lib/rewards";
 import { faqJsonLd, seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_site/faq")({
@@ -33,6 +36,7 @@ function FaqPage() {
         Can't find your answer? We're happy to help you find the menstrual product that fits your
         body, lifestyle and cycle.
       </PageHero>
+      <RewardsFaq />
       <section className="mx-auto grid max-w-7xl gap-6 px-5 py-8 lg:grid-cols-[240px_1fr]">
         <nav className="hidden lg:block" aria-label="FAQ sections">
           <ul className="sticky top-36 space-y-1 text-sm font-medium">
@@ -95,5 +99,33 @@ function FaqPage() {
         </div>
       </section>
     </>
+  );
+}
+
+/** "How do Sussflow points work?", from the current rewards settings (hidden when off). */
+function RewardsFaq() {
+  const { data: settings } = useQuery(settingsQuery);
+  if (!rewardsActive(settings)) return null;
+  return (
+    <section className="mx-auto max-w-7xl px-5 pt-8">
+      <div className={`${glassCard} p-6 md:p-8`}>
+        <h2 className="font-display text-xl font-semibold">🎁 How do Sussflow points work?</h2>
+        <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-foreground/75">
+          <li>{rewardsSummary(settings)}</li>
+          <li>
+            Points are added to your account when your order is paid, based on what you pay for
+            products (not delivery). You need a Sussflow account to earn and use them.
+          </li>
+          <li>
+            At checkout, tick “Use my points” to take the discount off your order. See your balance
+            any time in{" "}
+            <Link to="/account" className="font-semibold text-brand hover:underline">
+              My account
+            </Link>
+            .
+          </li>
+        </ul>
+      </div>
+    </section>
   );
 }

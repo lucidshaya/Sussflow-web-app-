@@ -9,6 +9,7 @@ export function OrderTotals({
   fulfilment,
   totalLabel = "Total",
   deliveryLabel,
+  pointsDiscount = 0,
   emphasise = false,
   className,
 }: {
@@ -19,6 +20,8 @@ export function OrderTotals({
   totalLabel?: string;
   /** e.g. "Delivery fee (South-West waybill)"; defaults to "Delivery fee". */
   deliveryLabel?: string;
+  /** Kobo taken off by points (rewards). */
+  pointsDiscount?: number;
   emphasise?: boolean;
   className?: string;
 }) {
@@ -28,6 +31,12 @@ export function OrderTotals({
         <dt className="text-foreground/65">Subtotal</dt>
         <dd className="font-semibold">{formatNaira(subtotal)}</dd>
       </div>
+      {pointsDiscount > 0 && (
+        <div className="flex justify-between text-leaf">
+          <dt>Points discount</dt>
+          <dd className="font-semibold">−{formatNaira(pointsDiscount)}</dd>
+        </div>
+      )}
       <div className="flex justify-between">
         <dt className="text-foreground/65">
           {deliveryLabel ??
