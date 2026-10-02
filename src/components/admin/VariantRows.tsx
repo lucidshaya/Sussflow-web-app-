@@ -80,8 +80,9 @@ export function VariantRows({
 }) {
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
-  // The "was" price column exists once the 0004 migration has run.
-  const withCompare = variants.some((v) => "compare_at_price" in v);
+  // The "was" price column exists once the 0004 migration has run (always true on a product
+  // with no options yet, so its first option can have a deal price too).
+  const withCompare = variants.length === 0 || variants.some((v) => "compare_at_price" in v);
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["admin"] });
     void queryClient.invalidateQueries({ queryKey: ["products"] });

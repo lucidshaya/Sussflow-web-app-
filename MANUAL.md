@@ -348,7 +348,7 @@ After changing any variable, **redeploy**: Vercel → Deployments → ⋯ → Re
 - **Supabase → Authentication → SMTP:** Gmail (`smtp.gmail.com`, port 587) with an app password.
 
 ### Database changes (migrations)
-The files are in `supabase/migrations`, applied in order from `0001` to `0008`:
+The files are in `supabase/migrations`, applied in order from `0001` to `0009`:
 - **0001–0002:** shop, orders, settings and seed products.
 - **0003:** order timeline.
 - **0004:** deals and social links.
@@ -356,8 +356,9 @@ The files are in `supabase/migrations`, applied in order from `0001` to `0008`:
 - **0006:** customer choices and the blog.
 - **0007:** sizes, reviews, delivery zones, the banner and blog emails.
 - **0008:** rewards.
+- **0009:** security hardening (who can call database functions).
 
-A new database needs all eight run in the Supabase SQL editor.
+A new database needs all nine run in the Supabase SQL editor.
 
 ### Changing the domain
 See the [README → Custom domain](README.md#6-custom-domain) section. In short:
