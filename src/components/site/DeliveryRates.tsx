@@ -15,12 +15,19 @@ export function DeliveryRates({ className }: { className?: string }) {
       className={cn("rounded-2xl border border-glass-border bg-glass-soft p-3 text-xs", className)}
     >
       <p className="flex items-center gap-1.5 font-semibold">
-        <Truck className="size-3.5 text-brand" /> Delivery & pickup
+        <Truck className="size-3.5 text-brand" /> Delivery fees
       </p>
       <dl className="mt-2 space-y-1">
         {rates.map((rate) => (
           <div key={rate.label} className="flex justify-between gap-3">
-            <dt className="text-foreground/60">{rate.label}</dt>
+            <dt className="text-foreground/60">
+              {rate.label}
+              {"hint" in rate && rate.hint && (
+                <span className="block text-[10px] leading-snug text-foreground/40">
+                  {rate.hint}
+                </span>
+              )}
+            </dt>
             <dd className="text-right font-medium">{rate.value}</dd>
           </div>
         ))}

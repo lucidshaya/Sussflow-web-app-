@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { BadgeCheck, ChevronLeft, ChevronRight, MapPin, Star, Truck, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -6,6 +7,7 @@ import heroCups from "@/assets/hero-cups.jpg";
 import heroFlatlay from "@/assets/hero-flatlay.jpg";
 import heroPads from "@/assets/hero-pads.jpg";
 import { cn } from "@/lib/utils";
+import { settingsQuery } from "@/lib/queries";
 
 type SlideLink =
   | { to: "/products/$slug"; slug: string }
@@ -215,13 +217,25 @@ export function TrustStrip() {
   );
 }
 
+/** Top banner on the home page; text, link and on/off are set in Admin → Settings. */
 export function AnnouncementBar() {
+  const { data: settings, isLoading } = useQuery(settingsQuery);
+  // Before migration 0007 (or while loading on the client) fall back to the deals banner.
+  const enabled = settings?.announcement_enabled ?? !isLoading;
+  const text = settings?.announcement_text?.trim() || "Website-only deals are live · Shop deals";
+  const link = settings ? (settings.announcement_link ?? null) : "/deals";
+  if (!enabled) return null;
+  const className =
+    "flex items-center justify-center bg-primary-foreground px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-brand sm:text-sm";
+  if (!link) return <p className={className}>{text}</p>;
+  const external = link.startsWith("https://");
   return (
-    <Link
-      to="/deals"
-      className="flex items-center justify-center bg-primary-foreground px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-brand hover:underline sm:text-sm"
+    <a
+      href={link}
+      className={`${className} hover:underline`}
+      {...(external && { target: "_blank", rel: "noopener noreferrer" })}
     >
-      Website-only deals are live · Shop deals →
-    </Link>
+      {text} →
+    </a>
   );
 }

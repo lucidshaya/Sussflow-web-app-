@@ -355,3 +355,11 @@ export const blogPostSchema = z.object({
   tag: z.string().trim().min(2, "Add a tag").max(40),
   body: z.string().trim().min(20, "Write the article"),
 });
+
+export const reviewSchema = z.object({
+  productId: z.string().uuid(),
+  name: z.string().trim().min(2, "Enter your name").max(60, "Keep your name under 60 characters"),
+  rating: z.number().int().min(1, "Choose a star rating").max(5),
+  comment: z.string().trim().max(1000, "Keep your review under 1,000 characters"),
+  website: honeypotSchema,
+});

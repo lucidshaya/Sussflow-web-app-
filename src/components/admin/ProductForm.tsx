@@ -27,7 +27,9 @@ export type ProductInput = Pick<
   | "is_active"
   | "featured"
   | "sort"
-  | "option_name"
+  | "show_size"
+  | "show_length"
+  | "video_url"
 > & { choices: ProductChoice[] };
 
 export const EMPTY_PRODUCT: ProductInput = {
@@ -43,7 +45,9 @@ export const EMPTY_PRODUCT: ProductInput = {
   is_active: true,
   featured: false,
   sort: 0,
-  option_name: "Length",
+  show_size: false,
+  show_length: true,
+  video_url: null,
   choices: [],
 };
 
@@ -78,6 +82,10 @@ export function ProductForm({
     });
     if (!check.success) {
       toast.error(check.error.issues[0]?.message ?? "Please check the product details");
+      return;
+    }
+    if (values.video_url && !/^https:\/\/\S+\.\S+/.test(values.video_url)) {
+      toast.error("The video link must be a full web address starting with https://");
       return;
     }
     setBusy(true);
@@ -174,22 +182,29 @@ export function ProductForm({
         </Field>
         <div className="rounded-2xl border border-glass-border bg-glass-soft p-4">
           <p className="text-xs font-semibold uppercase text-foreground/55">Options & choices</p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-[12rem_1fr] sm:items-start [&>*]:min-w-0">
-            <Field label="Price options are by">
-              <select
-                value={values.option_name}
-                onChange={(e) => set("option_name", e.target.value)}
-                className={adminInput}
-              >
-                <option value="Length">Length (e.g. 16", 14")</option>
-                <option value="Size">Size (e.g. XS–4XL, Size 1 / 2)</option>
-              </select>
-            </Field>
-            <p className="text-xs leading-relaxed text-foreground/60 sm:pt-6">
-              Each price option below has its own {values.option_name.toLowerCase()}, price and
-              stock. Sizes must be picked by the customer before adding to bag.
-            </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <label className="flex items-center justify-between gap-3 rounded-xl border border-glass-border bg-glass px-3 py-2 text-sm font-semibold">
+              Show size (e.g. XS–4XL)
+              <LeafSwitch
+                checked={values.show_size}
+                onCheckedChange={(checked) => set("show_size", checked)}
+                aria-label="Show size"
+              />
+            </label>
+            <label className="flex items-center justify-between gap-3 rounded-xl border border-glass-border bg-glass px-3 py-2 text-sm font-semibold">
+              Show length (e.g. 16")
+              <LeafSwitch
+                checked={values.show_length}
+                onCheckedChange={(checked) => set("show_length", checked)}
+                aria-label="Show length"
+              />
+            </label>
           </div>
+          <p className="mt-2 text-xs leading-relaxed text-foreground/60">
+            Each price option can have a size and a length (set them in the price options table).
+            Turning one off hides it on the website without deleting it. When sizes are shown,
+            customers must pick one before adding to bag.
+          </p>
           <ChoicesEditor
             initial={initial.choices}
             onChange={(choices) => set("choices", choices)}
@@ -202,6 +217,19 @@ export function ProductForm({
             rows={2}
             className={adminInput}
           />
+        </Field>
+        <Field label="Product video link (optional)">
+          <input
+            type="url"
+            inputMode="url"
+            value={values.video_url ?? ""}
+            onChange={(e) => set("video_url", e.target.value.trim() || null)}
+            placeholder="https://www.youtube.com/… or Instagram / TikTok link"
+            className={adminInput}
+          />
+          <span className="mt-1 block text-xs text-foreground/45">
+            Adds a “Watch video” button on the product page. Leave empty to hide it.
+          </span>
         </Field>
       </div>
 

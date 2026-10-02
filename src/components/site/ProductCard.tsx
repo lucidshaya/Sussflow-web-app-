@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Plus } from "lucide-react";
 
@@ -5,15 +6,18 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import { parseChoices } from "@/lib/choices";
 import { dealPercent, formatNaira, lowestPrice } from "@/lib/format";
+import { ratingSummaryQuery } from "@/lib/queries";
 import type { ProductWithVariants } from "@/lib/types";
 
 import { glassPanel } from "./primitives";
+import { Stars } from "./Stars";
 
 // Compact on phones (two cards per row), full size from `sm` up.
 const cardButton = "h-9 w-full px-2 text-xs sm:h-11 sm:px-5 sm:text-sm";
 
 export function ProductCard({ product }: { product: ProductWithVariants }) {
   const { add } = useCart();
+  const rating = useQuery(ratingSummaryQuery).data?.[product.id];
   const active = product.product_variants.filter((variant) => variant.is_active);
   const from = lowestPrice(active);
   // Quick add only when there's nothing to choose (one option, no flow/colour choices).
@@ -60,6 +64,11 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
                 {product.name}
               </Link>
             </h3>
+            {rating && (
+              <p className="mt-0.5 flex items-center gap-1 text-[11px] text-foreground/60 sm:text-xs">
+                <Stars value={rating.average} /> ({rating.count})
+              </p>
+            )}
             {product.short_detail && (
               <p className="mt-1 line-clamp-2 text-[11px] text-foreground/60 sm:text-xs">
                 {product.short_detail}

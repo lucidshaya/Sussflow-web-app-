@@ -30,6 +30,7 @@ import { Route as SiteSizeGuideRouteImport } from './routes/_site/size-guide'
 import { Route as SiteStoreLocationRouteImport } from './routes/_site/store-location'
 import { Route as SiteTermsRouteImport } from './routes/_site/terms'
 import { Route as SiteTrackRouteImport } from './routes/_site/track'
+import { Route as SiteUnsubscribeRouteImport } from './routes/_site/unsubscribe'
 import { Route as AdminDashRouteImport } from './routes/admin/_dash'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as SiteAccountIndexRouteImport } from './routes/_site/account.index'
@@ -43,6 +44,7 @@ import { Route as AdminDashCategoriesRouteImport } from './routes/admin/_dash/ca
 import { Route as AdminDashCustomersRouteImport } from './routes/admin/_dash/customers'
 import { Route as AdminDashEnquiriesRouteImport } from './routes/admin/_dash/enquiries'
 import { Route as AdminDashPriceListRouteImport } from './routes/admin/_dash/price-list'
+import { Route as AdminDashReviewsRouteImport } from './routes/admin/_dash/reviews'
 import { Route as AdminDashSettingsRouteImport } from './routes/admin/_dash/settings'
 import { Route as ApiPaystackWebhookRouteImport } from './routes/api/paystack/webhook'
 import { Route as SiteAccountOrdersIdRouteImport } from './routes/_site/account.orders.$id'
@@ -159,6 +161,11 @@ const SiteTrackRoute = SiteTrackRouteImport.update({
   path: '/track',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteUnsubscribeRoute = SiteUnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => SiteRoute,
+} as any)
 const AdminDashRoute = AdminDashRouteImport.update({
   id: '/admin/_dash',
   path: '/admin',
@@ -222,6 +229,11 @@ const AdminDashEnquiriesRoute = AdminDashEnquiriesRouteImport.update({
 const AdminDashPriceListRoute = AdminDashPriceListRouteImport.update({
   id: '/price-list',
   path: '/price-list',
+  getParentRoute: () => AdminDashRoute,
+} as any)
+const AdminDashReviewsRoute = AdminDashReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
   getParentRoute: () => AdminDashRoute,
 } as any)
 const AdminDashSettingsRoute = AdminDashSettingsRouteImport.update({
@@ -301,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/store-location': typeof SiteStoreLocationRoute
   '/terms': typeof SiteTermsRoute
   '/track': typeof SiteTrackRoute
+  '/unsubscribe': typeof SiteUnsubscribeRoute
   '/admin': typeof AdminDashRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof SiteBlogSlugRoute
@@ -310,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/admin/customers': typeof AdminDashCustomersRoute
   '/admin/enquiries': typeof AdminDashEnquiriesRoute
   '/admin/price-list': typeof AdminDashPriceListRoute
+  '/admin/reviews': typeof AdminDashReviewsRoute
   '/admin/settings': typeof AdminDashSettingsRoute
   '/api/paystack/webhook': typeof ApiPaystackWebhookRoute
   '/account/': typeof SiteAccountIndexRoute
@@ -346,6 +360,7 @@ export interface FileRoutesByTo {
   '/store-location': typeof SiteStoreLocationRoute
   '/terms': typeof SiteTermsRoute
   '/track': typeof SiteTrackRoute
+  '/unsubscribe': typeof SiteUnsubscribeRoute
   '/admin/login': typeof AdminLoginRoute
   '/': typeof SiteIndexRoute
   '/blog/$slug': typeof SiteBlogSlugRoute
@@ -355,6 +370,7 @@ export interface FileRoutesByTo {
   '/admin/customers': typeof AdminDashCustomersRoute
   '/admin/enquiries': typeof AdminDashEnquiriesRoute
   '/admin/price-list': typeof AdminDashPriceListRoute
+  '/admin/reviews': typeof AdminDashReviewsRoute
   '/admin/settings': typeof AdminDashSettingsRoute
   '/api/paystack/webhook': typeof ApiPaystackWebhookRoute
   '/account': typeof SiteAccountIndexRoute
@@ -393,6 +409,7 @@ export interface FileRoutesById {
   '/_site/store-location': typeof SiteStoreLocationRoute
   '/_site/terms': typeof SiteTermsRoute
   '/_site/track': typeof SiteTrackRoute
+  '/_site/unsubscribe': typeof SiteUnsubscribeRoute
   '/admin/_dash': typeof AdminDashRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/_site/': typeof SiteIndexRoute
@@ -403,6 +420,7 @@ export interface FileRoutesById {
   '/admin/_dash/customers': typeof AdminDashCustomersRoute
   '/admin/_dash/enquiries': typeof AdminDashEnquiriesRoute
   '/admin/_dash/price-list': typeof AdminDashPriceListRoute
+  '/admin/_dash/reviews': typeof AdminDashReviewsRoute
   '/admin/_dash/settings': typeof AdminDashSettingsRoute
   '/api/paystack/webhook': typeof ApiPaystackWebhookRoute
   '/_site/account/': typeof SiteAccountIndexRoute
@@ -442,6 +460,7 @@ export interface FileRouteTypes {
     | '/store-location'
     | '/terms'
     | '/track'
+    | '/unsubscribe'
     | '/admin'
     | '/admin/login'
     | '/blog/$slug'
@@ -451,6 +470,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/enquiries'
     | '/admin/price-list'
+    | '/admin/reviews'
     | '/admin/settings'
     | '/api/paystack/webhook'
     | '/account/'
@@ -487,6 +507,7 @@ export interface FileRouteTypes {
     | '/store-location'
     | '/terms'
     | '/track'
+    | '/unsubscribe'
     | '/admin/login'
     | '/'
     | '/blog/$slug'
@@ -496,6 +517,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/enquiries'
     | '/admin/price-list'
+    | '/admin/reviews'
     | '/admin/settings'
     | '/api/paystack/webhook'
     | '/account'
@@ -533,6 +555,7 @@ export interface FileRouteTypes {
     | '/_site/store-location'
     | '/_site/terms'
     | '/_site/track'
+    | '/_site/unsubscribe'
     | '/admin/_dash'
     | '/admin/login'
     | '/_site/'
@@ -543,6 +566,7 @@ export interface FileRouteTypes {
     | '/admin/_dash/customers'
     | '/admin/_dash/enquiries'
     | '/admin/_dash/price-list'
+    | '/admin/_dash/reviews'
     | '/admin/_dash/settings'
     | '/api/paystack/webhook'
     | '/_site/account/'
@@ -718,6 +742,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteTrackRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/unsubscribe': {
+      id: '/_site/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof SiteUnsubscribeRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/admin/_dash': {
       id: '/admin/_dash'
       path: '/admin'
@@ -807,6 +838,13 @@ declare module '@tanstack/react-router' {
       path: '/price-list'
       fullPath: '/admin/price-list'
       preLoaderRoute: typeof AdminDashPriceListRouteImport
+      parentRoute: typeof AdminDashRoute
+    }
+    '/admin/_dash/reviews': {
+      id: '/admin/_dash/reviews'
+      path: '/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AdminDashReviewsRouteImport
       parentRoute: typeof AdminDashRoute
     }
     '/admin/_dash/settings': {
@@ -907,6 +945,7 @@ interface SiteRouteChildren {
   SiteStoreLocationRoute: typeof SiteStoreLocationRoute
   SiteTermsRoute: typeof SiteTermsRoute
   SiteTrackRoute: typeof SiteTrackRoute
+  SiteUnsubscribeRoute: typeof SiteUnsubscribeRoute
   SiteIndexRoute: typeof SiteIndexRoute
   SiteBlogSlugRoute: typeof SiteBlogSlugRoute
   SiteCheckoutCallbackRoute: typeof SiteCheckoutCallbackRoute
@@ -935,6 +974,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteStoreLocationRoute: SiteStoreLocationRoute,
   SiteTermsRoute: SiteTermsRoute,
   SiteTrackRoute: SiteTrackRoute,
+  SiteUnsubscribeRoute: SiteUnsubscribeRoute,
   SiteIndexRoute: SiteIndexRoute,
   SiteBlogSlugRoute: SiteBlogSlugRoute,
   SiteCheckoutCallbackRoute: SiteCheckoutCallbackRoute,
@@ -952,6 +992,7 @@ interface AdminDashRouteChildren {
   AdminDashCustomersRoute: typeof AdminDashCustomersRoute
   AdminDashEnquiriesRoute: typeof AdminDashEnquiriesRoute
   AdminDashPriceListRoute: typeof AdminDashPriceListRoute
+  AdminDashReviewsRoute: typeof AdminDashReviewsRoute
   AdminDashSettingsRoute: typeof AdminDashSettingsRoute
   AdminDashIndexRoute: typeof AdminDashIndexRoute
   AdminDashBlogIdRoute: typeof AdminDashBlogIdRoute
@@ -969,6 +1010,7 @@ const AdminDashRouteChildren: AdminDashRouteChildren = {
   AdminDashCustomersRoute: AdminDashCustomersRoute,
   AdminDashEnquiriesRoute: AdminDashEnquiriesRoute,
   AdminDashPriceListRoute: AdminDashPriceListRoute,
+  AdminDashReviewsRoute: AdminDashReviewsRoute,
   AdminDashSettingsRoute: AdminDashSettingsRoute,
   AdminDashIndexRoute: AdminDashIndexRoute,
   AdminDashBlogIdRoute: AdminDashBlogIdRoute,

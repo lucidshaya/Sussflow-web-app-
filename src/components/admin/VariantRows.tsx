@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { adminInput, ConfirmDelete, LeafSwitch, td, th } from "./ui";
 
 interface Draft {
+  size_label: string;
   length_label: string;
   pack_size: string;
   price: string; // naira
@@ -23,6 +24,7 @@ interface Draft {
 
 function toDraft(variant: Variant): Draft {
   return {
+    size_label: variant.size_label ?? "",
     length_label: variant.length_label ?? "",
     pack_size: String(variant.pack_size),
     price: String(variant.price / 100),
@@ -44,6 +46,7 @@ function fromDraft(draft: Draft, withCompare: boolean) {
   if (!Number.isInteger(pack) || pack < 1) throw new Error("Pack size must be at least 1");
   if (!Number.isInteger(stock) || stock < 0) throw new Error("Stock can't be negative");
   return {
+    size_label: draft.size_label.trim() || null,
     length_label: draft.length_label.trim() || null,
     pack_size: pack,
     price,
@@ -55,6 +58,7 @@ function fromDraft(draft: Draft, withCompare: boolean) {
 }
 
 const EMPTY_DRAFT: Draft = {
+  size_label: "",
   length_label: "",
   pack_size: "1",
   price: "",
@@ -68,13 +72,10 @@ const EMPTY_DRAFT: Draft = {
 export function VariantRows({
   productId,
   variants,
-  optionName = "Length",
   showHeader = true,
 }: {
   productId: string;
   variants: Variant[];
-  /** "Length" for pads, "Size" for underwear and cups. */
-  optionName?: string;
   showHeader?: boolean;
 }) {
   const queryClient = useQueryClient();
@@ -89,11 +90,12 @@ export function VariantRows({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[720px] text-sm">
+      <table className="w-full min-w-[820px] text-sm">
         {showHeader && (
           <thead>
             <tr className="border-b border-foreground/10">
-              <th className={th}>{optionName}</th>
+              <th className={th}>Size</th>
+              <th className={th}>Length</th>
               <th className={th}>Pack (in 1)</th>
               <th className={th}>Price (₦)</th>
               {withCompare && <th className={th}>Was (₦)</th>}
@@ -290,10 +292,20 @@ function DraftCells({
     <tr className={cn(!draft.is_active && "opacity-60")}>
       <td className={td}>
         <input
+          value={draft.size_label}
+          onChange={set("size_label")}
+          placeholder="e.g. M"
+          aria-label="Size"
+          className={cn(adminInput, "w-24")}
+        />
+      </td>
+      <td className={td}>
+        <input
           value={draft.length_label}
           onChange={set("length_label")}
-          placeholder='e.g. 16" or M'
-          className={cn(adminInput, "w-24")}
+          placeholder='e.g. 16"'
+          aria-label="Length"
+          className={cn(adminInput, "w-20")}
         />
       </td>
       <td className={td}>

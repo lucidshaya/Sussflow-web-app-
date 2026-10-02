@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { Check, ChevronLeft, Minus, Plus, ShoppingBag } from "lucide-react";
+import { Check, ChevronLeft, Minus, PlayCircle, Plus, ShoppingBag } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -19,12 +19,30 @@ import {
 import { KitAddons, KitContents, KitRelated } from "@/components/site/Kit";
 import { PAIR_PRODUCT_SLUGS, PairUp } from "@/components/site/PairUp";
 import { ProductGallery } from "@/components/site/ProductGallery";
+import { ProductReviews } from "@/components/site/ProductReviews";
+import { Stars } from "@/components/site/Stars";
 import { Button } from "@/components/ui/button";
 import { FAQ_GROUPS, PRODUCT_FAQ_GROUP } from "@/content/site";
 import { useCart } from "@/lib/cart";
 import { choicesError, parseChoices, type ChosenOptions } from "@/lib/choices";
-import { dealPercent, formatNaira, packLabel, soldInPairs } from "@/lib/format";
-import { bundleItemsQuery, itemsOf, productBySlugQuery } from "@/lib/queries";
+import {
+  dealPercent,
+  formatNaira,
+  mustPickOption,
+  optionGroupName,
+  optionKey,
+  optionText,
+  orderedOptionKeys,
+  packLabel,
+  soldInPairs,
+} from "@/lib/format";
+import {
+  bundleItemsQuery,
+  itemsOf,
+  prefetch,
+  productBySlugQuery,
+  productReviewsQuery,
+} from "@/lib/queries";
 import { productDescription, productJsonLd, seo } from "@/lib/seo";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import type { Variant } from "@/lib/types";
@@ -38,8 +56,12 @@ export const Route = createFileRoute("/_site/products/$slug")({
       .ensureQueryData(productBySlugQuery(params.slug))
       .catch(() => undefined); // network trouble: let the page fetch it in the browser
     if (product === null) throw notFound();
-    if (product) await queryClient.prefetchQuery(bundleItemsQuery([product.id]));
-    return { product: product ?? null };
+    if (product)
+      await prefetch(queryClient, bundleItemsQuery([product.id]), productReviewsQuery(product.id));
+    const reviews = product
+      ? (queryClient.getQueryData(productReviewsQuery(product.id).queryKey) ?? [])
+      : [];
+    return { product: product ?? null, reviews };
   },
   head: ({ loaderData }) => {
     const p = loaderData?.product;
@@ -50,7 +72,7 @@ export const Route = createFileRoute("/_site/products/$slug")({
       path: `/products/${p.slug}`,
       image: p.image_url,
       type: "product",
-      jsonLd: [productJsonLd(p)],
+      jsonLd: [productJsonLd(p, loaderData?.reviews)],
     });
   },
   component: ProductPage,
@@ -71,15 +93,16 @@ function ProductPage() {
     () => (product.data?.product_variants ?? []).filter((v) => v.is_active),
     [product.data],
   );
+  // Main options (sizes or lengths) in price-list order; packs are grouped under each.
   const lengths = useMemo(
-    () => [...new Set(variants.map((v) => v.length_label).filter((l): l is string => Boolean(l)))],
-    [variants],
+    () => orderedOptionKeys(variants, product.data ?? undefined),
+    [variants, product.data],
   );
 
-  // "Length" for pads, "Size" for underwear and cups (set per product in the dashboard).
-  const optionName = product.data?.option_name || "Length";
+  // "Size" or "Length", from the product's Show size / Show length switches.
+  const optionName = optionGroupName(product.data ?? undefined);
   // Sizes must be picked on purpose; lengths start on the first option.
-  const mustPickOption = optionName.toLowerCase() === "size" && lengths.length > 1;
+  const mustPick = mustPickOption(product.data ?? undefined, variants);
   const choices = useMemo(() => parseChoices(product.data?.choices), [product.data]);
 
   const [length, setLength] = useState<string | null>(null);
@@ -90,20 +113,20 @@ function ProductPage() {
 
   useEffect(() => {
     const first = variants[0];
-    setLength(mustPickOption ? null : (first?.length_label ?? null));
+    setLength(mustPick || !first ? null : optionKey(first) || null);
     setPackSize(first?.pack_size ?? null);
     setQuantity(1);
     setPicked({});
     setHint(null);
-  }, [variants, mustPickOption]);
+  }, [variants, mustPick]);
 
   // Before a size is chosen, show packs and prices from the first size (prices match).
   const shownLength = length ?? (lengths.length ? lengths[0] : null);
   const packsForLength = variants.filter((v) =>
-    lengths.length ? v.length_label === shownLength : true,
+    lengths.length ? optionKey(v) === shownLength : true,
   );
   const needs =
-    (mustPickOption && !length ? `Choose a ${optionName.toLowerCase()}` : null) ??
+    (mustPick && !length ? `Choose a ${optionName.toLowerCase()}` : null) ??
     choicesError(choices, picked);
   const selected: Variant | undefined =
     packsForLength.find((v) => v.pack_size === packSize) ?? packsForLength[0];
@@ -158,6 +181,7 @@ function ProductPage() {
             {p.name}
           </h1>
           {p.tagline && <p className="mt-2 text-lg text-foreground/70">{p.tagline}</p>}
+          <RatingAndVideo productId={p.id} videoUrl={p.video_url} />
           {selected && (
             <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <p className="font-display text-3xl font-semibold text-brand">
@@ -191,12 +215,15 @@ function ProductPage() {
                       onClick={() => {
                         setLength(l);
                         setHint(null);
-                        const packs = variants.filter((v) => v.length_label === l);
+                        const packs = variants.filter((v) => optionKey(v) === l);
                         if (!packs.some((v) => v.pack_size === packSize))
                           setPackSize(packs[0]?.pack_size ?? null);
                       }}
                     >
-                      {l}
+                      {optionText(
+                        variants.find((v) => optionKey(v) === l)!,
+                        product.data ?? undefined,
+                      )}
                     </OptionButton>
                   ))}
                 </OptionGroup>
@@ -344,6 +371,8 @@ function ProductPage() {
         </div>
       </div>
 
+      <ProductReviews productId={p.id} productName={p.name} />
+
       {PAIR_PRODUCT_SLUGS.has(p.slug) && (
         <div className="-mx-5">
           <PairUp highlight={p.slug} />
@@ -369,6 +398,32 @@ function ProductPage() {
             ))}
           </Accordion>
         </section>
+      )}
+    </div>
+  );
+}
+
+/** Star summary (links to reviews) and a "Watch video" button when a video link is set. */
+function RatingAndVideo({ productId, videoUrl }: { productId: string; videoUrl: string | null }) {
+  const reviews = useQuery(productReviewsQuery(productId)).data ?? [];
+  const average = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
+  if (!reviews.length && !videoUrl) return null;
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-3">
+      {reviews.length > 0 && (
+        <a
+          href="#reviews"
+          className="flex items-center gap-1.5 text-sm text-foreground/70 hover:text-brand"
+        >
+          <Stars value={average} /> {average.toFixed(1)} ({reviews.length})
+        </a>
+      )}
+      {videoUrl && (
+        <Button asChild variant="glass" size="small">
+          <a href={videoUrl} target="_blank" rel="noopener noreferrer">
+            <PlayCircle className="size-4" /> Watch video
+          </a>
+        </Button>
       )}
     </div>
   );

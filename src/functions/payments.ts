@@ -33,13 +33,21 @@ interface VariantRow {
   stock: number;
   is_active: boolean;
   length_label: string | null;
+  size_label: string | null;
   pack_size: number;
   product_id: string;
-  products: { name: string; slug: string; is_active: boolean; choices: unknown } | null;
+  products: {
+    name: string;
+    slug: string;
+    is_active: boolean;
+    choices: unknown;
+    show_size: boolean;
+    show_length: boolean;
+  } | null;
 }
 
 function variantText(v: VariantRow) {
-  return variantLabel(v, v.products?.slug) || null;
+  return variantLabel(v, v.products ?? undefined) || null;
 }
 
 function siteUrl() {
@@ -64,7 +72,7 @@ export const initCheckout = createServerFn({ method: "POST" })
     const { data: variants, error } = await db
       .from("product_variants")
       .select(
-        "id, price, stock, is_active, length_label, pack_size, product_id, products(name, slug, is_active, choices)",
+        "id, price, stock, is_active, length_label, size_label, pack_size, product_id, products(name, slug, is_active, choices, show_size, show_length)",
       )
       .in("id", ids)
       .returns<VariantRow[]>();

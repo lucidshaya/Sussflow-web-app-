@@ -88,11 +88,7 @@ function PriceList() {
                           </Link>
                         </Button>
                       </div>
-                      <VariantRows
-                        productId={product.id}
-                        variants={product.product_variants}
-                        optionName={product.option_name}
-                      />
+                      <VariantRows productId={product.id} variants={product.product_variants} />
                     </article>
                   );
                 })}

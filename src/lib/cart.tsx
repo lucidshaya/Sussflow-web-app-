@@ -145,8 +145,15 @@ interface VariantRow {
   price: number;
   stock: number;
   length_label: string | null;
+  size_label: string | null;
   pack_size: number;
-  products: { name: string; slug: string; image_url: string | null } | null;
+  products: {
+    name: string;
+    slug: string;
+    image_url: string | null;
+    show_size: boolean;
+    show_length: boolean;
+  } | null;
 }
 
 /** Joins cart lines with live prices from the database. */
@@ -161,7 +168,9 @@ export function useCartDetails() {
       unwrap<VariantRow[]>(
         await supabase
           .from("product_variants")
-          .select("id, price, stock, length_label, pack_size, products(name, slug, image_url)")
+          .select(
+            "id, price, stock, length_label, size_label, pack_size, products(name, slug, image_url, show_size, show_length)",
+          )
           .in("id", ids),
       ),
   });
@@ -182,7 +191,7 @@ export function useCartDetails() {
       productName: row.products.name,
       productSlug: row.products.slug,
       imageUrl: row.products.image_url,
-      label: [variantLabel(row, row.products.slug), options].filter(Boolean).join(" · "),
+      label: [variantLabel(row, row.products), options].filter(Boolean).join(" · "),
     });
   }
   const unavailable = query.isSuccess

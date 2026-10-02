@@ -36,6 +36,8 @@ export interface Variant {
   id: string;
   product_id: string;
   length_label: string | null;
+  /** Size such as XS, M or "Size 1 (Small)" (0007 migration). */
+  size_label: string | null;
   pack_size: number;
   price: number; // kobo
   /** Display-only "was" price for deals (0004 migration); checkout always charges `price`. */
@@ -61,8 +63,11 @@ export interface Product {
   featured: boolean;
   sort: number;
   created_at: string;
-  /** What the variant option is called: "Length" (pads) or "Size" (underwear, cups). */
-  option_name: string;
+  /** Show each price option's size (XS–4XL, Size 1…) and/or its length (16") on the site. */
+  show_size: boolean;
+  show_length: boolean;
+  /** Optional product video link, shown as a "Watch video" button. */
+  video_url: string | null;
   /** Extra customer choices, e.g. flow type and colour (see src/lib/choices.ts). */
   choices: unknown;
 }
@@ -143,6 +148,11 @@ export interface Settings {
   id: number;
   lagos_delivery_fee: number;
   nationwide_delivery_fee: number;
+  /** Waybill fee per zone (kobo), keyed by DELIVERY_ZONES ids (0007 migration). */
+  zone_fees?: Record<string, number> | null;
+  announcement_enabled?: boolean;
+  announcement_text?: string;
+  announcement_link?: string | null;
   free_delivery_threshold: number | null;
   pickup_address: string;
   pickup_instructions: string | null;
@@ -184,4 +194,14 @@ export interface BlogPostRow {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface ProductReview {
+  id: string;
+  product_id: string;
+  name: string;
+  rating: number;
+  comment: string;
+  is_approved: boolean;
+  created_at: string;
 }

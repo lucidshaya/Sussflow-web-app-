@@ -6,7 +6,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import { choicesError, parseChoices, type ChosenOptions } from "@/lib/choices";
-import { formatNaira, soldInPairs, variantLabel } from "@/lib/format";
+import {
+  formatNaira,
+  soldInPairs,
+  variantLabel,
+  mustPickOption,
+  optionGroupName,
+  optionKey,
+  orderedOptionKeys,
+} from "@/lib/format";
 import { productsQuery } from "@/lib/queries";
 import type { ProductWithVariants, Variant } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -111,9 +119,14 @@ function PairCard({
   const [picked, setPicked] = useState<Record<string, ChosenOptions>>({});
   const [hint, setHint] = useState<string | null>(null);
   const picks = products.map((product) => {
-    const variants = product.product_variants.filter((v) => v.is_active);
+    const active = product.product_variants.filter((v) => v.is_active);
+    const order = orderedOptionKeys(active, product);
+    const variants = [...active].sort(
+      (a, b) =>
+        order.indexOf(optionKey(a)) - order.indexOf(optionKey(b)) || a.pack_size - b.pack_size,
+    );
     // Sizes (pants, cups) are picked by the customer; lengths default to a heavy-flow option.
-    const mustPick = product.option_name.toLowerCase() === "size" && variants.length > 1;
+    const mustPick = mustPickOption(product, variants);
     const fallback = defaultVariant(variants);
     const variant =
       variants.find((v) => v.id === chosen[product.id]) ?? (mustPick ? undefined : fallback);
@@ -125,7 +138,7 @@ function PairCard({
   const needs = picks
     .map(({ product, variant, mustPick, choices }) =>
       mustPick && !variant
-        ? `Choose a ${product.option_name.toLowerCase()} for ${product.name}`
+        ? `Choose a ${optionGroupName(product).toLowerCase()} for ${product.name}`
         : choicesError(choices, picked[product.id]),
     )
     .find(Boolean);
@@ -175,12 +188,12 @@ function PairCard({
                   >
                     {mustPick && !variant && (
                       <option value="" disabled>
-                        Choose {product.option_name.toLowerCase()}
+                        Choose {optionGroupName(product).toLowerCase()}
                       </option>
                     )}
                     {variants.map((v) => (
                       <option key={v.id} value={v.id} disabled={v.stock <= 0}>
-                        {variantLabel(v, product.slug) ||
+                        {variantLabel(v, product) ||
                           (soldInPairs(product.slug) ? "1 pair" : "Single")}{" "}
                         · {formatNaira(v.price)}
                         {v.stock <= 0 ? " (sold out)" : ""}

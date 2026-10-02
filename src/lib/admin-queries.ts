@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { supabase, unwrap } from "./supabase";
-import type { BlogPostRow, Category, ProductWithVariants } from "./types";
+import type { BlogPostRow, Category, ProductReview, ProductWithVariants } from "./types";
 
 // Admin queries rely on RLS: admins can read inactive rows too.
 
@@ -49,3 +49,19 @@ export const adminBlogPostQuery = (id: string) =>
         await supabase.from("blog_posts").select("*").eq("id", id).maybeSingle(),
       ),
   });
+
+export type AdminReview = ProductReview & { products: { name: string; slug: string } | null };
+
+export const adminReviewsQuery = queryOptions({
+  queryKey: ["admin", "reviews"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("product_reviews")
+      .select("*, products(name, slug)")
+      .order("is_approved")
+      .order("created_at", { ascending: false });
+    if (error?.code === "PGRST205" || error?.code === "42P01") return null; // not migrated yet
+    if (error) throw new Error(error.message);
+    return data as AdminReview[];
+  },
+});

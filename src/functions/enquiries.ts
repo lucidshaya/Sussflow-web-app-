@@ -45,6 +45,8 @@ export const joinWaitlist = createServerFn({ method: "POST" })
     if (data.website) return { ok: true, alreadyJoined: false };
     const email = data.email.toLowerCase();
     const db = getSupabaseAdmin();
+    // Joining again after unsubscribing from blog emails opts back in (table from 0007).
+    await db.from("email_unsubscribes").delete().eq("email", email);
     const { data: existing } = await db
       .from("enquiries")
       .select("id")

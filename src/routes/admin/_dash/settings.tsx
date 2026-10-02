@@ -6,6 +6,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import {
+  LeafSwitch,
   AdminField,
   adminInvalid,
   adminCard,
@@ -24,7 +25,7 @@ import type { Settings } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { emailSchema, settingsSchema, toFieldErrors, type FieldErrors } from "@/lib/validation";
 import { grantAdmin, listAdmins, revokeAdmin } from "@/functions/admin";
-import { deliveryRates } from "@/lib/delivery";
+import { DELIVERY_ZONES, deliveryRates, zoneFee } from "@/lib/delivery";
 
 const SOCIAL_FIELDS = [
   { key: "tiktok_url", label: "TikTok link", placeholder: "https://www.tiktok.com/@…" },
@@ -136,6 +137,19 @@ function StoreSettings() {
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
+        const bannerErrors: FieldErrors = {};
+        if ((draft.announcement_enabled ?? true) && !(draft.announcement_text ?? "").trim())
+          bannerErrors["announcement_text"] = "Add the banner text (or switch the banner off)";
+        if (
+          draft.announcement_link &&
+          !/^(\/[\w\-/?=&#.]*|https:\/\/\S+)$/.test(draft.announcement_link)
+        )
+          bannerErrors["announcement_link"] = "Use a page like /deals or a full https:// link";
+        if (Object.keys(bannerErrors).length) {
+          setErrors(bannerErrors);
+          toast.error("Please fix the highlighted fields.");
+          return;
+        }
         const result = settingsSchema.safeParse({
           lagos_delivery_fee: draft.lagos_delivery_fee,
           nationwide_delivery_fee: draft.nationwide_delivery_fee,
@@ -178,11 +192,53 @@ function StoreSettings() {
         });
       }}
     >
+      <h2 className="font-display text-lg font-semibold">Top banner</h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="flex items-center justify-between gap-3 rounded-xl border border-glass-border bg-glass px-3 py-2 text-sm font-semibold sm:col-span-2">
+          Show the banner at the top of the home page
+          <LeafSwitch
+            checked={draft.announcement_enabled ?? true}
+            onCheckedChange={(checked) => setDraft({ ...draft, announcement_enabled: checked })}
+            aria-label="Show the banner"
+          />
+        </label>
+        <AdminField
+          error={errors["announcement_text"]}
+          label="Banner text"
+          hint="Up to 140 characters, e.g. “Website-only deals are live · Shop deals”"
+        >
+          <input
+            value={draft.announcement_text ?? ""}
+            maxLength={140}
+            onChange={(e) => {
+              setDraft({ ...draft, announcement_text: e.target.value });
+              clear("announcement_text");
+            }}
+            className={cls("announcement_text")}
+          />
+        </AdminField>
+        <AdminField
+          error={errors["announcement_link"]}
+          label="Banner link (optional)"
+          hint="A page on the site like /deals, or a full https:// link. Empty = not clickable."
+        >
+          <input
+            value={draft.announcement_link ?? ""}
+            onChange={(e) => {
+              setDraft({ ...draft, announcement_link: e.target.value.trim() || null });
+              clear("announcement_link");
+            }}
+            placeholder="/deals"
+            className={cls("announcement_link")}
+          />
+        </AdminField>
+      </div>
+
       <h2 className="font-display text-lg font-semibold">Store & delivery</h2>
       <div className="grid gap-3 sm:grid-cols-2">
         <AdminField
           error={errors["lagos_delivery_fee"]}
-          label="Lagos delivery fee (₦)"
+          label="Within Lagos (₦)"
           hint="Shown at checkout and added to the total"
         >
           <input
@@ -193,22 +249,32 @@ function StoreSettings() {
             {...money("lagos_delivery_fee")}
           />
         </AdminField>
-        <AdminField
-          error={errors["nationwide_delivery_fee"]}
-          label="Outside Lagos fee (₦)"
-          hint="Shown at checkout and added to the total"
-        >
-          <input
-            type="number"
-            min={0}
-            step={50}
-            className={cls("nationwide_delivery_fee")}
-            {...money("nationwide_delivery_fee")}
-          />
-        </AdminField>
+        <p className="text-xs font-semibold uppercase text-foreground/55 sm:col-span-2">
+          Waybill fees by region (₦)
+        </p>
+        {DELIVERY_ZONES.map((zone) => (
+          <AdminField key={zone.id} label={zone.name} hint={zone.states.join(", ")}>
+            <input
+              type="number"
+              min={0}
+              step={50}
+              className={adminInput}
+              value={zoneFee(draft, zone.id) / 100}
+              onChange={(e) =>
+                setDraft({
+                  ...draft,
+                  zone_fees: {
+                    ...draft.zone_fees,
+                    [zone.id]: Math.max(0, Math.round(Number(e.target.value) * 100) || 0),
+                  },
+                })
+              }
+            />
+          </AdminField>
+        ))}
         <div className="rounded-2xl border border-glass-border bg-glass-soft p-3 text-xs sm:col-span-2">
           <p className="font-semibold">Customers see (bag, checkout and Store & delivery page):</p>
-          <ul className="mt-1.5 grid gap-1 sm:grid-cols-2">
+          <ul className="mt-1.5 grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
             {deliveryRates(draft).map((rate) => (
               <li key={rate.label}>
                 <span className="text-foreground/60">{rate.label}:</span> {rate.value}

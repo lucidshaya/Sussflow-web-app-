@@ -8,6 +8,7 @@ export function OrderTotals({
   total,
   fulfilment,
   totalLabel = "Total",
+  deliveryLabel,
   emphasise = false,
   className,
 }: {
@@ -16,6 +17,8 @@ export function OrderTotals({
   total: number;
   fulfilment: "delivery" | "pickup";
   totalLabel?: string;
+  /** e.g. "Delivery fee (South-West waybill)"; defaults to "Delivery fee". */
+  deliveryLabel?: string;
   emphasise?: boolean;
   className?: string;
 }) {
@@ -27,7 +30,8 @@ export function OrderTotals({
       </div>
       <div className="flex justify-between">
         <dt className="text-foreground/65">
-          {fulfilment === "pickup" ? "Delivery fee (Lagos pickup)" : "Delivery fee"}
+          {deliveryLabel ??
+            (fulfilment === "pickup" ? "Delivery fee (Lagos pickup)" : "Delivery fee")}
         </dt>
         <dd className="font-semibold">{formatNaira(deliveryFee)}</dd>
       </div>

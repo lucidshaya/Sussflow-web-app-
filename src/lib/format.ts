@@ -28,13 +28,69 @@ export function packLabel(size: number, productSlug?: string | null) {
   return soldInPairs(productSlug) ? `${size} pairs` : `${size}-in-1 pack`;
 }
 
+/** The product switches that decide how a price option is named (Admin → Products). */
+export interface OptionDisplay {
+  slug?: string | null;
+  show_size?: boolean | null;
+  show_length?: boolean | null;
+}
+
+/** Identity of a variant's main option, used to group pack sizes under it. */
+export const optionKey = (variant: Pick<Variant, "size_label" | "length_label">) =>
+  variant.size_label ?? variant.length_label ?? "";
+
+/** "M", '16"' or 'M (16")', following the product's Show size / Show length switches. */
+export function optionText(
+  variant: Pick<Variant, "size_label" | "length_label">,
+  product?: OptionDisplay,
+) {
+  const size = (product?.show_size ?? false) ? variant.size_label : null;
+  const length = (product?.show_length ?? true) ? variant.length_label : null;
+  if (size && length) return `${size} (${length})`;
+  // If the shown field is empty for this option, fall back to whatever it has.
+  return size ?? length ?? variant.size_label ?? variant.length_label ?? "";
+}
+
+const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "2XL", "XXL", "3XL", "4XL", "5XL"];
+
+/** Options for a picker: sizes run small → large; lengths keep the price-list order. */
+export function orderedOptionKeys(
+  variants: Pick<Variant, "size_label" | "length_label">[],
+  product?: OptionDisplay,
+) {
+  const keys = [...new Set(variants.map(optionKey).filter(Boolean))];
+  if (!product?.show_size) return keys;
+  const rank = (k: string) => {
+    const i = SIZE_ORDER.indexOf(k.toUpperCase());
+    return i === -1 ? Number.POSITIVE_INFINITY : i;
+  };
+  // Stable sort: unknown names (e.g. "Size 1 (Small)") keep their order after known ones.
+  return keys
+    .map((k, i) => ({ k, i }))
+    .sort((a, b) => rank(a.k) - rank(b.k) || a.i - b.i)
+    .map((x) => x.k);
+}
+
+/** Picker heading: "Size" when sizes are shown, otherwise "Length". */
+export const optionGroupName = (product?: OptionDisplay) =>
+  product?.show_size ? "Size" : "Length";
+
+/** Sizes must be chosen on purpose (no pre-selected size) when there's more than one. */
+export function mustPickOption(
+  product: OptionDisplay | undefined,
+  variants: Pick<Variant, "size_label" | "length_label">[],
+) {
+  return Boolean(product?.show_size) && new Set(variants.map(optionKey)).size > 1;
+}
+
 export function variantLabel(
-  variant: Pick<Variant, "length_label" | "pack_size">,
-  productSlug?: string | null,
+  variant: Pick<Variant, "size_label" | "length_label" | "pack_size">,
+  product?: OptionDisplay,
 ) {
   const parts: string[] = [];
-  if (variant.length_label) parts.push(variant.length_label);
-  const pack = packLabel(variant.pack_size, productSlug);
+  const option = optionText(variant, product);
+  if (option) parts.push(option);
+  const pack = packLabel(variant.pack_size, product?.slug);
   if (pack) parts.push(pack);
   return parts.join(" · ");
 }

@@ -5,7 +5,7 @@ import { ArrowRight, Award, Heart, Leaf, MapPin, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import { parseChoices } from "@/lib/choices";
-import { dealPercent, formatNaira } from "@/lib/format";
+import { dealPercent, formatNaira, optionGroupName } from "@/lib/format";
 import { productsQuery } from "@/lib/queries";
 import type { ProductWithVariants, Variant } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -170,7 +170,8 @@ function DealBanner({ deal }: { deal: LiveDeal }) {
           ) : (
             <Button size="small" asChild>
               <Link to="/products/$slug" params={{ slug: deal.slug }}>
-                Choose {deal.product.option_name.toLowerCase()} <ArrowRight className="size-4" />
+                Choose {optionGroupName(deal.product).toLowerCase()}{" "}
+                <ArrowRight className="size-4" />
               </Link>
             </Button>
           )}

@@ -19,7 +19,7 @@ import { OrderTotals } from "@/components/site/OrderTotals";
 import { Button } from "@/components/ui/button";
 import { getAccessToken, useAuth } from "@/lib/auth";
 import { useCart, useCartDetails } from "@/lib/cart";
-import { deliveryFeeFor } from "@/lib/delivery";
+import { deliveryFeeFor, deliveryFeeLabel } from "@/lib/delivery";
 import { formatNaira } from "@/lib/format";
 import { settingsQuery } from "@/lib/queries";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
@@ -358,6 +358,7 @@ function CheckoutPage() {
             deliveryFee={deliveryFee}
             total={total}
             fulfilment={fulfilment}
+            deliveryLabel={deliveryFeeLabel(fulfilment, state)}
             totalLabel="Total to pay"
             emphasise
             className="mt-5 border-t border-foreground/10 pt-4"

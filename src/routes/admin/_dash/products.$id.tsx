@@ -101,10 +101,9 @@ function EditProduct() {
       <section className={`${adminCard} mb-5`}>
         <h2 className="font-display text-lg font-semibold">Price options</h2>
         <p className="mb-3 text-sm text-foreground/60">
-          Each option is a {p.option_name.toLowerCase()} + pack size combination with its own price
-          and stock.
+          Each option is a size and/or length + pack size combination with its own price and stock.
         </p>
-        <VariantRows productId={p.id} variants={p.product_variants} optionName={p.option_name} />
+        <VariantRows productId={p.id} variants={p.product_variants} />
       </section>
 
       <section className={`${adminCard} mb-5`}>
@@ -131,7 +130,9 @@ function EditProduct() {
           is_active: p.is_active,
           featured: p.featured,
           sort: p.sort,
-          option_name: p.option_name ?? "Length",
+          show_size: p.show_size ?? false,
+          show_length: p.show_length ?? true,
+          video_url: p.video_url ?? null,
           choices: parseChoices(p.choices),
         }}
         submitLabel="Save changes"

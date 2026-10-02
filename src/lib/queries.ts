@@ -4,6 +4,7 @@ import { isSupabaseConfigured, supabase, unwrap } from "./supabase";
 import type {
   BlogPostRow,
   BundleItemKind,
+  ProductReview,
   BundleItem,
   Category,
   Product,
@@ -175,3 +176,47 @@ export const blogPostQuery = (slug: string) =>
       return data as BlogPostRow | null;
     },
   });
+
+/** Approved reviews for one product, newest first. */
+export const productReviewsQuery = (productId: string) =>
+  queryOptions({
+    queryKey: ["reviews", productId],
+    enabled: isSupabaseConfigured && Boolean(productId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_reviews")
+        .select("id, product_id, name, rating, comment, is_approved, created_at")
+        .eq("product_id", productId)
+        .eq("is_approved", true)
+        .order("created_at", { ascending: false });
+      if (isMissingTable(error)) return [];
+      if (error) throw new Error(error.message);
+      return data as ProductReview[];
+    },
+  });
+
+export interface RatingSummary {
+  average: number;
+  count: number;
+}
+
+/** Average rating and count per product (approved reviews only), for cards and pages. */
+export const ratingSummaryQuery = queryOptions({
+  queryKey: ["reviews", "summary"],
+  enabled: isSupabaseConfigured,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("product_reviews")
+      .select("product_id, rating")
+      .eq("is_approved", true);
+    if (isMissingTable(error)) return {} as Record<string, RatingSummary>;
+    if (error) throw new Error(error.message);
+    const summary: Record<string, RatingSummary> = {};
+    for (const row of data as { product_id: string; rating: number }[]) {
+      const s = (summary[row.product_id] ??= { average: 0, count: 0 });
+      s.average = (s.average * s.count + row.rating) / (s.count + 1);
+      s.count += 1;
+    }
+    return summary;
+  },
+});

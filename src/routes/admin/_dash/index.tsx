@@ -34,8 +34,9 @@ interface LowStockRow {
   id: string;
   stock: number;
   length_label: string | null;
+  size_label: string | null;
   pack_size: number;
-  products: { id: string; name: string } | null;
+  products: { id: string; name: string; show_size: boolean; show_length: boolean } | null;
 }
 
 function Overview() {
@@ -59,7 +60,9 @@ function Overview() {
       unwrap<LowStockRow[]>(
         await supabase
           .from("product_variants")
-          .select("id, stock, length_label, pack_size, products(id, name)")
+          .select(
+            "id, stock, length_label, size_label, pack_size, products(id, name, show_size, show_length)",
+          )
           .eq("is_active", true)
           .lte("stock", 5)
           .order("stock"),
@@ -270,8 +273,10 @@ function Overview() {
                 <li key={row.id} className="flex items-center justify-between gap-3 py-2.5">
                   <span>
                     <span className="font-semibold">{row.products?.name}</span>
-                    {variantLabel(row) && (
-                      <span className="block text-xs text-foreground/55">{variantLabel(row)}</span>
+                    {variantLabel(row, row.products ?? undefined) && (
+                      <span className="block text-xs text-foreground/55">
+                        {variantLabel(row, row.products ?? undefined)}
+                      </span>
                     )}
                   </span>
                   <Pill tone={row.stock === 0 ? "alert" : "brand"}>

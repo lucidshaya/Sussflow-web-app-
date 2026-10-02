@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 
+import { EmailPostButton } from "@/components/admin/EmailPostButton";
 import {
   adminCard,
   AdminPageHeader,
@@ -98,6 +99,7 @@ function BlogAdmin() {
                   onCheckedChange={(checked) => void setPublished(post, checked)}
                   aria-label={`Published: ${post.title}`}
                 />
+                {post.is_published && <EmailPostButton postId={post.id} title={post.title} />}
                 {post.is_published && (
                   <Button variant="ghost" size="small" asChild>
                     <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer">

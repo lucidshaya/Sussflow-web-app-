@@ -1,5 +1,5 @@
 import { formatNaira } from "./format";
-import type { BlogPostRow, ProductWithVariants, Settings } from "./types";
+import type { BlogPostRow, ProductReview, ProductWithVariants, Settings } from "./types";
 
 /**
  * The public address of the site, e.g. https://sussflow.vercel.app or a custom domain.
@@ -130,7 +130,10 @@ export function organizationJsonLd(settings: Settings | null | undefined): JsonL
 }
 
 /** Google's product result data: name, image, price range and stock. */
-export function productJsonLd(product: ProductWithVariants): JsonLd {
+export function productJsonLd(
+  product: ProductWithVariants,
+  reviews: Pick<ProductReview, "name" | "rating" | "comment" | "created_at">[] = [],
+): JsonLd {
   const variants = product.product_variants.filter((v) => v.is_active && v.price > 0);
   const prices = variants.map((v) => v.price / 100);
   const inStock = variants.some((v) => v.stock > 0);
@@ -146,6 +149,27 @@ export function productJsonLd(product: ProductWithVariants): JsonLd {
     url,
     ...(images.length ? { image: images } : {}),
     description: clip(product.description || product.short_detail || product.name, 500),
+    // Approved reviews only (see productReviewsQuery).
+    ...(reviews.length
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(
+              1,
+            ),
+            reviewCount: reviews.length,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          review: reviews.slice(0, 5).map((r) => ({
+            "@type": "Review",
+            author: { "@type": "Person", name: r.name },
+            datePublished: r.created_at.slice(0, 10),
+            reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5 },
+            ...(r.comment ? { reviewBody: r.comment } : {}),
+          })),
+        }
+      : {}),
     brand: { "@type": "Brand", name: SITE_NAME },
     ...(product.categories ? { category: product.categories.name } : {}),
     ...(prices.length

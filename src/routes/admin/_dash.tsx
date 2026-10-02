@@ -14,6 +14,7 @@ import {
   Users,
   X,
   Newspaper,
+  Star,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -38,6 +39,7 @@ const NAV = [
   { to: "/admin/orders", label: "Orders", icon: Receipt },
   { to: "/admin/customers", label: "Customers", icon: Users },
   { to: "/admin/enquiries", label: "Enquiries", icon: Inbox },
+  { to: "/admin/reviews", label: "Reviews", icon: Star },
   { to: "/admin/blog", label: "Blog", icon: Newspaper },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ] as const;

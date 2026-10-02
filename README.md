@@ -67,9 +67,19 @@ select id, 'admin' from auth.users where email = 'you@example.com';
 - Each product's price options are by **Length** (pads) or **Size** (period underwear XS–4XL, cups Size 1 / Size 2): Admin → Products → Options & choices. Each option has its own price and stock; sizes must be picked by the customer.
 - **Customer choices** (e.g. pads: Flow type, Colour) don't change price or stock. The customer must pick one of each; picks are saved on the order line (`order_items.variant_label`) and validated on the server (`src/lib/choices.ts`).
 
+## Reviews, videos, delivery zones and the banner
+
+- **Reviews:** anyone can rate a product (1–5 stars + comment) on its page; reviews show only after approval in **Admin → Reviews**. Approved ratings show on product cards and pages, and in Google's product data.
+- **Product video:** add a link in Admin → Products → "Product video link" to show a "Watch video" button.
+- **Sizes:** each price option has a size and a length; per product, **Show size** / **Show length** switches decide what customers see (the hidden one is kept). With sizes shown, customers must pick one.
+- **Delivery fees:** Admin → Settings: within Lagos plus a waybill fee for each zone (South-West, South-South, South-East, North-Central & Abuja, North-East, North-West). Zones are mapped from the checkout state in `src/lib/delivery.ts`.
+- **Top banner:** Admin → Settings → Top banner (text, link, on/off).
+
 ## Blog
 
 Articles live in `blog_posts` (migration 0006) and are managed in **Admin → Blog**: write, publish/unpublish, edit and delete, with a cover image. Body format: blank line between paragraphs, `## ` for a heading, `- ` for a bullet. Published articles appear on `/blog`, the home page and the sitemap.
+
+**Email to list:** on a published article, "Email to list" sends it to everyone who joined the email list (footer / store waitlist), through Gmail (`GMAIL_USER` + `GMAIL_APP_PASSWORD` in Vercel). Gmail allows about 500 emails a day; sends are logged per person (`newsletter_sends`), so a stopped send resumes without duplicates. Every email has an unsubscribe link (`/unsubscribe`).
 
 ## SEO
 
